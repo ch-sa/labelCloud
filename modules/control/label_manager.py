@@ -1,0 +1,138 @@
+import json
+import ntpath
+import os
+from abc import ABCMeta, abstractmethod, ABC
+from typing import List
+
+import numpy as np
+
+from modules.control import config_parser
+from modules.model.bbox import BBox
+
+
+class LabelManager:
+    LABEL_FORMATS = ["vertices", "center"]
+    STD_LABEL_FORMAT = config_parser.get_label_settings("STD_LABEL_FORMAT")
+    EXPORT_PRECISION = int(config_parser.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places
+
+    def __init__(self, strategy: str, path_to_label_folder: str = STD_LABEL_FORMAT):
+        self.label_folder = path_to_label_folder
+        if not os.path.isdir(self.label_folder):
+            os.mkdir(self.label_folder)
+        if strategy == "vertices":
+            self.label_strategy = VerticesFormat(self.label_folder)
+        elif strategy == "center":
+            self.label_strategy = CenterFormat(self.label_folder)
+        else:
+            self.label_strategy = CenterFormat(self.label_folder)
+            print("Unknown export strategy '%s'. Proceeding with default (corners)!" % strategy)
+
+    def import_labels(self, pcd_name: str) -> List[BBox]:
+        try:
+            return self.label_strategy.import_labels(os.path.splitext(pcd_name)[0])
+        except KeyError as key_error:
+            print("Found a key error with %s in the dictionary." % key_error)
+            print("Could not import labels, please check the consistency of the label format.")
+            return []
+        except AttributeError as attribute_error:
+            print("Attribute Error: %s. Expected a dictionary." % attribute_error)
+            print("Could not import labels, please check the consistency of the label format.")
+            return []
+
+    def export_labels(self, pcd_path: str, bboxes: List[BBox]):
+        pcd_name = ntpath.basename(pcd_path)
+        pcd_folder = os.path.dirname(pcd_path)
+        self.label_strategy.export_labels(bboxes, pcd_name, pcd_folder, pcd_path)
+
+
+def round_dec(x, decimal_places: int = LabelManager.EXPORT_PRECISION):
+    return np.round(x, decimal_places).tolist()
+
+
+class IFormattingInterface:
+    __metaclass__ = ABCMeta
+
+    def __init__(self, label_folder):
+        self.label_folder = label_folder
+        print("Set export strategy to %s." % self.__class__.__name__)
+
+    @abstractmethod
+    def import_labels(self, pcd_name_stripped): raise NotImplementedError
+
+    @abstractmethod
+    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path): raise NotImplementedError
+
+
+class VerticesFormat(IFormattingInterface, ABC):
+
+    def import_labels(self, pcd_name_stripped):
+        labels = []  # ToDo: Implement vertices transformation
+        return labels
+
+    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
+        data = dict()
+        # Header
+        data["folder"] = pcd_folder
+        data["filename"] = pcd_name
+        data["path"] = pcd_path
+
+        # Labels
+        data["objects"] = []
+        for bbox in bboxes:
+            label = dict()
+            label["name"] = bbox.get_classname()
+            label["vertices"] = bbox.get_vertices()  # ToDo: Add option for axis-aligned vertices
+            data["objects"].append(label)
+
+        # Save to JSON
+        path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
+        if os.path.isfile(path_to_json):
+            print("File %s already exists, replacing file ..." % path_to_json)
+        with open(path_to_json, "w") as write_file:
+            json.dump(data, write_file, indent="\t")
+        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
+
+
+class CenterFormat(IFormattingInterface, ABC):
+
+    def import_labels(self, pcd_name_stripped):
+        labels = []
+        path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
+        if os.path.isfile(path_to_label):
+            with open(path_to_label, "r") as read_file:
+                data = json.load(read_file)
+
+            for label in data["objects"]:
+                bbox = BBox(*label["centroid"].values(), *label["dimensions"].values())
+                bbox.set_rotations(*label["rotations"].values())
+                bbox.set_classname(label["name"])
+                labels.append(bbox)
+            print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
+        return labels
+
+    def export_labels(self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str):
+        data = dict()
+        # Header
+        data["folder"] = pcd_folder
+        data["filename"] = pcd_name
+        data["path"] = pcd_path
+
+        # Labels
+        data["objects"] = []
+        for bbox in bboxes:
+            label = dict()
+            label["name"] = bbox.get_classname()
+            label["centroid"] = {str(axis): round_dec(val) for axis, val in zip(["x", "y", "z"], bbox.get_center())}
+            label["dimensions"] = {str(dim): round_dec(val) for dim, val in zip(["length", "width", "height"],
+                                                                                bbox.get_dimensions())}
+            label["rotations"] = {str(axis): round_dec(angle) for axis, angle in zip(["x", "y", "z"],
+                                                                                     bbox.get_rotations())}
+            data["objects"].append(label)
+
+        # Save to JSON
+        path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
+        if os.path.isfile(path_to_json):
+            print("File %s already exists, replacing file ..." % path_to_json)
+        with open(path_to_json, "w") as write_file:
+            json.dump(data, write_file, indent="\t")
+        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))

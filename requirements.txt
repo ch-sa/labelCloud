@@ -1,0 +1,4 @@
+numpy~=1.19.2
+PyQt5~=5.15.1
+PyOpenGL
+open3d~=0.10.0.0
