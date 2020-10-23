@@ -11,11 +11,12 @@ from modules.model.bbox import BBox
 
 
 class LabelManager:
-    LABEL_FORMATS = ["vertices", "center"]
+    LABEL_FORMATS = ["vertices", "center", "kitti"]
     STD_LABEL_FORMAT = config_parser.get_label_settings("STD_LABEL_FORMAT")
+    STD_LABEL_FOLDER = config_parser.get_file_settings("LABEL_FOLDER")
     EXPORT_PRECISION = int(config_parser.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places
 
-    def __init__(self, strategy: str, path_to_label_folder: str = STD_LABEL_FORMAT):
+    def __init__(self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = STD_LABEL_FOLDER):
         self.label_folder = path_to_label_folder
         if not os.path.isdir(self.label_folder):
             os.mkdir(self.label_folder)
@@ -23,6 +24,8 @@ class LabelManager:
             self.label_strategy = VerticesFormat(self.label_folder)
         elif strategy == "center":
             self.label_strategy = CenterFormat(self.label_folder)
+        elif strategy == "kitti":
+            self.label_strategy = KittiFormat(self.label_folder)
         else:
             self.label_strategy = CenterFormat(self.label_folder)
             print("Unknown export strategy '%s'. Proceeding with default (corners)!" % strategy)
@@ -45,8 +48,47 @@ class LabelManager:
         self.label_strategy.export_labels(bboxes, pcd_name, pcd_folder, pcd_path)
 
 
+#
+#   FORMAT HELPERS
+#
+
+def save_to_label_file(path_to_file, data):
+    if os.path.isfile(path_to_file):
+        print("File %s already exists, replacing file ..." % path_to_file)
+    if os.path.splitext(path_to_file)[1] == ".json":
+        with open(path_to_file, "w") as write_file:
+            json.dump(data, write_file, indent="\t")
+    else:
+        with open(path_to_file, "w") as write_file:
+            write_file.write(data)
+
+
 def round_dec(x, decimal_places: int = LabelManager.EXPORT_PRECISION):
     return np.round(x, decimal_places).tolist()
+
+
+def abs2rel_rotation(abs_rotation: float) -> float:
+    """ Convert absolute rotation 0..360° into -pi..+pi from x-Axis.
+
+    :param abs_rotation: Counterclockwise rotation from x-axis around z-axis
+    :return: Relative rotation from x-axis around z-axis
+    """
+    rel_rotation = -np.deg2rad(abs_rotation)
+    if rel_rotation < - np.pi:
+        rel_rotation = (rel_rotation + 2 * np.pi)
+    return rel_rotation
+
+
+def rel2abs_rotation(rel_rotation: float) -> float:
+    """ Convert relative rotation from -pi..+pi into 0..360° from x-Axis.
+
+    :param rel_rotation: Rotation from x-axis around z-axis
+    :return: Counterclockwise rotation from x-axis around z-axis
+    """
+    abs_rotation = -np.rad2deg(rel_rotation)
+    if abs_rotation < 0:
+        abs_rotation = abs_rotation + 360
+    return abs_rotation
 
 
 class IFormattingInterface:
@@ -86,10 +128,7 @@ class VerticesFormat(IFormattingInterface, ABC):
 
         # Save to JSON
         path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
-        if os.path.isfile(path_to_json):
-            print("File %s already exists, replacing file ..." % path_to_json)
-        with open(path_to_json, "w") as write_file:
-            json.dump(data, write_file, indent="\t")
+        save_to_label_file(path_to_json, data)
         print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
 
 
@@ -131,8 +170,45 @@ class CenterFormat(IFormattingInterface, ABC):
 
         # Save to JSON
         path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
-        if os.path.isfile(path_to_json):
-            print("File %s already exists, replacing file ..." % path_to_json)
-        with open(path_to_json, "w") as write_file:
-            json.dump(data, write_file, indent="\t")
+        save_to_label_file(path_to_json, data)
         print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
+
+
+class KittiFormat(IFormattingInterface, ABC):
+
+    def import_labels(self, pcd_name_stripped):
+        labels = []
+        path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".txt")
+        if os.path.isfile(path_to_label):
+            with open(path_to_label, "r") as read_file:
+                label_lines = read_file.readlines()
+
+            for line in label_lines:
+                print(line)
+                print(type(line))
+                line_elements = line.split()
+                centroid = [float(v) for v in line_elements[11:14]]
+                dimensions = [float(v) for v in line_elements[8:11]]
+                bbox = BBox(*centroid, *dimensions)
+                bbox.set_rotations(0, 0, rel2abs_rotation(float(line_elements[14])))
+                bbox.set_classname(line_elements[0])
+                labels.append(bbox)
+            print("Imported %s labels from %s." % (len(label_lines), path_to_label))
+        return labels
+
+    def export_labels(self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str):
+        data = str()
+
+        # Labels
+        for bbox in bboxes:
+            obj_type = bbox.get_classname()
+            location = " ".join([str(v) for v in bbox.get_center()])
+            dimensions = " ".join([str(v) for v in bbox.get_dimensions()])
+            rotation_y = abs2rel_rotation(bbox.get_z_rotation())
+
+            data += " ".join([obj_type, "0 0 0 0 0 0 0", dimensions, location, str(rotation_y)]) + "\n"
+
+        # Save to TXT
+        path_to_txt = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".txt")
+        save_to_label_file(path_to_txt, data)
+        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_txt, self.__class__.__name__))

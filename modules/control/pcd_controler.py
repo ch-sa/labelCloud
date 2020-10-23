@@ -4,6 +4,7 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 """
 
 import os
+import sys
 from typing import List, Tuple, TYPE_CHECKING, Set
 
 import numpy as np
@@ -35,14 +36,14 @@ def get_unique_classnames(bboxes: List[BBox]) -> Set[str]:
     return BBox.ListOfClasses
 
 
-def show_dialog():
+def show_no_pcd_dialog():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Warning)
-    msg.setText("From now on please label ALL rotations (also around the x- and y-axis)!")
-    msg.setInformativeText("It is sufficient to only label the most visible object. "
-                           "You can still use the SpanningMode and then Strg + left mouse button or the shortcuts"
-                           " for correcting the rotation.")
-    msg.setWindowTitle("Labeling of all rotations")
+    msg.setText("Did not find any point cloud.")
+    msg.setInformativeText("Please copy all your point clouds into the <i>pointcloud</i> folder. "
+                           "If you already have done that check the supported formats %s."
+                           % str(PointCloudControler.PCD_EXTENSIONS))
+    msg.setWindowTitle("No Point Clouds Found")
     msg.exec_()
 
 
@@ -60,8 +61,7 @@ class PointCloudControler:
         self.current_id = -1
         self.current_o3d_pcd = None
         self.view = None
-        self.label_manager = LabelManager(strategy="center",
-                                          path_to_label_folder=config_parser.get_file_settings("LABEL_FOLDER"))
+        self.label_manager = LabelManager()
         # Point cloud control
         self.pointcloud = None
 
@@ -73,12 +73,12 @@ class PointCloudControler:
         if self.pcds_left():
             self.current_id += 1
             self.pointcloud = self.load_pointcloud(self.get_current_path())
-            # if self.get_current_name() == "15_RotatedBox_03.ply":
-            #     show_dialog()
-            #     self.view.action_zrotation.setChecked(False)
             self.update_pcd_infos()
             print("Loaded next point cloud.")
         else:
+            if self.current_id == -1:
+                show_no_pcd_dialog()
+                sys.exit()
             raise Exception("No point cloud left for loading!")
 
     def get_prev_pcd(self):
