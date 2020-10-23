@@ -11,7 +11,7 @@ print("All imports loaded successfully!")
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
-    # Create GUI
+    # Setup Model-View-Control structure
     control = Controler()
     view = GUI(control)
     app.installEventFilter(view)
