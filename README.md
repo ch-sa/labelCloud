@@ -1,6 +1,8 @@
 [# labelCloud
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
+![Overview of the Labeling Tool](docs/Overview_round.png)
+
 
 ## Setup
 
