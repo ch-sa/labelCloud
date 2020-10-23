@@ -70,11 +70,11 @@ class PointCloudControler:
         return self.current_id + 1 < self.no_of_pcds
 
     def get_next_pcd(self):
+        print("Loading next point cloud...")
         if self.pcds_left():
             self.current_id += 1
             self.pointcloud = self.load_pointcloud(self.get_current_path())
             self.update_pcd_infos()
-            print("Loaded next point cloud.")
         else:
             if self.current_id == -1:
                 show_no_pcd_dialog()
@@ -82,10 +82,10 @@ class PointCloudControler:
             raise Exception("No point cloud left for loading!")
 
     def get_prev_pcd(self):
+        print("Loading previous point cloud...")
         if self.current_id > 0:
             self.current_id -= 1
             self.pointcloud = self.load_pointcloud(self.get_current_path())
-            print("Loaded previous point cloud.")
             self.update_pcd_infos()
         else:
             raise Exception("No point cloud left for loading!")
@@ -113,7 +113,6 @@ class PointCloudControler:
     def set_view(self, view: 'GUI') -> None:
         self.view = view
         self.view.glWidget.set_pointcloud_controler(self)
-        print("View set in PCD controller!")
         self.get_next_pcd()
 
     def save_labels_into_file(self, bboxes: List[BBox]):

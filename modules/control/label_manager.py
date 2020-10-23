@@ -184,8 +184,6 @@ class KittiFormat(IFormattingInterface, ABC):
                 label_lines = read_file.readlines()
 
             for line in label_lines:
-                print(line)
-                print(type(line))
                 line_elements = line.split()
                 centroid = [float(v) for v in line_elements[11:14]]
                 dimensions = [float(v) for v in line_elements[8:11]]
