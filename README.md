@@ -1,7 +1,7 @@
 # labelCloud
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
-![Overview of the Labeling Tool](docs/Overview_round.png)
+![Overview of the Labeling Tool](docs/io_overview.png)
 
 
 ## Setup
@@ -25,8 +25,10 @@ Colored and colorless point clouds can be visualized.
 | --- | --- |
 | Center | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; Rotations as Euler angles in degrees `[yaw, pitch, roll]` |
 | Vertices | 8 Vertices of the bounding box each with `[x, y, z]` |
-| KITTI | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt))
-You can easily create your own exporter by implementing [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
+| KITTI | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| VoteNet | *Coming soon!* |
+
+You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
 
 ## Usage
 
