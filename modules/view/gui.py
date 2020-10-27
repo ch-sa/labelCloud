@@ -41,7 +41,7 @@ class GUI(QtWidgets.QMainWindow):
         # STATUS BAR
         self.status = self.findChild(QtWidgets.QStatusBar, "statusbar")
         self.mode_status = QtWidgets.QLabel("Navigation Mode")
-        self.mode_status.setStyleSheet("font-weight: bold; font-size: 14px; min-width: 205px;")
+        self.mode_status.setStyleSheet("font-weight: bold; font-size: 14px; min-width: 235px;")
         self.mode_status.setAlignment(Qt.AlignCenter)
         self.status.addWidget(self.mode_status, stretch=0)
         self.tmp_status = QtWidgets.QLabel()

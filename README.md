@@ -32,7 +32,48 @@ You can easily create your own exporter by implementing the [IFormattingInterfac
 
 ## Usage
 
+
+
 ### Labeling
+**Picking Mode**
+
+* Pick the location of the bounding box (front-top edge)
+* Adjust the z-rotation by scrolling with your mouse wheel
+
+**Spanning Mode**
+
+* Subsequently span the length, width and height of the bounding box by selecting four vertices
+* The layers for for the last two vertices (width & height) will be locked to allow easy selection
+
+**Correction**
+
+* Use the buttons on the left-hand side or shortcuts to correct the translation, dimension and rotation of the bounding box
 
 
 ### Shortcuts
+
+**Navigation**
+
+| Shortcut | Description |
+| :---: | --- |
+| Left Mouse Button | Rotate the Point Cloud |
+| Right Mouse Button | Translate the Point Cloud |
+| Mouse Wheel | Zoom into the Point Cloud |
+
+**Correction*
+
+| Shortcut | Description|
+| :---: | --- |
+| `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translate BBox back, left, front, right |
+| `Q`, `E` | Lift BBox up, down |
+| `X`, `Y` | Rotate BBox around z-Axis |
+| Scrolling with Cursor above BBox Side | Side Pulling (Change Dimensions) |
+|`C` & `V`, `B` & `N` | Rotate BBox around x-Axis, y-Axis |
+
+**General**
+
+| Shortcut | Description|
+| :---: | --- |
+| `Del` | Delete Current BBox |
+| `R` | Reset Perspective |
+| `Esc` | Chancel Selected Points |

@@ -32,8 +32,8 @@ def find_pcd_files(path: str) -> List[str]:
 
 def get_unique_classnames(bboxes: List[BBox]) -> Set[str]:
     for box in bboxes:
-        BBox.ListOfClasses.add(box.get_classname())
-    return BBox.ListOfClasses
+        BBox.LIST_OF_CLASSES.add(box.get_classname())
+    return BBox.LIST_OF_CLASSES
 
 
 def show_no_pcd_dialog():

@@ -18,7 +18,8 @@ class BBox:
     STD_WIDTH = config_parser.get_label_settings("STD_BOUNDINGBOX_WIDTH")
     STD_HEIGHT = config_parser.get_label_settings("STD_BOUNDINGBOX_HEIGHT")
 
-    ListOfClasses = set(config_parser.get_label_settings("OBJECT_CLASSES"))
+    LIST_OF_CLASSES = set(config_parser.get_label_settings("OBJECT_CLASSES"))
+    STD_OBJECT_CLASS = config_parser.get_label_settings("STD_OBJECT_CLASS")
 
     def __init__(self, cx, cy, cz, length=STD_LENGTH, width=STD_WIDTH, height=STD_HEIGHT):
         self.center = cx, cy, cz
@@ -29,7 +30,7 @@ class BBox:
         self.y_rotation = 0
         self.z_rotation = 0
         self._verticies = None
-        self._classname = "Box"
+        self._classname = BBox.STD_OBJECT_CLASS
         self.set_axis_aligned_verticies()
 
     # GETTERS
