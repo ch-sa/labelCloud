@@ -1,7 +1,8 @@
 <p align="center">
-    <a href="https://creativecommons.org/licenses/by-nc/4.0/" alt="CC-BY-NC 4.0">
-        <img src="https://img.shields.io/badge/license-CC--BY--NC%204.0-green" /></a>
-    <img src="https://img.shields.io/badge/contributions-welcome!-green" />
+    <a href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img src="https://img.shields.io/badge/license-CC--BY--NC%204.0-green" alt="CC-BY-NC 4.0"/></a>
+    <img src="https://img.shields.io/badge/contributions-welcome!-green" alt="Contributions welcome!"/>
+    <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
     <img src="https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue" />
 </p>
 

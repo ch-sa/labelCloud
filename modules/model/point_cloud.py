@@ -1,7 +1,7 @@
 import ctypes
 
 import numpy as np
-import OpenGL.GL as gl
+import OpenGL.GL as GL
 
 # Get size of float (4 bytes) for VBOs
 from modules.control import config_parser
@@ -14,10 +14,10 @@ def create_buffer(attributes):
     bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
     buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
 
-    vbo = gl.glGenBuffers(1)  # manufactoring
-    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo)
-    gl.glBufferData(gl.GL_ARRAY_BUFFER, buffersize, bufferdata, gl.GL_STATIC_DRAW)
-    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
+    vbo = GL.glGenBuffers(1)  # manufactoring
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, buffersize, bufferdata, GL.GL_STATIC_DRAW)
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
     return vbo
 
 
@@ -102,40 +102,40 @@ class PointCloud:
         print("Wrote VBO!")
 
     def draw_pointcloud(self):
-        gl.glTranslate(self.trans_x, self.trans_y, self.trans_z)  # third, pcd translation
+        GL.glTranslate(self.trans_x, self.trans_y, self.trans_z)  # third, pcd translation
 
         rot_trans = np.add(self.pcd_mins, (np.subtract(self.pcd_maxs, self.pcd_mins)/2))
-        gl.glTranslate(*rot_trans)              # move point cloud back
+        GL.glTranslate(*rot_trans)              # move point cloud back
 
-        gl.glRotate(self.rot_x, 1.0, 0.0, 0.0)
-        gl.glRotate(self.rot_y, 0.0, 1.0, 0.0)  # second, pcd rotation
-        gl.glRotate(self.rot_z, 0.0, 0.0, 1.0)
+        GL.glRotate(self.rot_x, 1.0, 0.0, 0.0)
+        GL.glRotate(self.rot_y, 0.0, 1.0, 0.0)  # second, pcd rotation
+        GL.glRotate(self.rot_z, 0.0, 0.0, 1.0)
 
-        gl.glTranslate(*(rot_trans * -1))       # move point cloud to center for rotation
+        GL.glTranslate(*(rot_trans * -1))       # move point cloud to center for rotation
 
-        gl.glPointSize(PointCloud.POINT_SIZE)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
+        GL.glPointSize(PointCloud.POINT_SIZE)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
 
         if self.colorless:
             stride = 3 * SIZE_OF_FLOAT  # (12 bytes) : [x, y, z] * sizeof(float)
-            gl.glPointSize(1)
-            gl.glColor3d(*PointCloud.COLOR_FOR_COLORLESS_PCD)  # IDEA: Color by (height) position
+            GL.glPointSize(1)
+            GL.glColor3d(*PointCloud.COLOR_FOR_COLORLESS_PCD)  # IDEA: Color by (height) position
         else:
             stride = 6 * SIZE_OF_FLOAT  # (24 bytes) : [x, y, z, r, g, b] * sizeof(float)
 
-        gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
-        gl.glVertexPointer(3, gl.GL_FLOAT, stride, None)
+        GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
+        GL.glVertexPointer(3, GL.GL_FLOAT, stride, None)
 
         if not self.colorless:
-            gl.glEnableClientState(gl.GL_COLOR_ARRAY)
+            GL.glEnableClientState(GL.GL_COLOR_ARRAY)
             offset = 3 * SIZE_OF_FLOAT  # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z
-            gl.glColorPointer(3, gl.GL_FLOAT, stride, ctypes.c_void_p(offset))
-        gl.glDrawArrays(gl.GL_POINTS, 0, self.get_no_of_points())  # Draw the points
+            GL.glColorPointer(3, GL.GL_FLOAT, stride, ctypes.c_void_p(offset))
+        GL.glDrawArrays(GL.GL_POINTS, 0, self.get_no_of_points())  # Draw the points
 
-        gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
+        GL.glDisableClientState(GL.GL_VERTEX_ARRAY)
         if not self.colorless:
-            gl.glDisableClientState(gl.GL_COLOR_ARRAY)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
+            GL.glDisableClientState(GL.GL_COLOR_ARRAY)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     def reset_translation(self):
         self.trans_x, self.trans_y, self.trans_z = self.init_translation

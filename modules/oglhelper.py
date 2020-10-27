@@ -1,4 +1,4 @@
-import OpenGL.GL as gl
+import OpenGL.GL as GL
 import numpy as np
 from OpenGL import GLU
 from typing import List, Tuple, Union
@@ -14,38 +14,38 @@ PointList = List[List[float]]
 
 
 def draw_points(points: PointList, color: Color4f = (0, 1, 1, 1), point_size: int = 10) -> None:
-    gl.glColor4d(*color)
-    gl.glPointSize(point_size)
-    gl.glBegin(gl.GL_POINTS)
+    GL.glColor4d(*color)
+    GL.glPointSize(point_size)
+    GL.glBegin(GL.GL_POINTS)
     for point in points:
-        gl.glVertex3d(*point)
-    gl.glEnd()
+        GL.glVertex3d(*point)
+    GL.glEnd()
 
 
 def draw_lines(points: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2) -> None:
-    gl.glColor4d(*color)
-    gl.glLineWidth(line_width)
-    gl.glBegin(gl.GL_LINES)
+    GL.glColor4d(*color)
+    GL.glLineWidth(line_width)
+    GL.glBegin(GL.GL_LINES)
     for point in points:
-        gl.glVertex3d(*point)
-    gl.glEnd()
+        GL.glVertex3d(*point)
+    GL.glEnd()
 
 
 def draw_triangles(vertices: PointList, color: Color4f = (0, 1, 1, 1)) -> None:
-    gl.glColor4d(*color)
-    gl.glBegin(gl.GL_TRIANGLES)
+    GL.glColor4d(*color)
+    GL.glBegin(GL.GL_TRIANGLES)
     for vertex in vertices:
-        gl.glVertex3d(*vertex)
-    gl.glEnd()
+        GL.glVertex3d(*vertex)
+    GL.glEnd()
 
 
 def draw_rectangles(vertices: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2) -> None:
-    gl.glColor4d(*color)
-    gl.glLineWidth(line_width)
-    gl.glBegin(gl.GL_QUADS)
+    GL.glColor4d(*color)
+    GL.glLineWidth(line_width)
+    GL.glBegin(GL.GL_QUADS)
     for vertex in vertices:
-        gl.glVertex3d(*vertex)
-    gl.glEnd()
+        GL.glVertex3d(*vertex)
+    GL.glEnd()
 
 
 def draw_cuboid(vertices: PointList, color: Color4f = (1, 1, 0, 0.5), draw_vertices: bool = False,
@@ -59,31 +59,31 @@ def draw_cuboid(vertices: PointList, color: Color4f = (1, 1, 0, 0.5), draw_verti
 
 
 def draw_crosshair(cx: float, cy: float, cz: float, color: Color4f = (0, 1, 0, 1)) -> None:
-    gl.glBegin(gl.GL_LINES)
-    gl.glColor3d(*color)
-    gl.glVertex3d(cx + 0.1, cy, cz)  # x-line
-    gl.glVertex3d(cx - 0.1, cy, cz)
-    gl.glVertex3d(cx, cy + 0.1, cz)  # y-line
-    gl.glVertex3d(cx, cy - 0.1, cz)
-    gl.glVertex3d(cx, cy, cz + 0.1)  # z-line
-    gl.glVertex3d(cx, cy, cz - 0.1)
-    gl.glEnd()
+    GL.glBegin(GL.GL_LINES)
+    GL.glColor3d(*color)
+    GL.glVertex3d(cx + 0.1, cy, cz)  # x-line
+    GL.glVertex3d(cx - 0.1, cy, cz)
+    GL.glVertex3d(cx, cy + 0.1, cz)  # y-line
+    GL.glVertex3d(cx, cy - 0.1, cz)
+    GL.glVertex3d(cx, cy, cz + 0.1)  # z-line
+    GL.glVertex3d(cx, cy, cz - 0.1)
+    GL.glEnd()
 
 
 def draw_xy_plane(pcd: PointCloud) -> None:
     mins, maxs = pcd.get_mins_maxs()
     x_min, y_min = np.floor(mins[:2]).astype(int)
     x_max, y_max = np.ceil(maxs[:2]).astype(int)
-    gl.glColor3d(0.5, 0.5, 0.5)
-    gl.glBegin(gl.GL_LINES)
+    GL.glColor3d(0.5, 0.5, 0.5)
+    GL.glBegin(GL.GL_LINES)
     for y in range(y_min, y_max + 1):  # x-lines
-        gl.glVertex3d(x_min, y, 0)
-        gl.glVertex3d(x_max, y, 0)
+        GL.glVertex3d(x_min, y, 0)
+        GL.glVertex3d(x_max, y, 0)
 
     for x in range(x_min, x_max + 1):  # y-lines
-        gl.glVertex3d(x, y_min, 0)
-        gl.glVertex3d(x, y_max, 0)
-    gl.glEnd()
+        GL.glVertex3d(x, y_min, 0)
+        GL.glVertex3d(x, y_max, 0)
+    GL.glEnd()
 
 
 # RAY PICKING
@@ -96,7 +96,7 @@ def get_pick_ray(x: float, y: float, modelview, projection) -> Tuple[List[float]
     :param projection: projection matrix
     :return: two points of the pick ray from the closest and furthest frustum
     """
-    viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
+    viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
     real_y = viewport[3] - y  # adjust for down-facing y positions
 
     # Unproject screen coords into world coordsdd
@@ -156,7 +156,7 @@ def get_intersected_sides(x: float, y: float, vertices: List[List[float]], model
     :param vertices: list of 8 bounding box vertices
     :param modelview: modelview matrix
     :param projection: projection matrix
-    :return:
+    :return: name of intersected side [top, bottom, right, back, left, front]
     """
     p0, p1 = get_pick_ray(x, y, modelview, projection)  # Calculate picking ray
 

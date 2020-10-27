@@ -2,11 +2,9 @@
 from typing import TYPE_CHECKING, Union
 
 import numpy as np
-import OpenGL.GL as gl
+import OpenGL.GL as GL
 from OpenGL import GLU
 from PyQt5 import QtOpenGL, QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
 
 from modules import oglhelper
 from modules.control import config_parser
@@ -50,35 +48,35 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         self.qglClearColor(QtGui.QColor(*config_parser.get_app_settings("BACKGROUND_COLOR")))  # screen background color
-        gl.glEnable(gl.GL_DEPTH_TEST)  # for visualization of depth
-        gl.glEnable(gl.GL_BLEND)  # enable transparency
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        GL.glEnable(GL.GL_DEPTH_TEST)  # for visualization of depth
+        GL.glEnable(GL.GL_BLEND)  # enable transparency
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         print("Intialized widget.")
 
         self.pcd_controler.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
 
     def resizeGL(self, width, height):
         print("Resized widget.")
-        gl.glViewport(0, 0, width, height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
+        GL.glViewport(0, 0, width, height)
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
         aspect = width / float(height)
 
         GLU.gluPerspective(45.0, aspect, 0.5, 30.0)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def paintGL(self):
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        gl.glPushMatrix()  # push the current matrix to the current stack
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        GL.glPushMatrix()  # push the current matrix to the current stack
 
         # Draw point cloud
         self.pcd_controler.get_pointcloud().draw_pointcloud()
 
         # Get actual matrices for click unprojection
-        self.modelview = gl.glGetDoublev(gl.GL_MODELVIEW_MATRIX)
-        self.projection = gl.glGetDoublev(gl.GL_PROJECTION_MATRIX)
+        self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
+        self.projection = GL.glGetDoublev(GL.GL_PROJECTION_MATRIX)
 
-        gl.glDepthMask(gl.GL_FALSE)  # Do not write decoration and preview elements in depth buffer
+        GL.glDepthMask(GL.GL_FALSE)  # Do not write decoration and preview elements in depth buffer
         # Draw floor net
         if self.draw_floor:
             oglhelper.draw_xy_plane(self.pcd_controler.get_pointcloud())
@@ -99,7 +97,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         if len(self.selected_side_vertices) == 4:
             oglhelper.draw_rectangles(self.selected_side_vertices, color=(0, 1, 0, 0.3))
 
-        gl.glDepthMask(gl.GL_TRUE)
+        GL.glDepthMask(GL.GL_TRUE)
 
         # Draw active bbox
         if self.bbox_controler.has_active_bbox():
@@ -111,18 +109,18 @@ class GLWidget(QtOpenGL.QGLWidget):
         for bbox in self.bbox_controler.get_bboxes():
             bbox.draw_bbox()
 
-        gl.glPopMatrix()  # restore the previous modelview matrix
+        GL.glPopMatrix()  # restore the previous modelview matrix
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(self, x: int, y: int, z: float = None, correction: bool = False):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)  # Stored projection matrices are taken from loop
+        viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)  # Stored projection matrices are taken from loop
         real_y = viewport[3] - y  # adjust for down-facing y positions
 
         if z is None:
             buffer_size = 21
             center = buffer_size // 2 + 1
-            depths = gl.glReadPixels(x - center + 1, real_y - center + 1, buffer_size, buffer_size,
-                                     gl.GL_DEPTH_COMPONENT, gl.GL_FLOAT)
+            depths = GL.glReadPixels(x - center + 1, real_y - center + 1, buffer_size, buffer_size,
+                                     GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT)
             z = depths[center][center]  # Read selected pixel from depth buffer
             # print("Uncorrected z: %s" % z)
 

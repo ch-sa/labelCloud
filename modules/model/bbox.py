@@ -1,4 +1,4 @@
-import OpenGL.GL as gl
+import OpenGL.GL as GL
 import numpy as np
 
 from modules.control import config_parser
@@ -126,27 +126,27 @@ class BBox:
     def draw_bbox(self, highlighted=False):
         self.set_axis_aligned_verticies()
 
-        gl.glPushMatrix()
+        GL.glPushMatrix()
 
-        gl.glTranslate(*self.get_center())
+        GL.glTranslate(*self.get_center())
         
-        gl.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)  # TODO: Define Order of Rotation
-        gl.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
-        gl.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
+        GL.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)  # TODO: Define Order of Rotation
+        GL.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
+        GL.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
         
-        gl.glBegin(gl.GL_LINES)  # ToDo: Update to modern OpenGL
+        GL.glBegin(GL.GL_LINES)  # ToDo: Update to modern OpenGL
 
         if highlighted:
-            gl.glColor3f(0, 1, 0)
+            GL.glColor3f(0, 1, 0)
         else:
-            gl.glColor3f(0, 0, 1)
+            GL.glColor3f(0, 0, 1)
 
         for edge in BBox.BBOX_EDGES:  # TODO: Use OGL helper function
             for vertex in edge:
-                gl.glVertex3fv(self._verticies[vertex])
-        gl.glEnd()
+                GL.glVertex3fv(self._verticies[vertex])
+        GL.glEnd()
 
-        gl.glPopMatrix()
+        GL.glPopMatrix()
 
     def draw_orientation(self, crossed_side: bool = True):
         # Get object coordinates for arrow
@@ -156,33 +156,33 @@ class BBox:
         second_edge = [arrow_length * 0.8, arrow_length * -0.3, 0]
         third_edge = [arrow_length * 0.8, 0, arrow_length * 0.3]
 
-        gl.glPushMatrix()
-        gl.glLineWidth(5)
+        GL.glPushMatrix()
+        GL.glLineWidth(5)
 
         # Apply translation and rotation
-        gl.glTranslate(*self.get_center())
+        GL.glTranslate(*self.get_center())
 
-        gl.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)
-        gl.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
-        gl.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
+        GL.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)
+        GL.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
+        GL.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
 
-        gl.glBegin(gl.GL_LINES)
-        gl.glVertex3fv([0, 0, 0])
-        gl.glVertex3fv(bp2)
-        gl.glVertex3fv(bp2)
-        gl.glVertex3fv(first_edge)
-        gl.glVertex3fv(bp2)
-        gl.glVertex3fv(second_edge)
-        gl.glVertex3fv(bp2)
-        gl.glVertex3fv(third_edge)
+        GL.glBegin(GL.GL_LINES)
+        GL.glVertex3fv([0, 0, 0])
+        GL.glVertex3fv(bp2)
+        GL.glVertex3fv(bp2)
+        GL.glVertex3fv(first_edge)
+        GL.glVertex3fv(bp2)
+        GL.glVertex3fv(second_edge)
+        GL.glVertex3fv(bp2)
+        GL.glVertex3fv(third_edge)
         if crossed_side:
-            gl.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][0]])
-            gl.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][2]])
-            gl.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][1]])
-            gl.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][3]])
-        gl.glEnd()
-        gl.glLineWidth(1)
-        gl.glPopMatrix()
+            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][0]])
+            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][2]])
+            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][1]])
+            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][3]])
+        GL.glEnd()
+        GL.glLineWidth(1)
+        GL.glPopMatrix()
 
     # MANIPULATORS
 
