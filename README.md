@@ -30,11 +30,7 @@ Colored and colorless point clouds can be visualized.
 
 You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
 
-## Usage
-
-
-
-### Labeling
+## Labeling
 **Picking Mode**
 
 * Pick the location of the bounding box (front-top edge)
@@ -47,10 +43,13 @@ You can easily create your own exporter by implementing the [IFormattingInterfac
 
 **Correction**
 
-* Use the buttons on the left-hand side or shortcuts to correct the translation, dimension and rotation of the bounding box
+* Use the buttons on the left-hand side or shortcuts to correct the *translation*, *dimension* and *rotation* of the bounding box
 
+By default the x- and y-rotation of bounding boxes will be prohibited.
+For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode`.
+Now you will be free to rotate around all three axes.
 
-### Shortcuts
+## Shortcuts
 
 **Navigation**
 
@@ -60,7 +59,7 @@ You can easily create your own exporter by implementing the [IFormattingInterfac
 | Right Mouse Button | Translate the Point Cloud |
 | Mouse Wheel | Zoom into the Point Cloud |
 
-**Correction*
+**Correction**
 
 | Shortcut | Description|
 | :---: | --- |
