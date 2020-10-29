@@ -24,6 +24,7 @@ labelCloud is built for a versatile use and aims at supporting all common point 
 **Supported Import Formats**
 * `*.pcd`, `*.ply`, `*.pts`
 * `*.xyz`, `*.xyzn`, `*.xyzrgb`
+* `*.bin` (KITTI) → [x, y, z, reflectance]
 
 Colored and colorless point clouds can be visualized.
 
