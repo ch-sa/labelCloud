@@ -10,6 +10,7 @@ from typing import List, Tuple, TYPE_CHECKING, Set
 import numpy as np
 import open3d as o3d
 from PyQt5.QtWidgets import QCompleter, QMessageBox
+from shutil import copyfile
 
 from modules.control import config_parser
 from modules.control.label_manager import LabelManager
@@ -51,7 +52,7 @@ def show_no_pcd_dialog():
 
 
 class PointCloudControler:
-    PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", "xyzrgb")
+    PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin")
     PCD_FOLDER = config_parser.get_file_settings("POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config_parser.get_pointcloud_settings("STD_TRANSLATION")
@@ -126,8 +127,16 @@ class PointCloudControler:
 
     # MANIPULATOR
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
-        print("="*20, "Loading", ntpath.basename(path_to_pointcloud), "="*20)
-        self.current_o3d_pcd = o3d.io.read_point_cloud(path_to_pointcloud)  # Load point cloud with open3d
+        print("=" * 20, "Loading", ntpath.basename(path_to_pointcloud), "=" * 20)
+
+        if os.path.splitext(path_to_pointcloud)[1] == ".bin":  # Loading binary pcds with numpy
+            bin_pcd = np.fromfile(path_to_pointcloud, dtype=np.float32)
+            points = bin_pcd.reshape((-1, 4))[:, 0:3]  # Reshape and drop reflection values
+            print(points)
+            self.current_o3d_pcd = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+        else:
+            self.current_o3d_pcd = o3d.io.read_point_cloud(path_to_pointcloud)  # Load point cloud with open3d
+
         tmp_pcd = PointCloud(path_to_pointcloud)
         tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype("float32")  # Unpack point cloud
         tmp_pcd.colors = np.asarray(self.current_o3d_pcd.colors).astype("float32")
@@ -137,7 +146,7 @@ class PointCloudControler:
         tmp_pcd.center = self.current_o3d_pcd.get_center()
         tmp_pcd.set_mins_maxs()
         max_dims = np.subtract(tmp_pcd.pcd_maxs, tmp_pcd.pcd_mins)
-        init_trans_z = tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15)
+        init_trans_z = max(tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15), -25)
         init_trans_x = -tmp_pcd.center[0] + max_dims[0] * 0.1
         init_trans_y = -tmp_pcd.center[1] + max_dims[1] * -0.1
         tmp_pcd.init_translation = init_trans_x, init_trans_y, init_trans_z
@@ -149,7 +158,7 @@ class PointCloudControler:
         print("Successfully loaded point cloud from %s!" % path_to_pointcloud)
         if tmp_pcd.colorless:
             print("Did not find colors for the loaded point cloud, drawing in colorless mode!")
-        print("="*65)
+        print("=" * 65)
         return tmp_pcd
 
     def rotate_around_x(self, dangle):
@@ -189,7 +198,8 @@ class PointCloudControler:
         originals_path = os.path.join(self.pcd_folder, PointCloudControler.ORIGINALS_FOLDER)
         if not os.path.exists(originals_path):
             os.mkdir(originals_path)
-        o3d.io.write_point_cloud(os.path.join(originals_path, self.get_current_name()), self.current_o3d_pcd)
+        copyfile(self.get_current_path(), os.path.join(originals_path, self.get_current_name()))
+        # o3d.io.write_point_cloud(os.path.join(originals_path, self.get_current_name()), self.current_o3d_pcd)
 
         # Rotate and translate point cloud
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(np.multiply(axis, angle))
@@ -205,8 +215,17 @@ class PointCloudControler:
             self.current_o3d_pcd.rotate(o3d.geometry.get_rotation_matrix_from_xyz([np.pi, 0, 0]), center=(0, 0, 0))
 
         # Overwrite current point cloud and reload
-        o3d.io.write_point_cloud(self.get_current_path(), self.current_o3d_pcd)
-        self.pointcloud = self.load_pointcloud(self.get_current_path())
+        # if os.path.splitext(self.get_current_path())[1] == ".bin":
+        #     points = np.asarray(self.current_o3d_pcd.points)
+        #     flattened_points = np.append(points, np.zeros((len(points), 1)), axis=1).flatten()  # add dummy reflection
+        #     flattened_points.tofile(self.get_current_path())
+        # else:
+        save_path = self.get_current_path()
+        if os.path.splitext(save_path)[1] == ".bin":
+            save_path = save_path[:-4] + ".pcd"
+
+        o3d.io.write_point_cloud(save_path, self.current_o3d_pcd)
+        self.pointcloud = self.load_pointcloud(save_path)
 
     # HELPER
 
