@@ -1,6 +1,4 @@
 <p align="center">
-    <a href="https://creativecommons.org/licenses/by-nc/4.0/">
-        <img src="https://img.shields.io/badge/license-CC--BY--NC%204.0-green" alt="CC-BY-NC 4.0"/></a>
     <img src="https://img.shields.io/badge/contributions-welcome!-green" alt="Contributions welcome!"/>
     <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
     <img src="https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue" />
@@ -15,9 +13,10 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ## Setup
 
-1. Install requirements: `pip install -r requirements.txt`.
-2. Copy point clouds into `pointclouds` folder.
-3. Run `python3 labelCloud`.
+1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
+2. Install requirements: `pip install -r requirements.txt`.
+3. Copy point clouds into `pointclouds` folder.
+4. Run `python3 labelCloud`.
 
 ## Import & Export Options
 labelCloud is built for a versatile use and aims at supporting all common point cloud and 3DOD-label formats.
