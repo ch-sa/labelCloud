@@ -63,8 +63,6 @@ class PointCloud:
     def set_mins_maxs(self):
         self.pcd_mins = np.amin(self.points, axis=0)
         self.pcd_maxs = np.amax(self.points, axis=0)
-        print("Mins: " + str(self.pcd_mins))
-        print("Maxs: " + str(self.pcd_maxs))
 
     def set_rot_x(self, angle):
         self.rot_x = angle % 360
@@ -141,7 +139,7 @@ class PointCloud:
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
 
     def print_details(self):
-        print("Point Cloud Center:\t%s" % np.round(self.center, 2))
+        print("Point Cloud Center:\t\t%s" % np.round(self.center, 2))
         print("Point Cloud Minimums:\t%s" % np.round(self.pcd_mins, 2))
         print("Point Cloud Maximums:\t%s" % np.round(self.pcd_maxs, 2))
         print("Initial Translation:\t%s" % np.round(self.init_translation, 2))

@@ -5,8 +5,6 @@ from PyQt5 import QtWidgets
 from modules.control.controler import Controler
 from modules.view.gui import GUI
 
-print("All imports loaded successfully!")
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

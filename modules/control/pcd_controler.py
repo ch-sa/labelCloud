@@ -2,7 +2,7 @@
 Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
-
+import ntpath
 import os
 import sys
 from typing import List, Tuple, TYPE_CHECKING, Set
@@ -125,11 +125,13 @@ class PointCloudControler:
 
     # MANIPULATOR
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
+        print("="*20, "Loading", ntpath.basename(path_to_pointcloud), "="*20)
         self.current_o3d_pcd = o3d.io.read_point_cloud(path_to_pointcloud)  # Load point cloud with open3d
         tmp_pcd = PointCloud(path_to_pointcloud)
         tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype("float32")  # Unpack point cloud
         tmp_pcd.colors = np.asarray(self.current_o3d_pcd.colors).astype("float32")
         tmp_pcd.colorless = len(tmp_pcd.colors) == 0
+        print("Number of Points: %s" % len(tmp_pcd.points))
         # Calculate and set initial translation to view full pointcloud
         tmp_pcd.center = self.current_o3d_pcd.get_center()
         tmp_pcd.set_mins_maxs()
@@ -143,9 +145,10 @@ class PointCloudControler:
         if self.pointcloud is not None:  # Skip first pcd to intialize OpenGL first
             tmp_pcd.write_vbo()
 
-        print("Loaded point cloud from %s with %s points: " % (path_to_pointcloud, len(tmp_pcd.points)))
+        print("Successfully loaded point cloud from %s!" % path_to_pointcloud)
         if tmp_pcd.colorless:
             print("Did not find colors for the loaded point cloud, drawing in colorless mode!")
+        print("="*65)
         return tmp_pcd
 
     def rotate_around_x(self, dangle):
