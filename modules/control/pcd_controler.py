@@ -21,8 +21,11 @@ if TYPE_CHECKING:
 
 
 def find_pcd_files(path: str) -> List[str]:
-    pcd_files = []
+    if not os.path.isdir(path):  # Check if point cloud folder exists
+        show_no_pcd_dialog()
+        sys.exit()
 
+    pcd_files = []
     for file in os.listdir(path):
         if file.endswith(PointCloudControler.PCD_EXTENSIONS):
             pcd_files.append(file)
@@ -40,22 +43,23 @@ def show_no_pcd_dialog():
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Warning)
     msg.setText("Did not find any point cloud.")
-    msg.setInformativeText("Please copy all your point clouds into the <i>pointcloud</i> folder. "
+    msg.setInformativeText("Please copy all your point clouds into the <i>%s</i> folder. "
                            "If you already have done that check the supported formats %s."
-                           % str(PointCloudControler.PCD_EXTENSIONS))
+                           % (PointCloudControler.PCD_FOLDER, str(PointCloudControler.PCD_EXTENSIONS)))
     msg.setWindowTitle("No Point Clouds Found")
     msg.exec_()
 
 
 class PointCloudControler:
     PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", "xyzrgb")
+    PCD_FOLDER = config_parser.get_file_settings("POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config_parser.get_pointcloud_settings("STD_TRANSLATION")
     ZOOM_FACTOR = config_parser.get_pointcloud_settings("STD_ZOOM")
 
     def __init__(self):
         # Point cloud management
-        self.pcd_folder = config_parser.get_file_settings("POINTCLOUD_FOLDER")
+        self.pcd_folder = PointCloudControler.PCD_FOLDER
         self.pcds = find_pcd_files(self.pcd_folder)
         self.no_of_pcds = len(self.pcds)
         self.current_id = -1

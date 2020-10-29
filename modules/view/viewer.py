@@ -146,7 +146,9 @@ def depth_min(depths, center, r=4):
     mask = (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < r ** 2
     selected_depths = depths[mask]
     filtered_depths = selected_depths[(0 < selected_depths) & (selected_depths < 0.99)]
-    if len(filtered_depths) > 0:
+    if 0 in depths:  # Check if cursor is at widget border
+        return 1
+    elif len(filtered_depths) > 0:
         return np.min(filtered_depths)
     else:
         return 0.5
@@ -157,6 +159,8 @@ def depth_smoothing(depths, center, r=15):
     dx = np.arange(len(depths))
     mask = (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < r ** 2
     selected_depths = depths[mask]
-    if 0 in depths:  # Check if cursor at widget border
+    if 0 in depths:  # Check if cursor is at widget border
+        return 1
+    elif np.isnan(selected_depths[selected_depths < 0.99]).all():  # prevent mean of empty slice
         return 1
     return np.nanmedian(selected_depths[selected_depths < 0.99])
