@@ -60,7 +60,7 @@ class Controler:
             self.reset()
             self.bbox_controler.set_bboxes(self.pcd_controler.get_labels_from_file())
         else:
-            self.view.update_progress(1)
+            self.view.update_progress(self.pcd_controler.no_of_pcds)
             self.view.button_next_pcd.setEnabled(False)
 
     def prev_pcd(self):

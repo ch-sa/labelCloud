@@ -20,7 +20,7 @@
   <property name="styleSheet">
    <string notr="true">* {
 	background-color: #FFF;
-	font-family: &quot;DejaVu Sans&quot;;
+	font-family: &quot;DejaVu Sans&quot;, Arial;
 }
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
@@ -104,7 +104,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="font">
             <font>
-             <family>DejaVu Sans</family>
+             <family>DejaVu Sans,Arial</family>
              <pointsize>16</pointsize>
              <weight>50</weight>
              <bold>false</bold>
@@ -148,7 +148,7 @@ QListWidget#label_list::item:selected {
             <string/>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -162,6 +162,24 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="value">
             <number>0</number>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="textVisible">
+            <bool>true</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="invertedAppearance">
+            <bool>false</bool>
+           </property>
+           <property name="textDirection">
+            <enum>QProgressBar::TopToBottom</enum>
+           </property>
+           <property name="format">
+            <string>%v/%m</string>
            </property>
           </widget>
          </item>
@@ -211,7 +229,7 @@ QListWidget#label_list::item:selected {
        <widget class="QGroupBox" name="bbox_controls">
         <property name="font">
          <font>
-          <family>DejaVu Sans</family>
+          <family>DejaVu Sans,Arial</family>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -567,7 +585,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="font">
             <font>
-             <family>DejaVu Sans</family>
+             <family>DejaVu Sans,Arial</family>
              <pointsize>12</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -610,7 +628,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="font">
             <font>
-             <family>DejaVu Sans</family>
+             <family>DejaVu Sans,Arial</family>
              <pointsize>12</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -812,7 +830,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="font">
          <font>
-          <family>DejaVu Sans</family>
+          <family>DejaVu Sans,Arial</family>
           <pointsize>16</pointsize>
           <weight>50</weight>
           <bold>false</bold>
@@ -837,6 +855,12 @@ QListWidget#label_list::item:selected {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>230</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -854,7 +878,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="font">
             <font>
-             <family>DejaVu Sans</family>
+             <family>DejaVu Sans,Arial</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -884,7 +908,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="font">
             <font>
-             <family>DejaVu Sans</family>
+             <family>DejaVu Sans,Arial</family>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -988,7 +1012,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="font">
          <font>
-          <family>DejaVu Sans</family>
+          <family>DejaVu Sans,Arial</family>
           <pointsize>12</pointsize>
           <italic>false</italic>
          </font>

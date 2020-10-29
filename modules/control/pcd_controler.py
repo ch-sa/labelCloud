@@ -116,6 +116,7 @@ class PointCloudControler:
     # SETTER
     def set_view(self, view: 'GUI') -> None:
         self.view = view
+        self.view.init_progress(min_value=0, max_value=self.no_of_pcds)
         self.view.glWidget.set_pointcloud_controler(self)
         self.get_next_pcd()
 
@@ -231,8 +232,8 @@ class PointCloudControler:
         self.view.curr_class_edit.setCompleter(QCompleter(classnames))
 
     def update_pcd_infos(self):
-        self.view.set_pcd_label(*self.get_current_details())
-        self.view.update_progress(self.current_id / self.no_of_pcds)
+        self.view.set_pcd_label(self.get_current_name())
+        self.view.update_progress(self.current_id)
 
         if self.current_id <= 0:
             self.view.button_prev_pcd.setEnabled(False)

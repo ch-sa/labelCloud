@@ -161,7 +161,7 @@ class GUI(QtWidgets.QMainWindow):
         elif (event.type() == QEvent.Wheel) and (event_object == self.glWidget):
             self.controler.mouse_scroll_event(event)
             self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
-        elif event.type() == QEvent.MouseButtonDblClick:
+        elif event.type() == QEvent.MouseButtonDblClick and (event_object == self.glWidget):
             self.controler.mouse_double_clicked(event)
             return True
         elif (event.type() == QEvent.MouseButtonPress) and (event_object == self.glWidget):
@@ -187,12 +187,15 @@ class GUI(QtWidgets.QMainWindow):
     def set_orientation_visibility(self, state: bool) -> None:
         self.glWidget.draw_orientation = state
 
-    def set_pcd_label(self, pcd_name: str, pcd_id: int, no_of_pcd: int) -> None:
-        tmp_txt = "Current: <em>%s</em> (%s/%s)" % (pcd_name, pcd_id, no_of_pcd)
-        self.label_curr_pcd.setText(tmp_txt)
+    def set_pcd_label(self, pcd_name: str) -> None:
+        self.label_curr_pcd.setText("Current: <em>%s</em>" % pcd_name)
 
-    def update_progress(self, progress):
-        self.progressbar_pcd.setValue(round(progress * 100))
+    def init_progress(self, min_value, max_value):
+        self.progressbar_pcd.setMinimum(min_value)
+        self.progressbar_pcd.setMaximum(max_value)
+
+    def update_progress(self, value):
+        self.progressbar_pcd.setValue(value)
 
     def update_curr_class_edit(self, force: str = None):
         if force is not None:
@@ -235,9 +238,7 @@ class GUI(QtWidgets.QMainWindow):
 
 
 def create_html_table(data: Dict):
-    style = """<style>table {
-                width: 100%;
-            }            
+    style = """<style>     
             th {
                 text-align: left;
                 text-transform: uppercase;
@@ -246,17 +247,16 @@ def create_html_table(data: Dict):
             }
             td {
                 text-align: right;
-                padding-left: 5px;
             }</style>"""
 
-    table = "<table>"
+    table = "<table width='100%'>"
     for heading, cells in data.items():
         table += "<tr> <th>%s</th>" % heading
         for cell in cells:
             if heading == "Rotation":
-                table += "<td>{:4.1f}</td>".format(cell)
+                table += "<td style='width: 100%'>{:4.1f}</td>".format(cell)
             else:
-                table += "<td>{:4.2f}</td>".format(cell)
+                table += "<td style='width: 100%'>{:4.2f}</td>".format(cell)
         table += "</tr>"
     table += "</table>"
     return style + table
