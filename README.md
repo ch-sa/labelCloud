@@ -11,6 +11,7 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 ![Overview of the Labeling Tool](docs/io_overview.png)
 
 ## Labeling
+labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
 ![Screencast of the Labeling Methods](docs/screencast_small.gif)
 
@@ -63,28 +64,19 @@ You can easily create your own exporter by implementing the [IFormattingInterfac
 
 ## Shortcuts
 
-**Navigation**
-
 | Shortcut | Description |
 | :---: | --- |
+| *Navigation* | |
 | Left Mouse Button | Rotate the Point Cloud |
 | Right Mouse Button | Translate the Point Cloud |
 | Mouse Wheel | Zoom into the Point Cloud |
-
-**Correction**
-
-| Shortcut | Description|
-| :---: | --- |
+| *Correction* | |
 | `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translate BBox back, left, front, right |
 | `Q`, `E` | Lift BBox up, down |
 | `X`, `Y` | Rotate BBox around z-Axis |
 | Scrolling with Cursor above BBox Side | Side Pulling (Change Dimensions) |
 |`C` & `V`, `B` & `N` | Rotate BBox around x-Axis, y-Axis |
-
-**General**
-
-| Shortcut | Description|
-| :---: | --- |
+| *General* | |
 | `Del` | Delete Current BBox |
 | `R` | Reset Perspective |
 | `Esc` | Chancel Selected Points |
