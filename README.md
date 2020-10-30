@@ -10,35 +10,11 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ![Overview of the Labeling Tool](docs/io_overview.png)
 
-
-## Setup
-
-1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
-2. Install requirements: `pip install -r requirements.txt`.
-3. Copy point clouds into `pointclouds` folder.
-4. Run `python3 labelCloud`.
-
-## Import & Export Options
-labelCloud is built for a versatile use and aims at supporting all common point cloud and 3DOD-label formats.
-
-**Supported Import Formats**
-* `*.pcd`, `*.ply`, `*.pts`
-* `*.xyz`, `*.xyzn`, `*.xyzrgb`
-
-Colored and colorless point clouds can be visualized.
-
-**Supported Export Formats**
-
-| Label Format | Description |
-| --- | --- |
-| Center | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; Rotations as Euler angles in degrees `[yaw, pitch, roll]` |
-| Vertices | 8 Vertices of the bounding box each with `[x, y, z]` |
-| KITTI | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
-| VoteNet | *Coming soon!* |
-
-You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
-
 ## Labeling
+labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
+
+![Screencast of the Labeling Methods](docs/screencast_small.gif)
+
 **Picking Mode**
 
 * Pick the location of the bounding box (front-top edge)
@@ -57,30 +33,50 @@ By default the x- and y-rotation of bounding boxes will be prohibited.
 For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode`.
 Now you will be free to rotate around all three axes.
 
-## Shortcuts
+## Import & Export Options
+labelCloud is built for a versatile use and aims at supporting all common point cloud and 3DOD-label formats.
 
-**Navigation**
+**Supported Import Formats**
+* `*.pcd`, `*.ply`, `*.pts`
+* `*.xyz`, `*.xyzn`, `*.xyzrgb`
+* `*.bin` (KITTI) → [x, y, z, reflectance]
+
+Colored and colorless point clouds can be visualized.
+
+**Supported Export Formats**
+
+| Label Format | Description |
+| --- | --- |
+| Center | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; Rotations as Euler angles in degrees `[yaw, pitch, roll]` |
+| Vertices | 8 Vertices of the bounding box each with `[x, y, z]` |
+| KITTI | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| VoteNet | *Coming soon!* |
+
+You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
+
+
+## Setup
+
+1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
+2. Install requirements: `pip install -r requirements.txt`.
+3. Copy point clouds into `pointclouds` folder.
+4. Run `python3 labelCloud`.
+
+## Shortcuts
 
 | Shortcut | Description |
 | :---: | --- |
+| *Navigation* | |
 | Left Mouse Button | Rotate the Point Cloud |
 | Right Mouse Button | Translate the Point Cloud |
 | Mouse Wheel | Zoom into the Point Cloud |
-
-**Correction**
-
-| Shortcut | Description|
-| :---: | --- |
+| *Correction* | |
 | `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translate BBox back, left, front, right |
 | `Q`, `E` | Lift BBox up, down |
 | `X`, `Y` | Rotate BBox around z-Axis |
 | Scrolling with Cursor above BBox Side | Side Pulling (Change Dimensions) |
 |`C` & `V`, `B` & `N` | Rotate BBox around x-Axis, y-Axis |
-
-**General**
-
-| Shortcut | Description|
-| :---: | --- |
+| *General* | |
 | `Del` | Delete Current BBox |
 | `R` | Reset Perspective |
 | `Esc` | Chancel Selected Points |
