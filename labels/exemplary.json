@@ -1,0 +1,25 @@
+{
+	"folder": "pointclouds",
+	"filename": "exemplary.ply",
+	"path": "pointclouds/exemplary.ply",
+	"objects": [
+		{
+			"name": "cart",
+			"centroid": {
+				"x": -0.213635,
+				"y": -0.250053,
+				"z": 0.067504
+			},
+			"dimensions": {
+				"length": 0.7755,
+				"width": 0.55,
+				"height": 0.14475
+			},
+			"rotations": {
+				"x": 0,
+				"y": 0,
+				"z": 235.5
+			}
+		}
+	]
+}
