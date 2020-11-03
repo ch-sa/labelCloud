@@ -60,6 +60,9 @@ class PointCloud:
     def get_mins_maxs(self):
         return self.pcd_mins, self.pcd_maxs
 
+    def get_min_max_height(self):
+        return self.pcd_mins[2], self.pcd_maxs[2]
+
     def set_mins_maxs(self):
         self.pcd_mins = np.amin(self.points, axis=0)
         self.pcd_maxs = np.amax(self.points, axis=0)

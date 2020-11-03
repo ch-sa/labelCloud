@@ -12,6 +12,8 @@ config.read("config.ini")
 def float_parser_decorator(func):
     def wrapper(*args, **kwargs):
         value = func(*args, **kwargs)
+        if value in ["True", "False"]:
+            return value == "True"
         try:
             return float(value)
         except TypeError:
@@ -53,6 +55,7 @@ def get_label_settings(key: str) -> Union[str, float, List]:
     return config["LABEL"][key]
 
 
+@float_parser_decorator
 @list_parser_decorator
 def get_app_settings(key: str) -> str:
     return config["SETTINGS"][key]

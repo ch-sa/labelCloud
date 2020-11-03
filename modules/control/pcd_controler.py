@@ -51,12 +51,23 @@ def show_no_pcd_dialog():
     msg.exec_()
 
 
+def color_pointcloud(points, z_min, z_max):
+    palette = np.loadtxt("ressources/rocket-palette.txt")
+    palette_len = len(palette) - 1
+
+    colors = np.zeros(points.shape)
+    for ind, height in enumerate(points[:, 2]):
+        colors[ind] = palette[round((height - z_min) / (z_max - z_min) * palette_len)]
+    return colors
+
+
 class PointCloudControler:
     PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin")
     PCD_FOLDER = config_parser.get_file_settings("POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config_parser.get_pointcloud_settings("STD_TRANSLATION")
     ZOOM_FACTOR = config_parser.get_pointcloud_settings("STD_ZOOM")
+    COLORIZE = config_parser.get_pointcloud_settings("COLORLESS_COLORIZE")
 
     def __init__(self):
         # Point cloud management
@@ -140,11 +151,20 @@ class PointCloudControler:
         tmp_pcd = PointCloud(path_to_pointcloud)
         tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype("float32")  # Unpack point cloud
         tmp_pcd.colors = np.asarray(self.current_o3d_pcd.colors).astype("float32")
+
         tmp_pcd.colorless = len(tmp_pcd.colors) == 0
+
         print("Number of Points: %s" % len(tmp_pcd.points))
         # Calculate and set initial translation to view full pointcloud
         tmp_pcd.center = self.current_o3d_pcd.get_center()
         tmp_pcd.set_mins_maxs()
+
+        if PointCloudControler.COLORIZE and tmp_pcd.colorless:
+            print("Generating colors for colorless point cloud!")
+            min_height, max_height = tmp_pcd.get_min_max_height()
+            tmp_pcd.colors = color_pointcloud(tmp_pcd.points, min_height, max_height)
+            tmp_pcd.colorless = False
+
         max_dims = np.subtract(tmp_pcd.pcd_maxs, tmp_pcd.pcd_mins)
         init_trans_z = max(tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15), -25)
         init_trans_x = -tmp_pcd.center[0] + max_dims[0] * 0.1
