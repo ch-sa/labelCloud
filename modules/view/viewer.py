@@ -140,11 +140,15 @@ class GLWidget(QtOpenGL.QGLWidget):
         return mod_x, mod_y, mod_z
 
 
+# Creates a circular mask with radius around center
+def circular_mask(arr_length, center, radius):
+    dx = np.arange(arr_length)
+    return (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < radius ** 2
+
+
 # Returns the minimum (closest) depth for a specified radius around the center
 def depth_min(depths, center, r=4):
-    dx = np.arange(len(depths))
-    mask = (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < r ** 2
-    selected_depths = depths[mask]
+    selected_depths = depths[circular_mask(len(depths), center, r)]
     filtered_depths = selected_depths[(0 < selected_depths) & (selected_depths < 0.99)]
     if 0 in depths:  # Check if cursor is at widget border
         return 1
@@ -156,9 +160,7 @@ def depth_min(depths, center, r=4):
 
 # Returns the mean depth for a specified radius around the center
 def depth_smoothing(depths, center, r=15):
-    dx = np.arange(len(depths))
-    mask = (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < r ** 2
-    selected_depths = depths[mask]
+    selected_depths = depths[circular_mask(len(depths), center, r)]
     if 0 in depths:  # Check if cursor is at widget border
         return 1
     elif np.isnan(selected_depths[selected_depths < 0.99]).all():  # prevent mean of empty slice

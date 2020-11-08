@@ -14,7 +14,7 @@ def create_buffer(attributes):
     bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
     buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
 
-    vbo = GL.glGenBuffers(1)  # manufactoring
+    vbo = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, buffersize, bufferdata, GL.GL_STATIC_DRAW)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)

@@ -192,10 +192,10 @@ class Controler:
 
         elif a0.key() == QtCore.Qt.Key_Escape:
             if self.drawing_mode.is_active():
-                self.drawing_mode.reset(points_only=True)
+                self.drawing_mode.reset()
                 print("Resetted drawn points!")
             elif self.align_mode.is_active():
-                self.align_mode.reset(points_only=True)
+                self.align_mode.reset()
                 print("Resetted selected points!")
 
         # BBOX MANIPULATION
