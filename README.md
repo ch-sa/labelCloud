@@ -75,7 +75,7 @@ You can easily create your own exporter by implementing the [IFormattingInterfac
 | `Q`, `E` | Lift BBox up, down |
 | `X`, `Y` | Rotate BBox around z-Axis |
 | Scrolling with Cursor above BBox Side | Side Pulling (Change Dimensions) |
-|`C` & `V`, `B` & `N` | Rotate BBox around x-Axis, y-Axis |
+|`C` & `V`, `B` & `N` | Rotate BBox around y-Axis, x-Axis |
 | *General* | |
 | `Del` | Delete Current BBox |
 | `R` | Reset Perspective |
