@@ -5,13 +5,13 @@ from typing import Union, TYPE_CHECKING
 import numpy as np
 
 import modules.oglhelper as ogl
-from modules.control.pcd_controler import PointCloudControler
+from modules.control.pcd_manager import PointCloudManger
 if TYPE_CHECKING:
     from modules.view.gui import GUI
 
 
 class AlignMode:
-    def __init__(self, pcd_controler: PointCloudControler):
+    def __init__(self, pcd_controler: PointCloudManger):
         self.pcd_controler = pcd_controler
         self.view: Union[GUI, None] = None
         self.activated = False

@@ -10,10 +10,10 @@ from modules import oglhelper
 from modules.control import config_parser
 from modules.control.alignmode import AlignMode
 from modules.control.bbox_controler import BoundingBoxControler
-from modules.control.pcd_controler import PointCloudControler
+from modules.control.pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
-    from modules.control.drawing_mode import DrawingMode
+    from modules.control.drawing_manager import DrawingManager
 
 
 # Main widget for presenting the point cloud
@@ -35,10 +35,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.crosshair_pos = None
         self.crosshair_col = (0, 1, 0, 1)
         self.selected_side_vertices = []
-        self.drawing_mode: Union[DrawingMode, None] = None
+        self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
-    def set_pointcloud_controler(self, pcd_controler: PointCloudControler):
+    def set_pointcloud_controler(self, pcd_controler: PointCloudManger):
         self.pcd_controler = pcd_controler
 
     def set_bbox_controler(self, bbox_controler: BoundingBoxControler):

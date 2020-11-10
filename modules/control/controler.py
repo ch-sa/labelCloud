@@ -4,10 +4,10 @@ from typing import Union
 from PyQt5 import QtGui, QtCore
 
 from modules import oglhelper
-from modules.control.drawing_mode import DrawingMode
+from modules.control.drawing_manager import DrawingManager
 from modules.model.bbox import BBox
 from modules.control.bbox_controler import BoundingBoxControler
-from modules.control.pcd_controler import PointCloudControler
+from modules.control.pcd_manager import PointCloudManger
 from modules.view.gui import GUI
 from modules.control.alignmode import AlignMode
 
@@ -17,12 +17,12 @@ class Controler:
     # PREPARATION
     def __init__(self):
         self.view: Union[GUI, None] = None
-        self.pcd_controler = PointCloudControler()
+        self.pcd_controler = PointCloudManger()
         # ToDo: Load labels for first pcd if file exists
         self.bbox_controler = BoundingBoxControler(only_z_rotation=True)
 
         # Drawing states
-        self.drawing_mode = DrawingMode(self.bbox_controler)
+        self.drawing_mode = DrawingManager(self.bbox_controler)
         self.align_mode = AlignMode(self.pcd_controler)
 
         # Control states

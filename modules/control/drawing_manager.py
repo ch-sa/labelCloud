@@ -10,19 +10,19 @@ from modules.model.bbox import BBox
 from modules.view.gui import GUI
 
 
-class DrawingMode:
+class DrawingManager:
 
     def __init__(self, bbox_controler: BoundingBoxControler):
         self.bbox_controler = bbox_controler
         self.view: Union[GUI, None] = None
-        self.drawing_strategy: Union[IDrawingInterface, None] = None
+        self.drawing_strategy: Union[IDrawingStrategy, None] = None
 
     def set_view(self, view: GUI):
         self.view = view
         self.view.glWidget.drawing_mode = self
 
     def is_active(self) -> bool:
-        return isinstance(self.drawing_strategy, IDrawingInterface)
+        return isinstance(self.drawing_strategy, IDrawingStrategy)
 
     def is_mode(self, mode: str = None) -> bool:
         if self.is_active():
@@ -77,7 +77,7 @@ class DrawingMode:
                 self.drawing_strategy = None
 
 
-class IDrawingInterface:
+class IDrawingStrategy:
     __metaclass__ = ABCMeta
     POINTS_NEEDED: int
     PREVIEW: bool = False
@@ -110,7 +110,7 @@ class IDrawingInterface:
         self.point_1 = None
 
 
-class PickingStrategy(IDrawingInterface, ABC):
+class PickingStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 1
     PREVIEW = True
 
@@ -151,7 +151,7 @@ class PickingStrategy(IDrawingInterface, ABC):
         self.view.button_activate_picking.setChecked(False)
 
 
-class SpanStrategy(IDrawingInterface, ABC):  # TODO: Refactor to SpanningStrategy
+class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
     POINTS_NEEDED = 4
     PREVIEW = True
     CORRECTION = True  # Increases dimensions after drawing
@@ -276,7 +276,7 @@ class SpanStrategy(IDrawingInterface, ABC):  # TODO: Refactor to SpanningStrateg
                             color=(1, 1, 0, 0.5), draw_vertices=True, vertex_color=self.preview_color)
 
 
-class RectangleStrategy(IDrawingInterface, ABC):
+class RectangleStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 3
     PREVIEW = True
 

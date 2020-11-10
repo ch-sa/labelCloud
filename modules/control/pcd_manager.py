@@ -28,7 +28,7 @@ def find_pcd_files(path: str) -> List[str]:
 
     pcd_files = []
     for file in os.listdir(path):
-        if file.endswith(PointCloudControler.PCD_EXTENSIONS):
+        if file.endswith(PointCloudManger.PCD_EXTENSIONS):
             pcd_files.append(file)
 
     return sorted(pcd_files)
@@ -46,7 +46,7 @@ def show_no_pcd_dialog():
     msg.setText("Did not find any point cloud.")
     msg.setInformativeText("Please copy all your point clouds into the <i>%s</i> folder. "
                            "If you already have done that check the supported formats %s."
-                           % (PointCloudControler.PCD_FOLDER, str(PointCloudControler.PCD_EXTENSIONS)))
+                           % (PointCloudManger.PCD_FOLDER, str(PointCloudManger.PCD_EXTENSIONS)))
     msg.setWindowTitle("No Point Clouds Found")
     msg.exec_()
 
@@ -61,7 +61,7 @@ def color_pointcloud(points, z_min, z_max):
     return colors
 
 
-class PointCloudControler:
+class PointCloudManger:
     PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin")
     PCD_FOLDER = config_parser.get_file_settings("POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
@@ -71,7 +71,7 @@ class PointCloudControler:
 
     def __init__(self):
         # Point cloud management
-        self.pcd_folder = PointCloudControler.PCD_FOLDER
+        self.pcd_folder = PointCloudManger.PCD_FOLDER
         self.pcds = find_pcd_files(self.pcd_folder)
         self.no_of_pcds = len(self.pcds)
         self.current_id = -1
@@ -90,7 +90,7 @@ class PointCloudControler:
         if self.pcds_left():
             self.current_id += 1
             self.pointcloud = self.load_pointcloud(self.get_current_path())
-            self.update_pcd_infos()
+            self.update_pcd_infos()  # TODO: Delete old pcd?
         else:
             if self.current_id == -1:
                 show_no_pcd_dialog()
@@ -159,7 +159,7 @@ class PointCloudControler:
         tmp_pcd.center = self.current_o3d_pcd.get_center()
         tmp_pcd.set_mins_maxs()
 
-        if PointCloudControler.COLORIZE and tmp_pcd.colorless:
+        if PointCloudManger.COLORIZE and tmp_pcd.colorless:
             print("Generating colors for colorless point cloud!")
             min_height, max_height = tmp_pcd.get_min_max_height()
             tmp_pcd.colors = color_pointcloud(tmp_pcd.points, min_height, max_height)
@@ -191,16 +191,16 @@ class PointCloudControler:
         self.pointcloud.set_rot_z(self.pointcloud.rot_z - dangle)
 
     def translate_along_x(self, distance):
-        self.pointcloud.set_trans_x(self.pointcloud.trans_x - distance * PointCloudControler.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_x(self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR)
 
     def translate_along_y(self, distance):
-        self.pointcloud.set_trans_y(self.pointcloud.trans_y + distance * PointCloudControler.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_y(self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR)
 
     def translate_along_z(self, distance):
-        self.pointcloud.set_trans_z(self.pointcloud.trans_z - distance * PointCloudControler.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_z(self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR)
 
     def zoom_into(self, distance):
-        zoom_distance = distance * PointCloudControler.ZOOM_FACTOR
+        zoom_distance = distance * PointCloudManger.ZOOM_FACTOR
         self.pointcloud.set_trans_z(self.pointcloud.trans_z + zoom_distance)
 
     def reset_translation(self):
@@ -215,7 +215,7 @@ class PointCloudControler:
 
     def rotate_pointcloud(self, axis: List[float], angle: float, rotation_point: List[float]) -> None:
         # Save current, original point cloud in ORIGINALS_FOLDER
-        originals_path = os.path.join(self.pcd_folder, PointCloudControler.ORIGINALS_FOLDER)
+        originals_path = os.path.join(self.pcd_folder, PointCloudManger.ORIGINALS_FOLDER)
         if not os.path.exists(originals_path):
             os.mkdir(originals_path)
         copyfile(self.get_current_path(), os.path.join(originals_path, self.get_current_name()))
