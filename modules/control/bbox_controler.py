@@ -1,5 +1,5 @@
 """
-A class to handle all user manipulations of the bounding boxes and collect all configurations in one place.
+A class to handle all user manipulations of the bounding boxes and collect all labeling settings in one place.
 Bounding Box Management: adding, updating, deleting bboxes; changing the active bounding box
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """

@@ -11,8 +11,8 @@ from modules.model.bbox import BBox
 
 
 class LabelManager:
-    LABEL_FORMATS = ["vertices", "center", "kitti"]
-    STD_LABEL_FORMAT = config_parser.get_label_settings("STD_LABEL_FORMAT")
+    LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]
+    STD_LABEL_FORMAT = config_parser.get_label_settings("LABEL_FORMAT")
     STD_LABEL_FOLDER = config_parser.get_file_settings("LABEL_FOLDER")
     EXPORT_PRECISION = int(config_parser.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places
 
@@ -22,12 +22,14 @@ class LabelManager:
             os.mkdir(self.label_folder)
         if strategy == "vertices":
             self.label_strategy = VerticesFormat(self.label_folder)
-        elif strategy == "center":
-            self.label_strategy = CenterFormat(self.label_folder)
+        elif strategy == "centroid_abs":
+            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=False)
+        elif strategy == "centroid_rel":
+            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=True)
         elif strategy == "kitti":
-            self.label_strategy = KittiFormat(self.label_folder)
+            self.label_strategy = KittiFormat(self.label_folder, relative_rotation=True)  # KITTI is always relative
         else:
-            self.label_strategy = CenterFormat(self.label_folder)
+            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=False)
             print("Unknown export strategy '%s'. Proceeding with default (corners)!" % strategy)
 
     def import_labels(self, pcd_name: str) -> List[BBox]:
@@ -94,9 +96,14 @@ def rel2abs_rotation(rel_rotation: float) -> float:
 class IFormattingInterface:
     __metaclass__ = ABCMeta
 
-    def __init__(self, label_folder):
+    def __init__(self, label_folder, relative_rotation=False):
         self.label_folder = label_folder
         print("Set export strategy to %s." % self.__class__.__name__)
+        self.relative_rotation = relative_rotation
+        if relative_rotation:
+            print("Saving rotations relatively to positve x-axis in radians (-pi..+pi).")
+        else:
+            print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
 
     @abstractmethod
     def import_labels(self, pcd_name_stripped): raise NotImplementedError
@@ -132,7 +139,7 @@ class VerticesFormat(IFormattingInterface, ABC):
         print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
 
 
-class CenterFormat(IFormattingInterface, ABC):
+class CentroidFormat(IFormattingInterface, ABC):
 
     def import_labels(self, pcd_name_stripped):
         labels = []
@@ -143,7 +150,10 @@ class CenterFormat(IFormattingInterface, ABC):
 
             for label in data["objects"]:
                 bbox = BBox(*label["centroid"].values(), *label["dimensions"].values())
-                bbox.set_rotations(*label["rotations"].values())
+                rotations = label["rotations"].values()
+                if self.relative_rotation:
+                    rotations = map(rel2abs_rotation, rotations)
+                bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
                 labels.append(bbox)
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
@@ -164,8 +174,11 @@ class CenterFormat(IFormattingInterface, ABC):
             label["centroid"] = {str(axis): round_dec(val) for axis, val in zip(["x", "y", "z"], bbox.get_center())}
             label["dimensions"] = {str(dim): round_dec(val) for dim, val in zip(["length", "width", "height"],
                                                                                 bbox.get_dimensions())}
-            label["rotations"] = {str(axis): round_dec(angle) for axis, angle in zip(["x", "y", "z"],
-                                                                                     bbox.get_rotations())}
+            conv_rotations = bbox.get_rotations()
+            if self.relative_rotation:
+                conv_rotations = map(abs2rel_rotation, conv_rotations)
+
+            label["rotations"] = {str(axis): round_dec(angle) for axis, angle in zip(["x", "y", "z"], conv_rotations)}
             data["objects"].append(label)
 
         # Save to JSON

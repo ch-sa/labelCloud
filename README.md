@@ -47,10 +47,11 @@ Colored and colorless point clouds can be visualized.
 
 | Label Format | Description |
 | --- | --- |
-| Center | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; Rotations as Euler angles in degrees `[yaw, pitch, roll]` |
-| Vertices | 8 Vertices of the bounding box each with `[x, y, z]` |
-| KITTI | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
-| VoteNet | *Coming soon!* |
+| `centroid_rel` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
+| `centroid_abs` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]` |
+| `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` |
+| `kitti` | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| `votenet` | *Coming soon!* |
 
 You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
 
