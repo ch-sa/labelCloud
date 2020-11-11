@@ -122,21 +122,13 @@ class GLWidget(QtOpenGL.QGLWidget):
             depths = GL.glReadPixels(x - center + 1, real_y - center + 1, buffer_size, buffer_size,
                                      GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT)
             z = depths[center][center]  # Read selected pixel from depth buffer
-            # print("Uncorrected z: %s" % z)
 
             if z > 0.99:
                 z = depth_smoothing(depths, center)
-                # print("Smoothed z: %s" % z)
             elif correction:
                 z = depth_min(depths, center)
-                # print("Corrected z: %s" % z)
 
         mod_x, mod_y, mod_z = GLU.gluUnProject(x, real_y, z, self.modelview, self.projection, viewport)
-        # print("PROJ: %s" % np.round([mod_x, mod_y, mod_z], 2))
-        # if correction:
-        #     pcd_mins, pcd_maxs = self.pcd_controler.get_pointcloud().get_mins_maxs()
-        #     mod_x, mod_y, mod_z = np.clip((mod_x, mod_y, mod_z), pcd_mins, pcd_maxs)
-        #     print("CORR: %s" % np.round([mod_x, mod_y, mod_z], 2))
         return mod_x, mod_y, mod_z
 
 

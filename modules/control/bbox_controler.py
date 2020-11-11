@@ -175,7 +175,6 @@ class BoundingBoxControler:
 
     @has_active_bbox_decorator
     def translate_along_x(self, distance=STD_TRANSLATION, left=False):
-        print("%s → Executed translation" % str(time.time()))
         if left:
             distance *= -1
         cosz, sinz, bu = self.pcdc.get_perspective()

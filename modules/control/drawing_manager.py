@@ -216,16 +216,11 @@ class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
         line_center = np.add(self.point_1, self.point_2) / 2
         area_center = np.add(line_center * 2, self.dir_vector) / 2
         center = np.add(area_center, [0, 0, height / 2])
-        print("Length: %s" % length)
-        print("Width: %s" % width)
-        print("Height: %s" % height)
 
         # Calculating z-rotation
         len_vec_2d = np.subtract(self.point_1, self.point_2)
-        print("Len-Vec: %s" % len_vec_2d)
-
         z_angle = np.arctan(len_vec_2d[1] / len_vec_2d[0])
-        print("Z-Rotation: %s (%s)" % (round(z_angle, 2), round(np.rad2deg(z_angle))))
+        # print("Z-Rotation: %s (%s)" % (round(z_angle, 2), round(np.rad2deg(z_angle))))
 
         if SpanStrategy.CORRECTION:
             length *= 1.1
@@ -265,8 +260,6 @@ class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
 
         elif self.point_1 and self.point_2 and self.point_3 and self.tmp_p4 and (not self.point_4):
             height1 = self.tmp_p4[2] - self.point_1[2]
-            # height2 = self.tmp_p4[2] - self.point_2[2]
-            # print("Heights: %s, %s" % (height1, height2))
             p1_t = np.add(self.point_1, [0, 0, height1])
             p2_t = np.add(self.point_2, [0, 0, height1])
             p1_wt = np.add(self.p1_w, [0, 0, height1])

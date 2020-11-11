@@ -104,7 +104,6 @@ class Controler:
 
     # EVENT PROCESSING
     def mouse_clicked(self, a0: QtGui.QMouseEvent):
-        #  print("Mouse clicked in GLWidget: " + str(a0.pos()))
         self.last_cursor_pos = a0.pos()
 
         if self.drawing_mode.is_active() and (a0.buttons() & QtCore.Qt.LeftButton) and (not self.ctrl_pressed):
@@ -117,7 +116,6 @@ class Controler:
             self.side_mode = True
 
     def mouse_double_clicked(self, a0: QtGui.QMouseEvent):
-        # print("Mouse double clicked at %s." % a0.pos())
         self.bbox_controler.select_bbox_by_ray(a0.x(), a0.y())
 
     def mouse_move_event(self, a0: QtGui.QMouseEvent):
@@ -216,7 +214,6 @@ class Controler:
         elif (a0.key() == QtCore.Qt.Key_S) or (a0.key() == QtCore.Qt.Key_Down):  # move forward
             self.bbox_controler.translate_along_y(forward=True)
         elif (a0.key() == QtCore.Qt.Key_A) or (a0.key() == QtCore.Qt.Key_Left):  # move left
-            print("%s → Key translation" % str(time.time()))
             self.bbox_controler.translate_along_x(left=True)
         elif (a0.key() == QtCore.Qt.Key_D) or (a0.key() == QtCore.Qt.Key_Right):  # move right
             self.bbox_controler.translate_along_x()
