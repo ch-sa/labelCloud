@@ -54,7 +54,7 @@ Colored and colorless point clouds can be visualized.
 | `votenet` | *Coming soon!* |
 
 You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
-
+All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
 
 ## Setup
 

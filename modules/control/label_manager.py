@@ -75,9 +75,9 @@ def abs2rel_rotation(abs_rotation: float) -> float:
     :param abs_rotation: Counterclockwise rotation from x-axis around z-axis
     :return: Relative rotation from x-axis around z-axis
     """
-    rel_rotation = -np.deg2rad(abs_rotation)
-    if rel_rotation < - np.pi:
-        rel_rotation = (rel_rotation + 2 * np.pi)
+    rel_rotation = np.deg2rad(abs_rotation)
+    if rel_rotation > np.pi:
+        rel_rotation = rel_rotation - 2 * np.pi
     return rel_rotation
 
 
@@ -87,7 +87,7 @@ def rel2abs_rotation(rel_rotation: float) -> float:
     :param rel_rotation: Rotation from x-axis around z-axis
     :return: Counterclockwise rotation from x-axis around z-axis
     """
-    abs_rotation = -np.rad2deg(rel_rotation)
+    abs_rotation = np.rad2deg(rel_rotation)
     if abs_rotation < 0:
         abs_rotation = abs_rotation + 360
     return abs_rotation
