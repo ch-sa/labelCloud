@@ -61,7 +61,7 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
 2. Install requirements: `pip install -r requirements.txt`.
 3. Copy point clouds into `pointclouds` folder.
-4. Run `python3 labelCloud`.
+4. Run `python3 labelCloud.py`.
 
 ## Shortcuts
 
