@@ -83,7 +83,7 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 | `Esc` | Chancel Selected Points |
 
 ## Usage & Attribution
-When using the tool feel free to drop me a mail with feedback or a description of your use case (christophs.sager[at]tu-dresden.de).
+When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
 
 If you are using the tool for a scientific project please think about citing:
 
