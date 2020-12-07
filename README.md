@@ -10,6 +10,13 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ![Overview of the Labeling Tool](docs/io_overview.png)
 
+## Setup
+
+1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
+2. Install requirements: `pip install -r requirements.txt`.
+3. Copy point clouds into `pointclouds` folder.
+4. Run `python3 labelCloud.py`.
+
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
@@ -34,7 +41,7 @@ For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode`.
 Now you will be free to rotate around all three axes.
 
 ## Import & Export Options
-labelCloud is built for a versatile use and aims at supporting all common point cloud and 3DOD-label formats.
+labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
 
 **Supported Import Formats**
 * `*.pcd`, `*.ply`, `*.pts`
@@ -56,13 +63,6 @@ Colored and colorless point clouds can be visualized.
 You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
 
-## Setup
-
-1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
-2. Install requirements: `pip install -r requirements.txt`.
-3. Copy point clouds into `pointclouds` folder.
-4. Run `python3 labelCloud`.
-
 ## Shortcuts
 
 | Shortcut | Description |
@@ -81,3 +81,15 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 | `Del` | Delete Current BBox |
 | `R` | Reset Perspective |
 | `Esc` | Chancel Selected Points |
+
+## Usage & Attribution
+When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
+
+If you are using the tool for a scientific project please think about citing:
+
+
+    @MastersThesis{sager_2020,
+        title={labelCloud: Development of a Labeling Tool for 3D Object Detection in Point Clouds},
+        url={https://github.com/ch-sa/labelCloud/},
+        author={Sager, Christoph},
+        year={2020}}
