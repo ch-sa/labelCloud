@@ -115,7 +115,7 @@ class IFormattingInterface:
 class VerticesFormat(IFormattingInterface, ABC):
 
     def import_labels(self, pcd_name_stripped):
-        labels = []  # ToDo: Implement vertices transformation
+        labels = []  # ToDo: Implement vertices transformation and export
         return labels
 
     def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
