@@ -6,6 +6,7 @@ from typing import List
 
 import numpy as np
 
+from modules import math3d
 from modules.control import config_parser
 from modules.model.bbox import BBox
 
@@ -116,6 +117,53 @@ class VerticesFormat(IFormattingInterface, ABC):
 
     def import_labels(self, pcd_name_stripped):
         labels = []  # ToDo: Implement vertices transformation and export
+        path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
+
+        if os.path.isfile(path_to_label):
+            with open(path_to_label, "r") as read_file:
+                data = json.load(read_file)
+
+            for label in data["objects"]:
+
+                vertices = label["vertices"]
+
+                length = math3d.vector_length( np.subtract(vertices[4], vertices[6]) )
+                width = math3d.vector_length( np.subtract(vertices[6], vertices[7]) )
+                height = math3d.vector_length( np.subtract(vertices[6], vertices[3]) )
+                print("LWH: %s, %s, %s" % (length, width, height))
+
+                centroid = np.add(np.subtract(vertices[4], vertices[2]) / 2, vertices[2])
+                print("Centroid: %s" % centroid)
+
+                # Calculate rotations
+                x_vec = np.subtract(vertices[0], vertices[3])  # length vector
+                z_rotation = math3d.radians_to_degrees(np.arctan2(x_vec[1], x_vec[0])) % 360
+                print("Z-Rotation: %s" % z_rotation)
+
+                if vertices[3][2] != vertices[0][2]:
+                    print("Bounding box is y-rotated!")
+                    y_rotation = -1 * math3d.radians_to_degrees(np.arctan2(x_vec[2], x_vec[0])) % 360
+                    print("Y-Rotation: %s" % y_rotation)
+                else:
+                    y_rotation = 0
+
+                if vertices[0][2] != vertices[1][2]:
+                    print("Bounding box is x-rotated!")
+                    y_vec = np.subtract(vertices[1], vertices[0])  # width vector
+                    x_rotation = math3d.radians_to_degrees(np.arctan2(y_vec[2], y_vec[1])) % 360
+                    print("X-Rotation: %s" % x_rotation)
+                else:
+                    x_rotation = 0
+
+
+
+                bbox = BBox(*centroid, length, width, height)
+                bbox.set_rotations(x_rotation, y_rotation, z_rotation)
+
+                bbox.set_classname(label["name"])
+                print("Vertices: " + str(bbox.get_vertices()))
+                labels.append(bbox)
+            print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
 
     def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):

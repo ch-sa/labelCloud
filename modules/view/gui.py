@@ -1,8 +1,11 @@
+import configparser
 from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
+
+from modules.control import config_parser
 
 if TYPE_CHECKING:
     from modules.control.controler import Controler
@@ -89,6 +92,9 @@ class GUI(QtWidgets.QMainWindow):
 
         # Connect all events to functions
         self.connect_events()
+
+        # Activate z-rotation if set in config # TODO: Other place for loading config settings?
+        self.action_zrotation.setChecked(config_parser.get_label_settings("Z_ROTATION_ONLY"))
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
