@@ -107,10 +107,12 @@ class IFormattingInterface:
             print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
 
     @abstractmethod
-    def import_labels(self, pcd_name_stripped): raise NotImplementedError
+    def import_labels(self, pcd_name_stripped):
+        raise NotImplementedError
 
     @abstractmethod
-    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path): raise NotImplementedError
+    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
+        raise NotImplementedError
 
 
 class VerticesFormat(IFormattingInterface, ABC):
@@ -124,16 +126,15 @@ class VerticesFormat(IFormattingInterface, ABC):
                 data = json.load(read_file)
 
             for label in data["objects"]:
-
                 vertices = label["vertices"]
 
-                length = math3d.vector_length( np.subtract(vertices[4], vertices[6]) )
-                width = math3d.vector_length( np.subtract(vertices[6], vertices[7]) )
-                height = math3d.vector_length( np.subtract(vertices[6], vertices[3]) )
-                print("LWH: %s, %s, %s" % (length, width, height))
-
+                # Calculate centroid
                 centroid = np.add(np.subtract(vertices[4], vertices[2]) / 2, vertices[2])
-                print("Centroid: %s" % centroid)
+
+                # Calculate dimensions
+                length = math3d.vector_length(np.subtract(vertices[4], vertices[6]))
+                width = math3d.vector_length(np.subtract(vertices[6], vertices[7]))
+                height = math3d.vector_length(np.subtract(vertices[6], vertices[3]))
 
                 # Calculate rotations
                 x_vec = np.subtract(vertices[0], vertices[3])  # length vector
@@ -142,7 +143,8 @@ class VerticesFormat(IFormattingInterface, ABC):
 
                 if vertices[3][2] != vertices[0][2]:
                     print("Bounding box is y-rotated!")
-                    y_rotation = -1 * math3d.radians_to_degrees(np.arctan2(x_vec[2], x_vec[0])) % 360
+                    x_vec_rot = math3d.rotate_around_z(x_vec, -z_rotation, degrees=True)  # apply z-rotation
+                    y_rotation = -1 * math3d.radians_to_degrees(np.arctan2(x_vec_rot[2], x_vec_rot[0])) % 360
                     print("Y-Rotation: %s" % y_rotation)
                 else:
                     y_rotation = 0
@@ -150,18 +152,16 @@ class VerticesFormat(IFormattingInterface, ABC):
                 if vertices[0][2] != vertices[1][2]:
                     print("Bounding box is x-rotated!")
                     y_vec = np.subtract(vertices[1], vertices[0])  # width vector
-                    x_rotation = math3d.radians_to_degrees(np.arctan2(y_vec[2], y_vec[1])) % 360
+                    y_vec_rot = math3d.rotate_around_z(y_vec, -z_rotation, degrees=True)  # apply z- & y-rotation
+                    y_vec_rot = math3d.rotate_around_z(y_vec_rot, -y_rotation, degrees=True)  # TODO: Fix rounding error
+                    x_rotation = math3d.radians_to_degrees(np.arctan2(y_vec_rot[2], y_vec_rot[1])) % 360
                     print("X-Rotation: %s" % x_rotation)
                 else:
                     x_rotation = 0
 
-
-
                 bbox = BBox(*centroid, length, width, height)
                 bbox.set_rotations(x_rotation, y_rotation, z_rotation)
-
                 bbox.set_classname(label["name"])
-                print("Vertices: " + str(bbox.get_vertices()))
                 labels.append(bbox)
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
@@ -181,7 +181,6 @@ class VerticesFormat(IFormattingInterface, ABC):
             label["vertices"] = bbox.get_vertices().tolist()  # ToDo: Add option for axis-aligned vertices
             data["objects"].append(label)
 
-        # Save to JSON
         path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
         save_to_label_file(path_to_json, data)
         print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
@@ -203,7 +202,6 @@ class CentroidFormat(IFormattingInterface, ABC):
                     rotations = map(rel2abs_rotation, rotations)
                 bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
-                print("Vertices: " + str(bbox.get_vertices()))
                 labels.append(bbox)
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
