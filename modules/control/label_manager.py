@@ -130,7 +130,7 @@ class VerticesFormat(IFormattingInterface, ABC):
         for bbox in bboxes:
             label = dict()
             label["name"] = bbox.get_classname()
-            label["vertices"] = bbox.get_vertices()  # ToDo: Add option for axis-aligned vertices
+            label["vertices"] = bbox.get_vertices().tolist()  # ToDo: Add option for axis-aligned vertices
             data["objects"].append(label)
 
         # Save to JSON
@@ -155,6 +155,7 @@ class CentroidFormat(IFormattingInterface, ABC):
                     rotations = map(rel2abs_rotation, rotations)
                 bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
+                print("Vertices: " + str(bbox.get_vertices()))
                 labels.append(bbox)
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
