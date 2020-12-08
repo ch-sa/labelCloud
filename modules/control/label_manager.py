@@ -137,30 +137,10 @@ class VerticesFormat(IFormattingInterface, ABC):
                 height = math3d.vector_length(np.subtract(vertices[6], vertices[3]))
 
                 # Calculate rotations
-                x_vec = np.subtract(vertices[0], vertices[3])  # length vector
-                z_rotation = math3d.radians_to_degrees(np.arctan2(x_vec[1], x_vec[0])) % 360
-                print("Z-Rotation: %s" % z_rotation)
-
-                if vertices[3][2] != vertices[0][2]:
-                    print("Bounding box is y-rotated!")
-                    x_vec_rot = math3d.rotate_around_z(x_vec, -z_rotation, degrees=True)  # apply z-rotation
-                    y_rotation = -1 * math3d.radians_to_degrees(np.arctan2(x_vec_rot[2], x_vec_rot[0])) % 360
-                    print("Y-Rotation: %s" % y_rotation)
-                else:
-                    y_rotation = 0
-
-                if vertices[0][2] != vertices[1][2]:
-                    print("Bounding box is x-rotated!")
-                    y_vec = np.subtract(vertices[1], vertices[0])  # width vector
-                    y_vec_rot = math3d.rotate_around_z(y_vec, -z_rotation, degrees=True)  # apply z- & y-rotation
-                    y_vec_rot = math3d.rotate_around_z(y_vec_rot, -y_rotation, degrees=True)  # TODO: Fix rounding error
-                    x_rotation = math3d.radians_to_degrees(np.arctan2(y_vec_rot[2], y_vec_rot[1])) % 360
-                    print("X-Rotation: %s" % x_rotation)
-                else:
-                    x_rotation = 0
+                rotations = math3d.vertices2rotations(vertices, centroid)
 
                 bbox = BBox(*centroid, length, width, height)
-                bbox.set_rotations(x_rotation, y_rotation, z_rotation)
+                bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
                 labels.append(bbox)
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))

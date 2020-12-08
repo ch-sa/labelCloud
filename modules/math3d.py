@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -58,6 +58,35 @@ def rotate_around_zyx(point: List[float], x_angle: float, y_angle: float, z_angl
     return rotate_around_z(rotate_around_y(rotate_around_x(point, x_angle, degrees), y_angle, degrees),
                            z_angle, degrees)
 
+
+#  CONVERSION
+
+def vertices2rotations(vertices: List[List[float]], centroid: List[float]) -> Tuple[float, float, float]:
+    x_rotation, y_rotation, z_rotation = (0.0, 0.0, 0.0)
+
+    vertices_trans = np.subtract(vertices, centroid)  # translate bbox to origin # TODO: Translation necessary?
+
+    # Calculate z_rotation
+    x_vec = vertices_trans[0] - vertices_trans[3]  # length vector
+    z_rotation = radians_to_degrees(np.arctan2(x_vec[1], x_vec[0])) % 360
+
+    # Calculate y_rotation
+    if vertices[3][2] != vertices[0][2]:
+        print("Bounding box is y-rotated!")
+        x_vec_rot = rotate_around_z(x_vec, -z_rotation, degrees=True)  # apply z-rotation
+        y_rotation = -1 * radians_to_degrees(np.arctan2(x_vec_rot[2], x_vec_rot[0])) % 360
+
+    # Calculate x_rotation
+    if vertices[0][2] != vertices[1][2]:
+        print("Bounding box is x-rotated!")
+        y_vec = np.subtract(vertices_trans[1], vertices_trans[0])  # width vector
+        y_vec_rot = rotate_around_z(y_vec, -z_rotation, degrees=True)  # apply z- & y-rotation
+        y_vec_rot = rotate_around_y(y_vec_rot, -y_rotation, degrees=True)
+        x_rotation = radians_to_degrees(np.arctan2(y_vec_rot[2], y_vec_rot[1])) % 360
+        print("X-Rotation: %s" % x_rotation)
+
+    print("Loaded bounding box has rotation (x, y, z): %s, %s, %s" % (x_rotation, y_rotation, z_rotation))
+    return x_rotation, y_rotation, z_rotation
 
 # INTERSECTION
 
