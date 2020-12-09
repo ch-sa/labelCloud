@@ -44,11 +44,10 @@ Now you will be free to rotate around all three axes.
 labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
 
 **Supported Import Formats**
-* `*.pcd`, `*.ply`, `*.pts`
-* `*.xyz`, `*.xyzn`, `*.xyzrgb`
-* `*.bin` (KITTI) → [x, y, z, reflectance]
-
-Colored and colorless point clouds can be visualized.
+| Type | File Formats |
+| --- | --- |
+| Colored | `*.pcd`, `*.ply`, `*.pts`, `*.xyzrgb` |
+| Colorless | `*.xyz`, `*.xyzn`, `*.bin` (KITTI)  |
 
 **Supported Export Formats**
 
@@ -56,7 +55,7 @@ Colored and colorless point clouds can be visualized.
 | --- | --- |
 | `centroid_rel` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
 | `centroid_abs` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]` |
-| `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` |
+| `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order) |
 | `kitti` | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
 | `votenet` | *Coming soon!* |
 
@@ -81,6 +80,9 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 | `Del` | Delete Current BBox |
 | `R` | Reset Perspective |
 | `Esc` | Chancel Selected Points |
+
+
+See [documentation.md](docs/documentation.md) for software conventions.
 
 ## Usage & Attribution
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
