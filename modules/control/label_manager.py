@@ -12,7 +12,7 @@ from modules.model.bbox import BBox
 
 
 class LabelManager:
-    LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]
+    LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]  # supported export formats
     STD_LABEL_FORMAT = config_parser.get_label_settings("LABEL_FORMAT")
     STD_LABEL_FOLDER = config_parser.get_file_settings("LABEL_FOLDER")
     EXPORT_PRECISION = int(config_parser.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places

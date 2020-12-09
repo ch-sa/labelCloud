@@ -7,11 +7,14 @@ from modules.math3d import translate_point, rotate_around_zyx
 
 class BBox:
     # Defines the order in which the BBox edges are drawn
-    BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 7),  # lines to draw the bbox
-                  (6, 3), (6, 4), (6, 7), (5, 1), (5, 4), (5, 7)]  # TODO: Set explicit and logical order
+    #BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 7),  # lines to draw the bbox
+    #              (6, 3), (6, 4), (6, 7), (5, 1), (5, 4), (5, 7)]
 
-    BBOX_SIDES = {"top": [4, 5, 7, 6], "bottom": [0, 1, 2, 3], "right": [0, 1, 5, 4],  # vertices of each side
-                  "back": [1, 2, 7, 5], "left": [2, 3, 6, 7], "front": [0, 3, 6, 4]}
+    BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 6),  # lines to draw the bbox
+                  (5, 1), (5, 4), (5, 6), (7, 3), (7, 4), (7, 6)]
+
+    BBOX_SIDES = {"top": [4, 5, 6, 7], "bottom": [0, 1, 2, 3], "right": [2, 3, 7, 6],  # vertices of each side
+                  "back": [0, 3, 7, 4], "left": [0, 1, 5, 4], "front": [1, 2, 6, 5]}
 
     MIN_DIMENSION = config_parser.get_label_settings("MIN_BOUNDINGBOX_DIMENSION")
     STD_LENGTH = config_parser.get_label_settings("STD_BOUNDINGBOX_LENGTH")
@@ -113,14 +116,14 @@ class BBox:
 
     # Updates the dimension of the BBox (important after scaling!)
     def set_axis_aligned_verticies(self):
-        self._verticies = np.array([[self._length / 2, -self._width / 2, -self._height / 2],
-                                    [self._length / 2, self._width / 2, -self._height / 2],
+        self._verticies = np.array([[-self._length / 2, -self._width / 2, -self._height / 2],
                                     [-self._length / 2, self._width / 2, -self._height / 2],
-                                    [-self._length / 2, -self._width / 2, -self._height / 2],
-                                    [self._length / 2, -self._width / 2, self._height / 2],
-                                    [self._length / 2, self._width / 2, self._height / 2],
+                                    [self._length / 2, self._width / 2, -self._height / 2],
+                                    [self._length / 2, -self._width / 2, -self._height / 2],
                                     [-self._length / 2, -self._width / 2, self._height / 2],
-                                    [-self._length / 2, self._width / 2, self._height / 2]])
+                                    [-self._length / 2, self._width / 2, self._height / 2],
+                                    [self._length / 2, self._width / 2, self._height / 2],
+                                    [self._length / 2, -self._width / 2, self._height / 2]])
 
     # Draw the BBox using verticies
     def draw_bbox(self, highlighted=False):
@@ -200,16 +203,16 @@ class BBox:
     def change_side(self, side, distance):  # ToDo: Move to controler?
         if side == "right" and self._length + distance > BBox.MIN_DIMENSION:
             self._length += distance
-            self.translate_side(0, 3, distance)
+            self.translate_side(3, 0, distance)  # TODO: Make dependen from side list
         if side == "left" and self._length + distance > BBox.MIN_DIMENSION:
             self._length += distance
-            self.translate_side(3, 0, distance)
+            self.translate_side(0, 3, distance)
         if side == "front" and self._width + distance > BBox.MIN_DIMENSION:
             self._width += distance
-            self.translate_side(0, 1, distance)
+            self.translate_side(1, 0, distance)
         if side == "back" and self._width + distance > BBox.MIN_DIMENSION:
             self._width += distance
-            self.translate_side(1, 0, distance)
+            self.translate_side(0, 1, distance)
         if side == "top" and self._height + distance > BBox.MIN_DIMENSION:
             self._height += distance
             self.translate_side(4, 0, distance)
