@@ -21,6 +21,7 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
 ![Screencast of the Labeling Methods](docs/screencast_small.gif)
+(See also https://www.youtube.com/watch?v=8GF9n1WeR8A for a short introduction and preview of the tool.)
 
 **Picking Mode**
 
