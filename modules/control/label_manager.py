@@ -132,9 +132,9 @@ class VerticesFormat(IFormattingInterface, ABC):
                 centroid = np.add(np.subtract(vertices[4], vertices[2]) / 2, vertices[2])
 
                 # Calculate dimensions
-                length = math3d.vector_length(np.subtract(vertices[4], vertices[6]))
-                width = math3d.vector_length(np.subtract(vertices[6], vertices[7]))
-                height = math3d.vector_length(np.subtract(vertices[6], vertices[3]))
+                length = math3d.vector_length(np.subtract(vertices[0], vertices[3]))
+                width = math3d.vector_length(np.subtract(vertices[0], vertices[1]))
+                height = math3d.vector_length(np.subtract(vertices[0], vertices[4]))
 
                 # Calculate rotations
                 rotations = math3d.vertices2rotations(vertices, centroid)

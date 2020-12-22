@@ -67,14 +67,14 @@ def vertices2rotations(vertices: List[List[float]], centroid: List[float]) -> Tu
     vertices_trans = np.subtract(vertices, centroid)  # translate bbox to origin # TODO: Translation necessary?
 
     # Calculate z_rotation
-    x_vec = vertices_trans[0] - vertices_trans[3]  # length vector
+    x_vec = vertices_trans[3] - vertices_trans[0]  # length vector
     z_rotation = radians_to_degrees(np.arctan2(x_vec[1], x_vec[0])) % 360
 
     # Calculate y_rotation
     if vertices[3][2] != vertices[0][2]:
         print("Bounding box is y-rotated!")
         x_vec_rot = rotate_around_z(x_vec, -z_rotation, degrees=True)  # apply z-rotation
-        y_rotation = -1 * radians_to_degrees(np.arctan2(x_vec_rot[2], x_vec_rot[0])) % 360
+        y_rotation = -radians_to_degrees(np.arctan2(x_vec_rot[2], x_vec_rot[0])) % 360
 
     # Calculate x_rotation
     if vertices[0][2] != vertices[1][2]:
@@ -87,6 +87,7 @@ def vertices2rotations(vertices: List[List[float]], centroid: List[float]) -> Tu
 
     print("Loaded bounding box has rotation (x, y, z): %s, %s, %s" % (x_rotation, y_rotation, z_rotation))
     return x_rotation, y_rotation, z_rotation
+
 
 # INTERSECTION
 
