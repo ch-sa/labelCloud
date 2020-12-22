@@ -40,7 +40,7 @@ class Controler:
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
         self.view.glWidget.set_bbox_controler(self.bbox_controler)
-        self.bbox_controler.pcdc = self.pcd_controler  # ToDo reset for next pcd
+        self.bbox_controler.pcdc = self.pcd_controler
         self.bbox_controler.set_bboxes(self.pcd_controler.get_labels_from_file())  # Load labels for first pcd
 
     # EVENT CYCLE
@@ -63,7 +63,7 @@ class Controler:
 
     def prev_pcd(self):
         self.save()
-        if self.pcd_controler.current_id > 0:  # ToDo: Deactivate buttons
+        if self.pcd_controler.current_id > 0:
             self.pcd_controler.get_prev_pcd()
             self.reset()
             self.bbox_controler.set_bboxes(self.pcd_controler.get_labels_from_file())

@@ -151,7 +151,7 @@ class PickingStrategy(IDrawingStrategy, ABC):
         self.view.button_activate_picking.setChecked(False)
 
 
-class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
+class SpanStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 4
     PREVIEW = True
     CORRECTION = True  # Increases dimensions after drawing
@@ -203,14 +203,6 @@ class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
     def get_bbox(self) -> BBox:
         length = math3d.vector_length(np.subtract(self.point_1, self.point_2))
         width = math3d.vector_length(self.dir_vector)
-        # if width > length:  # Swap edges and points if width > length  # TODO: Necessary? Abs height?
-        #     tmp_width = width
-        #     width = length
-        #     length = tmp_width
-        #     tmp_point_2 = self.point_2
-        #     self.point_2 = self.point_3
-        #     self.point_3 = tmp_point_2
-        #     print("Swapped length and width edge!")
         height = self.point_4[2] - self.point_1[2]  # can also be negative
 
         line_center = np.add(self.point_1, self.point_2) / 2
@@ -220,7 +212,6 @@ class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
         # Calculating z-rotation
         len_vec_2d = np.subtract(self.point_1, self.point_2)
         z_angle = np.arctan(len_vec_2d[1] / len_vec_2d[0])
-        # print("Z-Rotation: %s (%s)" % (round(z_angle, 2), round(np.rad2deg(z_angle))))
 
         if SpanStrategy.CORRECTION:
             length *= 1.1

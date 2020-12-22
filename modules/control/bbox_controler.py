@@ -3,8 +3,7 @@ A class to handle all user manipulations of the bounding boxes and collect all l
 Bounding Box Management: adding, updating, deleting bboxes; changing the active bounding box
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
-import time
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, List
 
 import numpy as np
 
@@ -84,7 +83,7 @@ class BoundingBoxControler:
             self.set_active_bbox(self.bboxes.index(bbox))
             self.view.update_status("Bounding Box added, it can now be corrected.", mode="correction")
 
-    def update_bbox(self, bbox_id, bbox):  # TODO: Not used so far
+    def update_bbox(self, bbox_id, bbox):
         if isinstance(bbox, BBox) and (0 <= bbox_id < len(self.bboxes)):
             self.bboxes[bbox_id] = bbox
             self.update_label_list()
@@ -118,8 +117,8 @@ class BoundingBoxControler:
     def set_center(self, cx, cy, cz):
         self.get_active_bbox().center = (cx, cy, cz)
 
-    def set_bboxes(self, bboxes):
-        self.bboxes = bboxes  # ToDo: Test type
+    def set_bboxes(self, bboxes: List[BBox]):
+        self.bboxes = bboxes
         self.deselect_bbox()
         self.update_label_list()
 
@@ -199,7 +198,7 @@ class BoundingBoxControler:
 
     # Scale bbox while keeping ratios
     @has_active_bbox_decorator
-    def scale(self, length_increase=STD_SCALING, decrease=False):  # Todo check active bbox (decorator)
+    def scale(self, length_increase=STD_SCALING, decrease=False):
         if decrease:
             length_increase *= -1
         length, width, height = self.get_active_bbox().get_dimensions()

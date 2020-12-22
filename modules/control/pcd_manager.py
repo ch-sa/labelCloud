@@ -90,7 +90,7 @@ class PointCloudManger:
         if self.pcds_left():
             self.current_id += 1
             self.pointcloud = self.load_pointcloud(self.get_current_path())
-            self.update_pcd_infos()  # TODO: Delete old pcd?
+            self.update_pcd_infos()
         else:
             if self.current_id == -1:
                 show_no_pcd_dialog()

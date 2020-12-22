@@ -82,7 +82,7 @@ class GUI(QtWidgets.QMainWindow):
         self.button_deselect_label = self.findChild(QtWidgets.QPushButton, "button_label_deselect")
         self.button_delete_label = self.findChild(QtWidgets.QPushButton, "button_label_delete")
 
-        # Non-GUI variables
+        # Connect with controler
         self.controler = control
         self.controler.set_view(self)
 
@@ -104,8 +104,7 @@ class GUI(QtWidgets.QMainWindow):
         # BBOX CONTROL
         self.button_up.pressed.connect(lambda: self.controler.bbox_controler.translate_along_z())
         self.button_down.pressed.connect(lambda: self.controler.bbox_controler.translate_along_z(down=True))
-        # self.button_left.pressed.connect(lambda: self.controler.bbox_controler.translate_along_x(left=True))
-        self.button_left.pressed.connect(self.translate)
+        self.button_left.pressed.connect(lambda: self.controler.bbox_controler.translate_along_x(left=True))
         self.button_right.pressed.connect(self.controler.bbox_controler.translate_along_x)
         self.button_forward.pressed.connect(lambda: self.controler.bbox_controler.translate_along_y(forward=True))
         self.button_backward.pressed.connect(lambda: self.controler.bbox_controler.translate_along_y())
@@ -122,15 +121,12 @@ class GUI(QtWidgets.QMainWindow):
         self.label_list.currentRowChanged.connect(self.controler.bbox_controler.set_active_bbox)
 
         # LABEL CONTROL
-        # Activate drawing modes: picking, spanning, ?
         self.button_activate_picking.clicked.connect(lambda: self.controler.drawing_mode.
                                                      set_drawing_strategy("PickingStrategy"))
         self.button_activate_spanning.clicked.connect(lambda: self.controler.drawing_mode.
                                                       set_drawing_strategy("SpanStrategy"))
         self.button_activate_drag.clicked.connect(lambda: self.controler.drawing_mode.
                                                   set_drawing_strategy("RectangleStrategy"))
-
-        # Save current point cloud labels to json
         self.button_save_labels.clicked.connect(self.controler.save)
 
         # MENU BAR
@@ -139,9 +135,6 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showfloor.toggled.connect(self.set_floor_visibility)
         self.action_showorientation.toggled.connect(self.set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controler.align_mode.change_activation)
-
-    def translate(self):
-        self.controler.bbox_controler.translate_along_x(left=True)
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
@@ -152,6 +145,7 @@ class GUI(QtWidgets.QMainWindow):
             return True
         elif event.type() == QEvent.KeyRelease:
             self.controler.key_release_event(event)
+
         # Mouse Events
         elif (event.type() == QEvent.MouseMove) and (event_object == self.glWidget):
             self.controler.mouse_move_event(event)
@@ -168,7 +162,6 @@ class GUI(QtWidgets.QMainWindow):
         elif (event.type() == QEvent.MouseButtonPress) and (event_object != self.curr_class_edit):
             self.curr_class_edit.clearFocus()
             self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
-
         return False
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:

@@ -7,9 +7,6 @@ from modules.math3d import translate_point, rotate_around_zyx
 
 class BBox:
     # Defines the order in which the BBox edges are drawn
-    #BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 7),  # lines to draw the bbox
-    #              (6, 3), (6, 4), (6, 7), (5, 1), (5, 4), (5, 7)]
-
     BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 6),  # lines to draw the bbox
                   (5, 1), (5, 4), (5, 6), (7, 3), (7, 4), (7, 6)]
 
@@ -133,7 +130,7 @@ class BBox:
 
         GL.glTranslate(*self.get_center())
         
-        GL.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)  # TODO: Define Order of Rotation
+        GL.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)
         GL.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
         GL.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
         

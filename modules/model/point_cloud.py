@@ -98,9 +98,7 @@ class PointCloud:
 
     def write_vbo(self):
         v_array = self.transform_data()
-        # if bool(gl.glGenBuffers):  # GenBuffer must first be set by OpenGL widget
         self.vbo = create_buffer(v_array)
-        print("Wrote VBO!")
 
     def draw_pointcloud(self):
         GL.glTranslate(self.trans_x, self.trans_y, self.trans_z)  # third, pcd translation
