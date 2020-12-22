@@ -265,7 +265,8 @@ class SpanStrategy(IDrawingStrategy, ABC):  # TODO: Refactor to SpanningStrategy
             p1_wt = np.add(self.p1_w, [0, 0, height1])
             p2_wt = np.add(self.p2_w, [0, 0, height1])
 
-            ogl.draw_cuboid([self.p2_w, self.point_2, self.point_1, self.p1_w, p2_wt, p2_t, p1_wt, p1_t],
+            ogl.draw_cuboid([self.p1_w, self.point_1, self.point_2, self.p2_w,
+                             p1_wt, p1_t, p2_t, p2_wt],
                             color=(1, 1, 0, 0.5), draw_vertices=True, vertex_color=self.preview_color)
 
 
