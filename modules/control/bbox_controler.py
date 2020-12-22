@@ -138,14 +138,14 @@ class BoundingBoxControler:
     def rotate_around_x(self, dangle=STD_ROTATION, clockwise=False):
         if clockwise:
             dangle *= -1
-        self.get_active_bbox().set_x_rotation(self.get_active_bbox().x_rotation + dangle)
+        self.get_active_bbox().set_x_rotation(self.get_active_bbox().get_x_rotation() + dangle)
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
     def rotate_around_y(self, dangle=STD_ROTATION, clockwise=False):
         if clockwise:
             dangle *= -1
-        self.get_active_bbox().set_y_rotation(self.get_active_bbox().y_rotation + dangle)
+        self.get_active_bbox().set_y_rotation(self.get_active_bbox().get_y_rotation() + dangle)
 
     @has_active_bbox_decorator
     def rotate_around_z(self, dangle=STD_ROTATION, clockwise=False, absolute=False):
@@ -154,7 +154,7 @@ class BoundingBoxControler:
         if absolute:
             self.get_active_bbox().set_z_rotation(dangle)
         else:
-            self.get_active_bbox().set_z_rotation(self.get_active_bbox().z_rotation + dangle)
+            self.get_active_bbox().set_z_rotation(self.get_active_bbox().get_z_rotation() + dangle)
         self.update_all()
 
     @has_active_bbox_decorator

@@ -59,6 +59,16 @@ def rotate_around_zyx(point: List[float], x_angle: float, y_angle: float, z_angl
                            z_angle, degrees)
 
 
+def rotate_bbox_around_center(vertices: List[List[float]], center: List[float], rotations: List[float])\
+        -> List[List[float]]:
+    rotated_vertices = []
+    for vertex in vertices:
+        centered_vertex = translate_point(vertex, *center, backwards=True)
+        rotated_vertex = rotate_around_zyx(centered_vertex, *rotations, degrees=True)
+        rotated_vertices.append(translate_point(rotated_vertex, *center))
+    return rotated_vertices
+
+
 #  CONVERSION
 
 def vertices2rotations(vertices: List[List[float]], centroid: List[float]) -> Tuple[float, float, float]:

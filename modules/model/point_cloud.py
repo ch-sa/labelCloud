@@ -3,9 +3,9 @@ import ctypes
 import numpy as np
 import OpenGL.GL as GL
 
-# Get size of float (4 bytes) for VBOs
 from modules.control import config_parser
 
+# Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
 
 
@@ -52,10 +52,10 @@ class PointCloud:
         return len(self.colors)
 
     def get_rotations(self):
-        return np.round([self.rot_x, self.rot_y, self.rot_z], 1)
+        return [self.rot_x, self.rot_y, self.rot_z]
 
     def get_translations(self):
-        return np.round([self.trans_x, self.trans_y, self.trans_z], 4)
+        return [self.trans_x, self.trans_y, self.trans_z]
 
     def get_mins_maxs(self):
         return self.pcd_mins, self.pcd_maxs
@@ -103,14 +103,14 @@ class PointCloud:
     def draw_pointcloud(self):
         GL.glTranslate(self.trans_x, self.trans_y, self.trans_z)  # third, pcd translation
 
-        rot_trans = np.add(self.pcd_mins, (np.subtract(self.pcd_maxs, self.pcd_mins)/2))
-        GL.glTranslate(*rot_trans)              # move point cloud back
+        pcd_center = np.add(self.pcd_mins, (np.subtract(self.pcd_maxs, self.pcd_mins)/2))
+        GL.glTranslate(*pcd_center)              # move point cloud back
 
         GL.glRotate(self.rot_x, 1.0, 0.0, 0.0)
         GL.glRotate(self.rot_y, 0.0, 1.0, 0.0)  # second, pcd rotation
         GL.glRotate(self.rot_z, 0.0, 0.0, 1.0)
 
-        GL.glTranslate(*(rot_trans * -1))       # move point cloud to center for rotation
+        GL.glTranslate(*(pcd_center * -1))       # move point cloud to center for rotation
 
         GL.glPointSize(PointCloud.POINT_SIZE)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)

@@ -1,8 +1,10 @@
+from typing import Tuple, List
+
 import OpenGL.GL as GL
 import numpy as np
 
 from modules.control import config_parser
-from modules.math3d import translate_point, rotate_around_zyx
+from modules import math3d, oglhelper
 
 
 class BBox:
@@ -23,68 +25,64 @@ class BBox:
 
     def __init__(self, cx, cy, cz, length=STD_LENGTH, width=STD_WIDTH, height=STD_HEIGHT):
         self.center = cx, cy, cz
-        self._length = length
-        self._width = width
-        self._height = height
+        self.length = length
+        self.width = width
+        self.height = height
         self.x_rotation = 0
         self.y_rotation = 0
         self.z_rotation = 0
-        self._verticies = None
-        self._classname = BBox.STD_OBJECT_CLASS
+        self.classname = BBox.STD_OBJECT_CLASS
+        self.verticies = None
         self.set_axis_aligned_verticies()
 
     # GETTERS
 
-    def get_classname(self):
-        return self._classname
-
-    def get_center(self):
+    def get_center(self) -> Tuple[float, float, float]:
         return self.center
 
-    def get_dimensions(self):
-        return self._length, self._width, self._height
+    def get_dimensions(self) -> Tuple[float, float, float]:
+        return self.length, self.width, self.height
 
-    def get_x_rotation(self):
-        return self.x_rotation
-
-    def get_y_rotation(self):
-        return self.y_rotation
-
-    def get_z_rotation(self):
-        return self.z_rotation
-
-    def get_rotations(self):
+    def get_rotations(self) -> Tuple[float, float, float]:
         return self.x_rotation, self.y_rotation, self.z_rotation
 
-    def get_axis_aligned_vertices(self):
-        coords = []
-        for vertex in self._verticies:  # Translate relative bbox to center
-            coords.append(translate_point(vertex, *self.center))
-        return coords
+    def get_x_rotation(self) -> float:
+        return self.x_rotation
+
+    def get_y_rotation(self) -> float:
+        return self.y_rotation
+
+    def get_z_rotation(self) -> float:
+        return self.z_rotation
+
+    def get_classname(self) -> str:
+        return self.classname
 
     def get_vertices(self) -> np.array:
-        points = self.get_axis_aligned_vertices()
-        rotated_points = []
-        for p in points:  # ToDo: Replace by matrix multiplication
-            p_centered = translate_point(p, *self.center, backwards=True)
-            p_rotated = rotate_around_zyx(p_centered, self.x_rotation, self.y_rotation, self.z_rotation, degrees=True)
-            rotated_points.append(translate_point(p_rotated, *self.center))
-        return np.array(rotated_points)
+        rotated_vertices = math3d.rotate_bbox_around_center(self.get_axis_aligned_vertices(), list(self.center),
+                                                            list(self.get_rotations()))
+        return np.array(rotated_vertices)
 
-    def get_volume(self):
-        return self._length * self._width * self._height
+    def get_axis_aligned_vertices(self) -> List[List[float]]:
+        coords = []
+        for vertex in self.verticies:  # Translate relative bbox to center
+            coords.append(math3d.translate_point(vertex, *self.center))
+        return coords
+
+    def get_volume(self) -> float:
+        return self.length * self.width * self.height
 
     # SETTERS
 
     def set_classname(self, classname):
         if classname:
-            self._classname = classname
+            self.classname = classname
 
     def set_dimensions(self, length, width, height):
         if (length > 0) and (width > 0) and (height > 0):
-            self._length = length
-            self._width = width
-            self._height = height
+            self.length = length
+            self.width = width
+            self.height = height
         else:
             print("New dimensions are too small.")
 
@@ -113,44 +111,36 @@ class BBox:
 
     # Updates the dimension of the BBox (important after scaling!)
     def set_axis_aligned_verticies(self):
-        self._verticies = np.array([[-self._length / 2, -self._width / 2, -self._height / 2],
-                                    [-self._length / 2, self._width / 2, -self._height / 2],
-                                    [self._length / 2, self._width / 2, -self._height / 2],
-                                    [self._length / 2, -self._width / 2, -self._height / 2],
-                                    [-self._length / 2, -self._width / 2, self._height / 2],
-                                    [-self._length / 2, self._width / 2, self._height / 2],
-                                    [self._length / 2, self._width / 2, self._height / 2],
-                                    [self._length / 2, -self._width / 2, self._height / 2]])
+        self.verticies = np.array([[-self.length / 2, -self.width / 2, -self.height / 2],
+                                   [-self.length / 2, self.width / 2, -self.height / 2],
+                                   [self.length / 2, self.width / 2, -self.height / 2],
+                                   [self.length / 2, -self.width / 2, -self.height / 2],
+                                   [-self.length / 2, -self.width / 2, self.height / 2],
+                                   [-self.length / 2, self.width / 2, self.height / 2],
+                                   [self.length / 2, self.width / 2, self.height / 2],
+                                   [self.length / 2, -self.width / 2, self.height / 2]])
 
     # Draw the BBox using verticies
     def draw_bbox(self, highlighted=False):
         self.set_axis_aligned_verticies()
 
         GL.glPushMatrix()
-
-        GL.glTranslate(*self.get_center())
-        
-        GL.glRotate(self.get_z_rotation(), 0.0, 0.0, 1.0)
-        GL.glRotate(self.get_y_rotation(), 0.0, 1.0, 0.0)
-        GL.glRotate(self.get_x_rotation(), 1.0, 0.0, 0.0)
-        
-        GL.glBegin(GL.GL_LINES)  # ToDo: Update to modern OpenGL
-
+        bbox_color = (0, 0, 1, 1)
         if highlighted:
-            GL.glColor3f(0, 1, 0)
-        else:
-            GL.glColor3f(0, 0, 1)
+            bbox_color = (0, 1, 0, 1)
 
-        for edge in BBox.BBOX_EDGES:  # TODO: Use OGL helper function
-            for vertex in edge:
-                GL.glVertex3fv(self._verticies[vertex])
-        GL.glEnd()
+        vertices = self.get_vertices()
+        drawing_sequence = []
+        for edge in BBox.BBOX_EDGES:
+            for vertex_id in edge:
+                drawing_sequence.append(vertices[vertex_id])
 
+        oglhelper.draw_lines(drawing_sequence, color=bbox_color)
         GL.glPopMatrix()
 
     def draw_orientation(self, crossed_side: bool = True):
         # Get object coordinates for arrow
-        arrow_length = self._length * 0.4
+        arrow_length = self.length * 0.4
         bp2 = [arrow_length, 0, 0]
         first_edge = [arrow_length * 0.8, arrow_length * 0.3, 0]  # TODO: Refactor to OGL helper
         second_edge = [arrow_length * 0.8, arrow_length * -0.3, 0]
@@ -176,10 +166,10 @@ class BBox:
         GL.glVertex3fv(bp2)
         GL.glVertex3fv(third_edge)
         if crossed_side:
-            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][0]])
-            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][2]])
-            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][1]])
-            GL.glVertex3fv(self._verticies[BBox.BBOX_SIDES["right"][3]])
+            GL.glVertex3fv(self.verticies[BBox.BBOX_SIDES["right"][0]])
+            GL.glVertex3fv(self.verticies[BBox.BBOX_SIDES["right"][2]])
+            GL.glVertex3fv(self.verticies[BBox.BBOX_SIDES["right"][1]])
+            GL.glVertex3fv(self.verticies[BBox.BBOX_SIDES["right"][3]])
         GL.glEnd()
         GL.glLineWidth(1)
         GL.glPopMatrix()
@@ -188,31 +178,31 @@ class BBox:
 
     # Translate bbox by cx, cy, cz
     def translate_bbox(self, dx, dy, dz):
-        self.center = translate_point(list(self.center), dx, dy, dz)
+        self.center = math3d.translate_point(list(self.center), dx, dy, dz)
 
     # Translate bbox away from extension by half distance
     def translate_side(self, p_id_s, p_id_o, distance):
         direction = np.subtract(self.get_vertices()[p_id_s], self.get_vertices()[p_id_o])
         translation_vector = direction / np.linalg.norm(direction) * (distance / 2)
-        self.center = translate_point(self.center, *translation_vector)
+        self.center = math3d.translate_point(self.center, *translation_vector)
 
     # Extend bbox side by distance
     def change_side(self, side, distance):  # ToDo: Move to controler?
-        if side == "right" and self._length + distance > BBox.MIN_DIMENSION:
-            self._length += distance
+        if side == "right" and self.length + distance > BBox.MIN_DIMENSION:
+            self.length += distance
             self.translate_side(3, 0, distance)  # TODO: Make dependen from side list
-        if side == "left" and self._length + distance > BBox.MIN_DIMENSION:
-            self._length += distance
+        if side == "left" and self.length + distance > BBox.MIN_DIMENSION:
+            self.length += distance
             self.translate_side(0, 3, distance)
-        if side == "front" and self._width + distance > BBox.MIN_DIMENSION:
-            self._width += distance
+        if side == "front" and self.width + distance > BBox.MIN_DIMENSION:
+            self.width += distance
             self.translate_side(1, 0, distance)
-        if side == "back" and self._width + distance > BBox.MIN_DIMENSION:
-            self._width += distance
+        if side == "back" and self.width + distance > BBox.MIN_DIMENSION:
+            self.width += distance
             self.translate_side(0, 1, distance)
-        if side == "top" and self._height + distance > BBox.MIN_DIMENSION:
-            self._height += distance
+        if side == "top" and self.height + distance > BBox.MIN_DIMENSION:
+            self.height += distance
             self.translate_side(4, 0, distance)
-        if side == "bottom" and self._height + distance > BBox.MIN_DIMENSION:
-            self._height += distance
+        if side == "bottom" and self.height + distance > BBox.MIN_DIMENSION:
+            self.height += distance
             self.translate_side(0, 4, distance)
