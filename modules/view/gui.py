@@ -1,11 +1,8 @@
-import configparser
 from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
-
-from modules.control import config_parser
 
 if TYPE_CHECKING:
     from modules.control.controler import Controler
@@ -88,13 +85,9 @@ class GUI(QtWidgets.QMainWindow):
         # Non-GUI variables
         self.controler = control
         self.controler.set_view(self)
-        self.last_was_scroll = False  # ToDo: Necessary?
 
         # Connect all events to functions
         self.connect_events()
-
-        # Activate z-rotation if set in config # TODO: Other place for loading config settings?
-        self.action_zrotation.setChecked(config_parser.get_label_settings("Z_ROTATION_ONLY"))
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -163,7 +156,6 @@ class GUI(QtWidgets.QMainWindow):
         elif (event.type() == QEvent.MouseMove) and (event_object == self.glWidget):
             self.controler.mouse_move_event(event)
             self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
-            self.last_was_scroll = False
         elif (event.type() == QEvent.Wheel) and (event_object == self.glWidget):
             self.controler.mouse_scroll_event(event)
             self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())

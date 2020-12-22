@@ -36,15 +36,16 @@ def only_zrotation_decorator(func):
 
 
 class BoundingBoxControler:
+    Z_ROTATION = config_parser.get_label_settings("Z_ROTATION_ONLY")
     STD_TRANSLATION = config_parser.get_label_settings("STD_TRANSLATION")
     STD_ROTATION = config_parser.get_label_settings("STD_ROTATION")
     STD_SCALING = config_parser.get_label_settings("STD_SCALING")
 
-    def __init__(self, view: 'GUI' = None, only_z_rotation: bool = True):
-        self.view = view
+    def __init__(self):
+        self.view = None
         self.bboxes = []
         self.active_bbox_id = -1  # -1 means zero bboxes
-        self.only_z_rotation = only_z_rotation
+        self.only_z_rotation = BoundingBoxControler.Z_ROTATION
         self.pcdc = None
 
     # GETTERS
@@ -71,6 +72,7 @@ class BoundingBoxControler:
 
     def set_view(self, view: 'GUI'):
         self.view = view
+        self.view.action_zrotation.setChecked(self.only_z_rotation)
 
     def set_rotation_mode(self, state: bool):
         self.only_z_rotation = state

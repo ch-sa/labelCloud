@@ -1,4 +1,3 @@
-import time
 from typing import Union
 
 from PyQt5 import QtGui, QtCore
@@ -18,8 +17,7 @@ class Controler:
     def __init__(self):
         self.view: Union[GUI, None] = None
         self.pcd_controler = PointCloudManger()
-        # ToDo: Load labels for first pcd if file exists
-        self.bbox_controler = BoundingBoxControler(only_z_rotation=True)
+        self.bbox_controler = BoundingBoxControler()
 
         # Drawing states
         self.drawing_mode = DrawingManager(self.bbox_controler)

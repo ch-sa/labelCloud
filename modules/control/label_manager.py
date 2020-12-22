@@ -103,6 +103,8 @@ class IFormattingInterface:
         self.relative_rotation = relative_rotation
         if relative_rotation:
             print("Saving rotations relatively to positve x-axis in radians (-pi..+pi).")
+        elif self.__class__.__name__ == "VerticesFormat":
+            print("Saving rotations implicitly in the vertices coordinates.")
         else:
             print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
 
@@ -118,7 +120,7 @@ class IFormattingInterface:
 class VerticesFormat(IFormattingInterface, ABC):
 
     def import_labels(self, pcd_name_stripped):
-        labels = []  # ToDo: Implement vertices transformation and export
+        labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
 
         if os.path.isfile(path_to_label):
