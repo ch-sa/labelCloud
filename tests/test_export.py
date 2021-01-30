@@ -54,3 +54,15 @@ def test_centroid_abs_export(bounding_box, tmpdir):
                     [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
                       'dimensions': {'length': 1, 'width': 1, 'height': 1},
                       'rotations': {'x': 90, 'y': 180, 'z': 270}}]}
+
+
+def test_kitti_export(bounding_box, tmpdir):
+    label_manager = LabelManager(strategy="kitti", path_to_label_folder=tmpdir)
+    label_manager.export_labels("testfolder/testpcd.ply", [bounding_box])
+
+    with open(os.path.join(tmpdir, "testpcd.txt"), "r") as read_file:
+        data = read_file.readlines()
+
+    print(data)
+
+    assert data == ['test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.570796\n']
