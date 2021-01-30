@@ -229,7 +229,7 @@ class GUI(QtWidgets.QMainWindow):
 
 
 def create_html_table(data: Dict):
-    style = """<style>     
+    style = """<style>
             th {
                 text-align: left;
                 text-transform: uppercase;
