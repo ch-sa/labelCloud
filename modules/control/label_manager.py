@@ -160,7 +160,7 @@ class VerticesFormat(IFormattingInterface, ABC):
         for bbox in bboxes:
             label = dict()
             label["name"] = bbox.get_classname()
-            label["vertices"] = bbox.get_vertices().tolist()  # ToDo: Add option for axis-aligned vertices
+            label["vertices"] = round_dec(bbox.get_vertices().tolist())  # ToDo: Add option for axis-aligned vertices
             data["objects"].append(label)
 
         path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
@@ -242,9 +242,9 @@ class KittiFormat(IFormattingInterface, ABC):
         # Labels
         for bbox in bboxes:
             obj_type = bbox.get_classname()
-            location = " ".join([str(v) for v in bbox.get_center()])
-            dimensions = " ".join([str(v) for v in bbox.get_dimensions()])
-            rotation_y = abs2rel_rotation(bbox.get_z_rotation())
+            location = " ".join([str(round_dec(v)) for v in bbox.get_center()])
+            dimensions = " ".join([str(round_dec(v)) for v in bbox.get_dimensions()])
+            rotation_y = round_dec(abs2rel_rotation(bbox.get_z_rotation()))
 
             data += " ".join([obj_type, "0 0 0 0 0 0 0", dimensions, location, str(rotation_y)]) + "\n"
 
