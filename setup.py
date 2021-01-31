@@ -20,7 +20,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'labelCloud=labelCloud.__main__:main'
+            'labelCloud=labelCloud:main'
         ]
     }
 )

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 from PyQt5 import QtGui, QtCore
 
@@ -8,8 +8,7 @@ from control.pcd_manager import PointCloudManger
 from model.bbox import BBox
 from control.bbox_controler import BoundingBoxControler
 
-if TYPE_CHECKING:
-    from view.gui import GUI
+from view.gui import GUI
 from utils import oglhelper
 
 

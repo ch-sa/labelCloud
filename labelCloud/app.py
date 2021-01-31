@@ -12,8 +12,10 @@ def run():
     # Setup Model-View-Control structure
     control = Controler()
     view = GUI(control)
+
+    # Install event filter to catch user interventions
     app.installEventFilter(view)
 
+    # Start gui
     view.show()
-
     sys.exit(app.exec_())

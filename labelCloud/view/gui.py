@@ -6,7 +6,6 @@ from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
 from view.viewer import GLWidget
-
 if TYPE_CHECKING:
     from control.controler import Controler
 
@@ -22,20 +21,26 @@ class GUI(QtWidgets.QMainWindow):
 
         # MENU BAR
         # File
-        self.action_setpcdfolder = self.findChild(QtWidgets.QAction, "action_setpcdfolder").setEnabled(False)
-        self.action_setlabelfolder = self.findChild(QtWidgets.QAction, "action_setlabelfolder").setEnabled(False)
-        self.action_loadsinglepcd = self.findChild(QtWidgets.QAction, "action_loadsinglepcd").setEnabled(False)
+        self.action_setpcdfolder = self.findChild(QtWidgets.QAction, "action_setpcdfolder")
+        self.action_setpcdfolder.setEnabled(False)  # TODO: Implement
+        self.action_setlabelfolder = self.findChild(QtWidgets.QAction, "action_setlabelfolder")
+        self.action_setlabelfolder.setEnabled(False)    # TODO: Implement
+        self.action_loadsinglepcd = self.findChild(QtWidgets.QAction, "action_loadsinglepcd")
+        self.action_loadsinglepcd.setEnabled(False)  # TODO: Implement
 
         # Labels
         self.action_zrotation = self.findChild(QtWidgets.QAction, "action_zrotationonly")
         self.action_deletelabels = self.findChild(QtWidgets.QAction, "action_deletealllabels")
-        self.action_setclasslist = self.findChild(QtWidgets.QAction, "action_setclasslist").setEnabled(False)
-        self.action_setstddimensions = self.findChild(QtWidgets.QAction, "action_setstddimensions").setEnabled(False)
-        self.action_setstdtransformations = self.findChild(QtWidgets.QAction,
-                                                           "action_setstdtransformations").setEnabled(False)
+        self.action_setclasslist = self.findChild(QtWidgets.QAction, "action_setclasslist")
+        self.action_setclasslist.setEnabled(False)  # TODO: Implement
+        self.action_setstddimensions = self.findChild(QtWidgets.QAction, "action_setstddimensions")
+        self.action_setstddimensions.setEnabled(False)  # TODO: Implement
+        self.action_setstdtransformations = self.findChild(QtWidgets.QAction, "action_setstdtransformations")
+        self.action_setstddimensions.setEnabled(False)  # TODO: Implement
 
         # Settings
-        self.action_pointsize = self.findChild(QtWidgets.QAction, "action_pointsize").setEnabled(False)
+        self.action_pointsize = self.findChild(QtWidgets.QAction, "action_pointsize")
+        self.action_pointsize.setEnabled(False)  # TODO: Implement
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
         self.action_showorientation = self.findChild(QtWidgets.QAction, "action_showorientation")
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")

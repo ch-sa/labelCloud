@@ -1,5 +1,5 @@
 # Create virtual buffer object with coordinates and colors
-from typing import TYPE_CHECKING, Union
+from typing import Union
 
 import numpy as np
 import OpenGL.GL as GL
@@ -11,9 +11,7 @@ from control import config_parser
 from control.alignmode import AlignMode
 from control.bbox_controler import BoundingBoxControler
 from control.pcd_manager import PointCloudManger
-
-if TYPE_CHECKING:
-    from labelCloud import DrawingManager
+from control.drawing_manager import DrawingManager
 
 
 # Main widget for presenting the point cloud
