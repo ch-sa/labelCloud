@@ -10,6 +10,7 @@
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ![Overview of the Labeling Tool](docs/io_overview.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fch-sa%2FlabelCloud.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fch-sa%2FlabelCloud?ref=badge_shield)
 
 ## Setup
 
@@ -101,3 +102,7 @@ If you are using the tool for a scientific project please think about citing:
 ## Acknowledgment
 I would like to thank the [Robotron RCV-Team](https://www.robotron.de/rcv) for the support in the preparation and user evaluation of the software.
 The software was developed as part of my diploma thesis titled "labelCloud: Development of a Labeling Tool for 3D Object Detection in Point Clouds" at the [Chair for Business Informatics, especially Intelligent Systems](https://tu-dresden.de/bu/wirtschaft/winf/isd) of the TU Dresden. The ongoing research can be followed in our [project on ResearchGate](https://www.researchgate.net/project/Development-of-a-Point-Cloud-Labeling-Tool-to-Generate-Training-Data-for-3D-Object-Detection-and-6D-Pose-Estimation).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fch-sa%2FlabelCloud.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fch-sa%2FlabelCloud?ref=badge_large)
