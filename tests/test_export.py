@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-import labelCloud.app  # preventing circular import
+from labelCloud import app  # preventing circular import
 from control.label_manager import LabelManager
 from model.bbox import BBox
 
