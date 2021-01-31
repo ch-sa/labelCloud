@@ -6,9 +6,9 @@ from typing import List
 
 import numpy as np
 
-from modules import math3d
-from modules.control import config_parser
-from modules.model.bbox import BBox
+from utils import math3d
+from control import config_parser
+from model.bbox import BBox
 
 
 class LabelManager:

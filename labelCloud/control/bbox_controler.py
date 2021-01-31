@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING, Union, List
 
 import numpy as np
 
-from modules import oglhelper
-from modules.control import config_parser
-from modules.model.bbox import BBox
+from utils import oglhelper
+from control import config_parser
+from model.bbox import BBox
 
 if TYPE_CHECKING:
-    from modules.view.gui import GUI
+    from labelCloud import GUI
 
 
 # DECORATORS

@@ -2,10 +2,17 @@
 import configparser
 
 # Read local file `config.ini`.
+import os
 from typing import List, Union
 
+PATH_TO_CONFIG = "config.ini"
+
 config = configparser.ConfigParser()
-config.read("config.ini")
+
+if os.path.isfile(PATH_TO_CONFIG):
+    config.read("config.ini")
+else:
+    config.read("ressources/default_config.ini")
 
 
 # Parses string to list if it contains a ","

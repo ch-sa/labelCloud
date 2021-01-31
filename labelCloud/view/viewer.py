@@ -6,14 +6,14 @@ import OpenGL.GL as GL
 from OpenGL import GLU
 from PyQt5 import QtOpenGL, QtGui
 
-from modules import oglhelper
-from modules.control import config_parser
-from modules.control.alignmode import AlignMode
-from modules.control.bbox_controler import BoundingBoxControler
-from modules.control.pcd_manager import PointCloudManger
+from utils import oglhelper
+from control import config_parser
+from control.alignmode import AlignMode
+from control.bbox_controler import BoundingBoxControler
+from control.pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
-    from modules.control.drawing_manager import DrawingManager
+    from labelCloud import DrawingManager
 
 
 # Main widget for presenting the point cloud

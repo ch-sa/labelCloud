@@ -3,9 +3,9 @@ import os
 
 import pytest
 
-import labelCloud   # to prevent circular imports
-from modules.model.bbox import BBox
-from modules.control.label_manager import LabelManager
+import labelCloud.__main__  # preventing circular import
+from control.label_manager import LabelManager
+from model.bbox import BBox
 
 
 @pytest.fixture

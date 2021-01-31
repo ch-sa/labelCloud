@@ -12,13 +12,13 @@ import open3d as o3d
 from PyQt5.QtWidgets import QCompleter, QMessageBox
 from shutil import copyfile
 
-from modules.control import config_parser
-from modules.control.label_manager import LabelManager
-from modules.model.bbox import BBox
-from modules.model.point_cloud import PointCloud
+from control import config_parser
+from control.label_manager import LabelManager
+from model.bbox import BBox
+from model.point_cloud import PointCloud
 
 if TYPE_CHECKING:
-    from modules.view.gui import GUI
+    from labelCloud import GUI
 
 
 def find_pcd_files(path: str) -> List[str]:
@@ -52,7 +52,7 @@ def show_no_pcd_dialog():
 
 
 def color_pointcloud(points, z_min, z_max):
-    palette = np.loadtxt("ressources/rocket-palette.txt")
+    palette = np.loadtxt("labelCloud/ressources/rocket-palette.txt")
     palette_len = len(palette) - 1
 
     colors = np.zeros(points.shape)

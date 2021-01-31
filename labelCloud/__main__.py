@@ -1,10 +1,11 @@
 import sys
 
+sys.path.insert(0, "labelCloud")
+
 from PyQt5 import QtWidgets
 
-from modules.control.controler import Controler
-from modules.view.gui import GUI
-
+from control.controler import Controler
+from view.gui import GUI
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

@@ -4,10 +4,10 @@ from typing import Union, TYPE_CHECKING
 
 import numpy as np
 
-import modules.oglhelper as ogl
-from modules.control.pcd_manager import PointCloudManger
+import utils.oglhelper as ogl
+from control.pcd_manager import PointCloudManger
 if TYPE_CHECKING:
-    from modules.view.gui import GUI
+    from view.gui import GUI
 
 
 class AlignMode:

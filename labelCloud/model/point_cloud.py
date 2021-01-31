@@ -3,7 +3,7 @@ import ctypes
 import numpy as np
 import OpenGL.GL as GL
 
-from modules.control import config_parser
+from control import config_parser
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)

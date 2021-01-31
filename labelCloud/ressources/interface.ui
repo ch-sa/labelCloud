@@ -1205,7 +1205,7 @@ QListWidget#label_list::item:selected {
   <customwidget>
    <class>GLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>modules.view.viewer</header>
+   <header>view.viewer</header>
   </customwidget>
  </customwidgets>
  <resources/>

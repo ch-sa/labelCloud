@@ -1,19 +1,22 @@
+import os
 from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
+from view.viewer import GLWidget
+
 if TYPE_CHECKING:
-    from modules.control.controler import Controler
-from modules.view.viewer import GLWidget
+    from control.controler import Controler
 
 
 class GUI(QtWidgets.QMainWindow):
 
     def __init__(self, control: 'Controler'):
         super(GUI, self).__init__()
-        uic.loadUi("ressources/interface.ui", self)
+        print(os.getcwd())
+        uic.loadUi("labelCloud/ressources/interface.ui", self)
         self.resize(1500, 900)
         self.setWindowTitle('labelCloud')
 

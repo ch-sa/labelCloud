@@ -1,23 +1,25 @@
 from abc import ABCMeta, abstractmethod, ABC
-from typing import Union, List
+from typing import Union, List, TYPE_CHECKING
 
 import numpy as np
 
-import modules.math3d as math3d
-import modules.oglhelper as ogl
-from modules.control.bbox_controler import BoundingBoxControler
-from modules.model.bbox import BBox
-from modules.view.gui import GUI
+import utils.math3d as math3d
+import utils.oglhelper as ogl
+from control.bbox_controler import BoundingBoxControler
+from model.bbox import BBox
+
+if TYPE_CHECKING:
+    from view import GUI
 
 
 class DrawingManager:
 
     def __init__(self, bbox_controler: BoundingBoxControler):
         self.bbox_controler = bbox_controler
-        self.view: Union[GUI, None] = None
+        self.view: Union['GUI', None] = None
         self.drawing_strategy: Union[IDrawingStrategy, None] = None
 
-    def set_view(self, view: GUI):
+    def set_view(self, view: 'GUI'):
         self.view = view
         self.view.glWidget.drawing_mode = self
 
@@ -82,7 +84,7 @@ class IDrawingStrategy:
     POINTS_NEEDED: int
     PREVIEW: bool = False
 
-    def __init__(self, view: GUI):
+    def __init__(self, view: 'GUI'):
         self.view = view
         self.points_registered = 0
         self.point_1 = None
@@ -114,7 +116,7 @@ class PickingStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 1
     PREVIEW = True
 
-    def __init__(self, view: GUI):
+    def __init__(self, view: 'GUI'):
         super().__init__(view)
         print("Enabled drawing mode.")
         self.tmp_p1 = None
@@ -156,7 +158,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
     PREVIEW = True
     CORRECTION = True  # Increases dimensions after drawing
 
-    def __init__(self, view: GUI):
+    def __init__(self, view: 'GUI'):
         super().__init__(view)
         print("Enabled spanning mode.")
         self.preview_color = (1, 1, 0, 1)
@@ -265,7 +267,7 @@ class RectangleStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 3
     PREVIEW = True
 
-    def __init__(self, view: GUI):
+    def __init__(self, view: 'GUI'):
         super().__init__(view)
         self.point_2 = None
         self.tmp_p2 = None

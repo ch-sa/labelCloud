@@ -1,21 +1,23 @@
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from PyQt5 import QtGui, QtCore
 
-from modules import oglhelper
-from modules.control.drawing_manager import DrawingManager
-from modules.model.bbox import BBox
-from modules.control.bbox_controler import BoundingBoxControler
-from modules.control.pcd_manager import PointCloudManger
-from modules.view.gui import GUI
-from modules.control.alignmode import AlignMode
+from control.alignmode import AlignMode
+from control.drawing_manager import DrawingManager
+from control.pcd_manager import PointCloudManger
+from model.bbox import BBox
+from control.bbox_controler import BoundingBoxControler
+
+if TYPE_CHECKING:
+    from view.gui import GUI
+from utils import oglhelper
 
 
 class Controler:
 
     # PREPARATION
     def __init__(self):
-        self.view: Union[GUI, None] = None
+        self.view: Union['GUI', None] = None
         self.pcd_controler = PointCloudManger()
         self.bbox_controler = BoundingBoxControler()
 
@@ -33,7 +35,7 @@ class Controler:
         self.side_mode = False
         self.selected_side = None
 
-    def set_view(self, view: GUI):
+    def set_view(self, view: 'GUI'):
         self.view = view
         self.bbox_controler.set_view(self.view)
         self.pcd_controler.set_view(self.view)

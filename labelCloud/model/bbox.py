@@ -3,8 +3,9 @@ from typing import Tuple, List
 import OpenGL.GL as GL
 import numpy as np
 
-from modules.control import config_parser
-from modules import math3d, oglhelper
+from control import config_parser
+from utils import math3d
+from utils import oglhelper
 
 
 class BBox:
