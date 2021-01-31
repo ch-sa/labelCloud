@@ -1,9 +1,10 @@
+# Testing the correct processing of labels for the export in different formats
 import json
 import os
 
 import pytest
 
-import labelCloud.__main__  # preventing circular import
+import labelCloud.app  # preventing circular import
 from control.label_manager import LabelManager
 from model.bbox import BBox
 

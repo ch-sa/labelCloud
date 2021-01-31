@@ -17,4 +17,10 @@ setup(
         "PyOpenGL~=3.1.5",
         "open3d~=0.11.2"
     ],
+
+    entry_points={
+        'console_scripts': [
+            'labelCloud=labelCloud.__main__:main'
+        ]
+    }
 )
