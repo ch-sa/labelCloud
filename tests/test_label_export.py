@@ -1,15 +1,11 @@
 # Testing the correct processing of labels for the export in different formats
 import json
 import os
-import sys
-sys.path.insert(0, "labelCloud")
-
 import pytest
+import preparation
 
-from labelCloud import app  # preventing circular import
 from model.bbox import BBox
 from control.label_manager import LabelManager
-
 
 
 @pytest.fixture
@@ -42,9 +38,9 @@ def test_centroid_rel_export(bounding_box, tmpdir):
         data = json.load(read_file)
 
     assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply', 'objects':
-                    [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
-                      'dimensions': {'length': 1, 'width': 1, 'height': 1},
-                      'rotations': {'x': 1.570796, 'y': 3.141593, 'z': -1.570796}}]}
+        [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
+          'dimensions': {'length': 1, 'width': 1, 'height': 1},
+          'rotations': {'x': 1.570796, 'y': 3.141593, 'z': -1.570796}}]}
 
 
 def test_centroid_abs_export(bounding_box, tmpdir):
@@ -55,9 +51,9 @@ def test_centroid_abs_export(bounding_box, tmpdir):
         data = json.load(read_file)
 
     assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply', 'objects':
-                    [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
-                      'dimensions': {'length': 1, 'width': 1, 'height': 1},
-                      'rotations': {'x': 90, 'y': 180, 'z': 270}}]}
+        [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
+          'dimensions': {'length': 1, 'width': 1, 'height': 1},
+          'rotations': {'x': 90, 'y': 180, 'z': 270}}]}
 
 
 def test_kitti_export(bounding_box, tmpdir):
@@ -66,7 +62,5 @@ def test_kitti_export(bounding_box, tmpdir):
 
     with open(os.path.join(tmpdir, "testpcd.txt"), "r") as read_file:
         data = read_file.readlines()
-
-    print(data)
 
     assert data == ['test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.570796\n']
