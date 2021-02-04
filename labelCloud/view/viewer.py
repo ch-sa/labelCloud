@@ -45,7 +45,8 @@ class GLWidget(QtOpenGL.QGLWidget):
     # QGLWIDGET METHODS
 
     def initializeGL(self):
-        self.qglClearColor(QtGui.QColor(*config_parser.get_app_settings("BACKGROUND_COLOR")))  # screen background color
+        bg_color = [int(fl_color) for fl_color in config_parser.get_app_settings("BACKGROUND_COLOR")]  # floats to ints
+        self.qglClearColor(QtGui.QColor(*bg_color))  # screen background color
         GL.glEnable(GL.GL_DEPTH_TEST)  # for visualization of depth
         GL.glEnable(GL.GL_BLEND)  # enable transparency
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
