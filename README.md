@@ -13,6 +13,8 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ## Setup
 
+:information_source: *Currently labelCloud supports Python 3.6 to 3.8, 3.9 will be supported as soon as Open3D supports it!*
+
 1. Clone repository: `git clone https://github.com/ch-sa/labelCloud.git`.
 2. Install requirements: `pip install -r requirements.txt`.
 3. Copy point clouds into `pointclouds` folder.
