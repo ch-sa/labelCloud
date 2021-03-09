@@ -94,11 +94,14 @@ When using the tool feel free to drop me a mail with feedback or a description o
 If you are using the tool for a scientific project please think about citing:
 
 
-    @MastersThesis{sager_2020,
-        title={labelCloud: Development of a Labeling Tool for 3D Object Detection in Point Clouds},
-        url={https://github.com/ch-sa/labelCloud/},
-        author={Sager, Christoph},
-        year={2020}}
+    @misc{sager2021labelcloud,
+      title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds}, 
+      author={Christoph Sager and Patrick Zschech and Niklas Kühl},
+      year={2021},
+      eprint={2103.04970},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+    }
 
 ## Acknowledgment
 I would like to thank the [Robotron RCV-Team](https://www.robotron.de/rcv) for the support in the preparation and user evaluation of the software.
