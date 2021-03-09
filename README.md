@@ -90,8 +90,7 @@ See [documentation.md](docs/documentation.md) for software conventions.
 
 ## Usage & Attribution
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
-
-If you are using the tool for a scientific project please think about citing:
+If you are using the tool for a scientific project please consider citing our [pending publication](https://arxiv.org/abs/2103.04970):
 
 
     @misc{sager2021labelcloud,
