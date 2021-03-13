@@ -188,7 +188,7 @@ class BBox:
         self.center = math3d.translate_point(self.center, *translation_vector)
 
     # Extend bbox side by distance
-    def change_side(self, side, distance):  # ToDo: Move to controler?
+    def change_side(self, side, distance):  # ToDo: Move to controller?
         if side == "right" and self.length + distance > BBox.MIN_DIMENSION:
             self.length += distance
             self.translate_side(3, 0, distance)  # TODO: Make dependen from side list

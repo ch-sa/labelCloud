@@ -5,7 +5,7 @@ import numpy as np
 
 import utils.math3d as math3d
 import utils.oglhelper as ogl
-from control.bbox_controler import BoundingBoxControler
+from control.bbox_controller import BoundingBoxController
 from model.bbox import BBox
 
 if TYPE_CHECKING:
@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 class DrawingManager:
 
-    def __init__(self, bbox_controler: BoundingBoxControler):
-        self.bbox_controler = bbox_controler
+    def __init__(self, bbox_controller: BoundingBoxController):
+        self.bbox_controller = bbox_controller
         self.view: Union['GUI', None] = None
         self.drawing_strategy: Union[IDrawingStrategy, None] = None
 
@@ -65,7 +65,7 @@ class DrawingManager:
         else:
             self.drawing_strategy.register_point(world_point)
             if self.drawing_strategy.is_bbox_finished():  # Register bbox to bbox controller when finished
-                self.bbox_controler.add_bbox(self.drawing_strategy.get_bbox())
+                self.bbox_controller.add_bbox(self.drawing_strategy.get_bbox())
                 self.drawing_strategy.reset()
                 self.drawing_strategy = None
 
@@ -223,7 +223,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
         bbox = BBox(*center, length=length, width=width, height=abs(height))
         bbox.set_z_rotation(math3d.radians_to_degrees(z_angle))
 
-        if not self.view.controler.bbox_controler.only_z_rotation:
+        if not self.view.controller.bbox_controller.only_z_rotation:
             # Also calculate y_angle
             y_angle = np.arctan(len_vec_2d[2] / len_vec_2d[0])
             bbox.set_y_rotation(-math3d.radians_to_degrees(y_angle))
@@ -287,7 +287,7 @@ class RectangleStrategy(IDrawingStrategy, ABC):
             self.tmp_p2 = new_tmp_point
 
     def get_bbox(self):
-        # self.view.controler.pcd_controler.
+        # self.view.controller.pcd_controller.
         pass
 
     def draw_preview(self):

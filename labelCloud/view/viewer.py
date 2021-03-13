@@ -9,7 +9,7 @@ from PyQt5 import QtOpenGL, QtGui
 from utils import oglhelper
 from control import config_parser
 from control.alignmode import AlignMode
-from control.bbox_controler import BoundingBoxControler
+from control.bbox_controller import BoundingBoxController
 from control.pcd_manager import PointCloudManger
 from control.drawing_manager import DrawingManager
 
@@ -24,8 +24,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.modelview = None
         self.projection = None
 
-        self.pcd_controler = None
-        self.bbox_controler = None
+        self.pcd_controller = None
+        self.bbox_controller = None
 
         # Objects to be drawn
         self.draw_floor = config_parser.get_app_settings("SHOW_FLOOR")
@@ -37,10 +37,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.align_mode: Union[AlignMode, None] = None
 
     def set_pointcloud_controler(self, pcd_controler: PointCloudManger):
-        self.pcd_controler = pcd_controler
+        self.pcd_controller = pcd_controler
 
-    def set_bbox_controler(self, bbox_controler: BoundingBoxControler):
-        self.bbox_controler = bbox_controler
+    def set_bbox_controller(self, bbox_controler: BoundingBoxController):
+        self.bbox_controller = bbox_controler
 
     # QGLWIDGET METHODS
 
@@ -52,7 +52,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         print("Intialized widget.")
 
-        self.pcd_controler.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
+        self.pcd_controller.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
 
     def resizeGL(self, width, height):
         print("Resized widget.")
@@ -69,7 +69,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPushMatrix()  # push the current matrix to the current stack
 
         # Draw point cloud
-        self.pcd_controler.get_pointcloud().draw_pointcloud()
+        self.pcd_controller.get_pointcloud().draw_pointcloud()
 
         # Get actual matrices for click unprojection
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
@@ -78,7 +78,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDepthMask(GL.GL_FALSE)  # Do not write decoration and preview elements in depth buffer
         # Draw floor net
         if self.draw_floor:
-            oglhelper.draw_xy_plane(self.pcd_controler.get_pointcloud())
+            oglhelper.draw_xy_plane(self.pcd_controller.get_pointcloud())
 
         # Draw crosshair/ cursor in 3D world
         if self.crosshair_pos:
@@ -99,13 +99,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDepthMask(GL.GL_TRUE)
 
         # Draw active bbox
-        if self.bbox_controler.has_active_bbox():
-            self.bbox_controler.get_active_bbox().draw_bbox(highlighted=True)
+        if self.bbox_controller.has_active_bbox():
+            self.bbox_controller.get_active_bbox().draw_bbox(highlighted=True)
             if self.draw_orientation:
-                self.bbox_controler.get_active_bbox().draw_orientation()
+                self.bbox_controller.get_active_bbox().draw_orientation()
 
         # Draw labeled bboxes
-        for bbox in self.bbox_controler.get_bboxes():
+        for bbox in self.bbox_controller.get_bboxes():
             bbox.draw_bbox()
 
         GL.glPopMatrix()  # restore the previous modelview matrix

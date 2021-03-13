@@ -34,7 +34,7 @@ def only_zrotation_decorator(func):
     return wrapper
 
 
-class BoundingBoxControler:
+class BoundingBoxController:
     Z_ROTATION = config_parser.get_label_settings("Z_ROTATION_ONLY")
     STD_TRANSLATION = config_parser.get_label_settings("STD_TRANSLATION")
     STD_ROTATION = config_parser.get_label_settings("STD_ROTATION")
@@ -44,7 +44,7 @@ class BoundingBoxControler:
         self.view = None
         self.bboxes = []
         self.active_bbox_id = -1  # -1 means zero bboxes
-        self.only_z_rotation = BoundingBoxControler.Z_ROTATION
+        self.only_z_rotation = BoundingBoxController.Z_ROTATION
         self.pcdc = None
 
     # GETTERS

@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class AlignMode:
-    def __init__(self, pcd_controler: PointCloudManger):
-        self.pcd_controler = pcd_controler
+    def __init__(self, pcd_controller: PointCloudManger):
+        self.pcd_controller = pcd_controller
         self.view: Union[GUI, None] = None
         self.activated = False
         self.point_color = (1, 1, 0, 1)
@@ -105,7 +105,7 @@ class AlignMode:
         print("Alignment rotation: %s around %s" % (round(rotation_angle, 2), np.round(rotation_axis, 2)))
 
         # Initiate point cloud rotation
-        self.pcd_controler.rotate_pointcloud(rotation_axis, rotation_angle, self.plane1)
+        self.pcd_controller.rotate_pointcloud(rotation_axis, rotation_angle, self.plane1)
 
         self.view.update_status("Aligned point cloud with the selected floor.", "navigation")
         self.change_activation(force=False)

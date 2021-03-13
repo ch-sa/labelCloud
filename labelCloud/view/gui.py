@@ -7,12 +7,12 @@ from PyQt5.QtCore import QEvent, Qt
 
 from view.viewer import GLWidget
 if TYPE_CHECKING:
-    from control.controler import Controler
+    from control.controller import Controller
 
 
 class GUI(QtWidgets.QMainWindow):
 
-    def __init__(self, control: 'Controler'):
+    def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
         print(os.getcwd())
         uic.loadUi("labelCloud/ressources/interface.ui", self)
@@ -90,9 +90,9 @@ class GUI(QtWidgets.QMainWindow):
         self.button_deselect_label = self.findChild(QtWidgets.QPushButton, "button_label_deselect")
         self.button_delete_label = self.findChild(QtWidgets.QPushButton, "button_label_delete")
 
-        # Connect with controler
-        self.controler = control
-        self.controler.set_view(self)
+        # Connect with controller
+        self.controller = control
+        self.controller.set_view(self)
 
         # Connect all events to functions
         self.connect_events()
@@ -100,81 +100,81 @@ class GUI(QtWidgets.QMainWindow):
         # Start event cycle
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(20)  # period, in milliseconds
-        self.timer.timeout.connect(self.controler.loop_gui)
+        self.timer.timeout.connect(self.controller.loop_gui)
         self.timer.start()
 
     # Event connectors
     def connect_events(self):
         # POINTCLOUD CONTROL
-        self.button_next_pcd.clicked.connect(self.controler.next_pcd)
-        self.button_prev_pcd.clicked.connect(self.controler.prev_pcd)
+        self.button_next_pcd.clicked.connect(self.controller.next_pcd)
+        self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
 
         # BBOX CONTROL
-        self.button_up.pressed.connect(lambda: self.controler.bbox_controler.translate_along_z())
-        self.button_down.pressed.connect(lambda: self.controler.bbox_controler.translate_along_z(down=True))
-        self.button_left.pressed.connect(lambda: self.controler.bbox_controler.translate_along_x(left=True))
-        self.button_right.pressed.connect(self.controler.bbox_controler.translate_along_x)
-        self.button_forward.pressed.connect(lambda: self.controler.bbox_controler.translate_along_y(forward=True))
-        self.button_backward.pressed.connect(lambda: self.controler.bbox_controler.translate_along_y())
+        self.button_up.pressed.connect(lambda: self.controller.bbox_controller.translate_along_z())
+        self.button_down.pressed.connect(lambda: self.controller.bbox_controller.translate_along_z(down=True))
+        self.button_left.pressed.connect(lambda: self.controller.bbox_controller.translate_along_x(left=True))
+        self.button_right.pressed.connect(self.controller.bbox_controller.translate_along_x)
+        self.button_forward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y(forward=True))
+        self.button_backward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y())
 
-        self.dial_zrotation.valueChanged.connect(lambda x: self.controler.bbox_controler.rotate_around_z(x,
-                                                                                                         absolute=True))
-        self.button_decr_dim.clicked.connect(lambda: self.controler.bbox_controler.scale(decrease=True))
-        self.button_incr_dim.clicked.connect(lambda: self.controler.bbox_controler.scale())
+        self.dial_zrotation.valueChanged.connect(lambda x: self.controller.bbox_controller.rotate_around_z(x,
+                                                                                                           absolute=True))
+        self.button_decr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale(decrease=True))
+        self.button_incr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale())
 
         # LABELING CONTROL
-        self.curr_class_edit.textChanged.connect(self.controler.bbox_controler.set_classname)
-        self.button_deselect_label.clicked.connect(self.controler.bbox_controler.deselect_bbox)
-        self.button_delete_label.clicked.connect(self.controler.bbox_controler.delete_current_bbox)
-        self.label_list.currentRowChanged.connect(self.controler.bbox_controler.set_active_bbox)
+        self.curr_class_edit.textChanged.connect(self.controller.bbox_controller.set_classname)
+        self.button_deselect_label.clicked.connect(self.controller.bbox_controller.deselect_bbox)
+        self.button_delete_label.clicked.connect(self.controller.bbox_controller.delete_current_bbox)
+        self.label_list.currentRowChanged.connect(self.controller.bbox_controller.set_active_bbox)
 
         # LABEL CONTROL
-        self.button_activate_picking.clicked.connect(lambda: self.controler.drawing_mode.
+        self.button_activate_picking.clicked.connect(lambda: self.controller.drawing_mode.
                                                      set_drawing_strategy("PickingStrategy"))
-        self.button_activate_spanning.clicked.connect(lambda: self.controler.drawing_mode.
+        self.button_activate_spanning.clicked.connect(lambda: self.controller.drawing_mode.
                                                       set_drawing_strategy("SpanStrategy"))
-        self.button_activate_drag.clicked.connect(lambda: self.controler.drawing_mode.
+        self.button_activate_drag.clicked.connect(lambda: self.controller.drawing_mode.
                                                   set_drawing_strategy("RectangleStrategy"))
-        self.button_save_labels.clicked.connect(self.controler.save)
+        self.button_save_labels.clicked.connect(self.controller.save)
 
         # MENU BAR
-        self.action_zrotation.toggled.connect(self.controler.bbox_controler.set_rotation_mode)
-        self.action_deletelabels.triggered.connect(self.controler.bbox_controler.reset)
+        self.action_zrotation.toggled.connect(self.controller.bbox_controller.set_rotation_mode)
+        self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
         self.action_showfloor.toggled.connect(self.set_floor_visibility)
         self.action_showorientation.toggled.connect(self.set_orientation_visibility)
-        self.action_alignpcd.toggled.connect(self.controler.align_mode.change_activation)
+        self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
         # Keyboard Events
         if (event.type() == QEvent.KeyPress) and (not self.curr_class_edit.hasFocus()):
-            self.controler.key_press_event(event)
-            self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
+            self.controller.key_press_event(event)
+            self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True
         elif event.type() == QEvent.KeyRelease:
-            self.controler.key_release_event(event)
+            self.controller.key_release_event(event)
 
         # Mouse Events
         elif (event.type() == QEvent.MouseMove) and (event_object == self.glWidget):
-            self.controler.mouse_move_event(event)
-            self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
+            self.controller.mouse_move_event(event)
+            self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif (event.type() == QEvent.Wheel) and (event_object == self.glWidget):
-            self.controler.mouse_scroll_event(event)
-            self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
+            self.controller.mouse_scroll_event(event)
+            self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif event.type() == QEvent.MouseButtonDblClick and (event_object == self.glWidget):
-            self.controler.mouse_double_clicked(event)
+            self.controller.mouse_double_clicked(event)
             return True
         elif (event.type() == QEvent.MouseButtonPress) and (event_object == self.glWidget):
-            self.controler.mouse_clicked(event)
-            self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
+            self.controller.mouse_clicked(event)
+            self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif (event.type() == QEvent.MouseButtonPress) and (event_object != self.curr_class_edit):
             self.curr_class_edit.clearFocus()
-            self.update_bbox_stats(self.controler.bbox_controler.get_active_bbox())
+            self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         print("Closing window after saving ...")
-        self.controler.save()
+        self.controller.save()
         self.timer.stop()
         a0.accept()
 
@@ -200,7 +200,7 @@ class GUI(QtWidgets.QMainWindow):
         if force is not None:
             self.curr_class_edit.setText(force)
         else:
-            self.curr_class_edit.setText(self.controler.bbox_controler.get_active_bbox().get_classname())
+            self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
 
     def update_bbox_stats(self, bbox):
         if bbox:
