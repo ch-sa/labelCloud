@@ -129,7 +129,7 @@ class PointCloudManger:
     def set_view(self, view: 'GUI') -> None:
         self.view = view
         self.view.init_progress(min_value=0, max_value=self.no_of_pcds)
-        self.view.glWidget.set_pointcloud_controler(self)
+        self.view.glWidget.set_pointcloud_controller(self)
         self.get_next_pcd()
 
     def save_labels_into_file(self, bboxes: List[BBox]):

@@ -36,11 +36,11 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
-    def set_pointcloud_controler(self, pcd_controler: PointCloudManger):
-        self.pcd_controller = pcd_controler
+    def set_pointcloud_controller(self, pcd_controller: PointCloudManger):
+        self.pcd_controller = pcd_controller
 
-    def set_bbox_controller(self, bbox_controler: BoundingBoxController):
-        self.bbox_controller = bbox_controler
+    def set_bbox_controller(self, bbox_controller: BoundingBoxController):
+        self.bbox_controller = bbox_controller
 
     # QGLWIDGET METHODS
 
