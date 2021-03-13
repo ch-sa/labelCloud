@@ -14,8 +14,8 @@ from utils import oglhelper
 
 class Controler:
 
-    # PREPARATION
     def __init__(self):
+        """Initializes all controllers and managers."""
         self.view: Union['GUI', None] = None
         self.pcd_controler = PointCloudManger()
         self.bbox_controler = BoundingBoxControler()
@@ -28,13 +28,14 @@ class Controler:
         self.curr_cursor_pos = None  # updated by mouse movement
         self.last_cursor_pos = None  # updated by mouse click
         self.ctrl_pressed = False
-        self.scroll_mode = False
+        self.scroll_mode = False  # to enable the side-pulling
 
         # Correction states
         self.side_mode = False
         self.selected_side = None
 
     def set_view(self, view: 'GUI'):
+        """Sets the view in all controllers and dependent modules; Loads labels from file."""
         self.view = view
         self.bbox_controler.set_view(self.view)
         self.pcd_controler.set_view(self.view)
@@ -44,9 +45,8 @@ class Controler:
         self.bbox_controler.pcdc = self.pcd_controler
         self.bbox_controler.set_bboxes(self.pcd_controler.get_labels_from_file())  # Load labels for first pcd
 
-    # EVENT CYCLE
     def loop_gui(self):
-        # OpenGL part
+        """Function collection called during each event loop iteration."""
         self.set_crosshair()
         self.set_selected_side()
         self.view.glWidget.updateGL()
@@ -70,24 +70,25 @@ class Controler:
             self.bbox_controler.set_bboxes(self.pcd_controler.get_labels_from_file())
 
     # CONTROL METHODS
-    # Saves all labels
     def save(self):
+        """Saves all bounding boxes in the label file."""
         self.pcd_controler.save_labels_into_file(self.bbox_controler.get_bboxes())
 
-    # Resets the controls and bboxes from the current screen
     def reset(self):
+        """Resets the controllers and bounding boxes from the current screen."""
         self.bbox_controler.reset()
         self.drawing_mode.reset()
         self.align_mode.reset()
 
     # CORRECTION METHODS
-    # Draw Objects in Point Cloud Viewer
     def set_crosshair(self):
+        """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
             self.view.glWidget.crosshair_col = [0, 1, 0]
             self.view.glWidget.crosshair_pos = (self.curr_cursor_pos.x(), self.curr_cursor_pos.y())
 
     def set_selected_side(self):
+        """Sets the currently hovered bounding box side in the glWidget."""
         if (not self.side_mode) and self.curr_cursor_pos and self.bbox_controler.has_active_bbox() \
                 and (not self.scroll_mode):
             self.selected_side = oglhelper.get_intersected_sides(self.curr_cursor_pos.x(), self.curr_cursor_pos.y(),
@@ -103,6 +104,7 @@ class Controler:
 
     # EVENT PROCESSING
     def mouse_clicked(self, a0: QtGui.QMouseEvent):
+        """Triggers actions when the user clicks the mouse."""
         self.last_cursor_pos = a0.pos()
 
         if self.drawing_mode.is_active() and (a0.buttons() & QtCore.Qt.LeftButton) and (not self.ctrl_pressed):
@@ -115,11 +117,12 @@ class Controler:
             self.side_mode = True
 
     def mouse_double_clicked(self, a0: QtGui.QMouseEvent):
+        """Triggers actions when the user double clicks the mouse."""
         self.bbox_controler.select_bbox_by_ray(a0.x(), a0.y())
 
     def mouse_move_event(self, a0: QtGui.QMouseEvent):
-        # Methods that use relative cursor movement
-        self.curr_cursor_pos = a0.pos()
+        """Triggers actions when the user moves the mouse."""
+        self.curr_cursor_pos = a0.pos()  # Updates the current mouse cursor position
 
         # Methods that use absolute cursor position
         if self.drawing_mode.is_active() and (not self.ctrl_pressed):
@@ -158,6 +161,8 @@ class Controler:
         self.last_cursor_pos = a0.pos()
 
     def mouse_scroll_event(self, a0: QtGui.QWheelEvent):
+        """Triggers actions when the user scrolls the mouse wheel."""
+
         if self.selected_side:
             self.side_mode = True
 
@@ -171,6 +176,8 @@ class Controler:
             self.scroll_mode = True
 
     def key_press_event(self, a0: QtGui.QKeyEvent):
+        """Triggers actions when the user presses a key."""
+
         # Reset position to intial value
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = True
@@ -222,5 +229,6 @@ class Controler:
             self.bbox_controler.translate_along_z(down=True)
 
     def key_release_event(self, a0: QtGui.QKeyEvent):
+        """Triggers actions when the user releases a key."""
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False

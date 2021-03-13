@@ -16,7 +16,7 @@ def get_main_app():
     # Install event filter to catch user interventions
     app.installEventFilter(view)
 
-    # Start gui
+    # Start GUI
     view.show()
 
     return app, view
