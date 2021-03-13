@@ -79,6 +79,24 @@ class BBox:
         if classname:
             self.classname = classname
 
+    def set_length(self, length):
+        if length > 0:
+            self.length = length
+        else:
+            print("New length is too small.")
+
+    def set_width(self, width):
+        if width > 0:
+            self.width = width
+        else:
+            print("New width is too small.")
+
+    def set_height(self, height):
+        if height > 0:
+            self.height = height
+        else:
+            print("New height is too small.")
+
     def set_dimensions(self, length, width, height):
         if (length > 0) and (width > 0) and (height > 0):
             self.length = length

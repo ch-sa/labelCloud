@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
 from view.viewer import GLWidget
+
 if TYPE_CHECKING:
     from control.controller import Controller
 
@@ -24,7 +25,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_setpcdfolder = self.findChild(QtWidgets.QAction, "action_setpcdfolder")
         self.action_setpcdfolder.setEnabled(False)  # TODO: Implement
         self.action_setlabelfolder = self.findChild(QtWidgets.QAction, "action_setlabelfolder")
-        self.action_setlabelfolder.setEnabled(False)    # TODO: Implement
+        self.action_setlabelfolder.setEnabled(False)  # TODO: Implement
         self.action_loadsinglepcd = self.findChild(QtWidgets.QAction, "action_loadsinglepcd")
         self.action_loadsinglepcd.setEnabled(False)  # TODO: Implement
 
@@ -86,9 +87,26 @@ class GUI(QtWidgets.QMainWindow):
         # RIGHT PANEL
         self.label_list = self.findChild(QtWidgets.QListWidget, "label_list")
         self.curr_class_edit = self.findChild(QtWidgets.QLineEdit, "current_class_lineedit")
-        self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
+        # self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
         self.button_deselect_label = self.findChild(QtWidgets.QPushButton, "button_label_deselect")
         self.button_delete_label = self.findChild(QtWidgets.QPushButton, "button_label_delete")
+
+        # BOUNDING BOX PARAMETER EDITS
+        self.pos_x_edit = self.findChild(QtWidgets.QLineEdit, "pos_x_edit")
+        self.pos_y_edit = self.findChild(QtWidgets.QLineEdit, "pos_y_edit")
+        self.pos_z_edit = self.findChild(QtWidgets.QLineEdit, "pos_z_edit")
+
+        self.length_edit = self.findChild(QtWidgets.QLineEdit, "length_edit")
+        self.width_edit = self.findChild(QtWidgets.QLineEdit, "width_edit")
+        self.height_edit = self.findChild(QtWidgets.QLineEdit, "height_edit")
+
+        self.rot_x_edit = self.findChild(QtWidgets.QLineEdit, "rot_x_edit")
+        self.rot_y_edit = self.findChild(QtWidgets.QLineEdit, "rot_y_edit")
+        self.rot_z_edit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")
+
+        self.all_line_edits = [self.curr_class_edit, self.pos_x_edit, self.pos_y_edit, self.pos_z_edit,
+                               self.length_edit, self.width_edit, self.height_edit,
+                               self.rot_x_edit, self.rot_y_edit, self.rot_z_edit]
 
         # Connect with controller
         self.controller = control
@@ -137,6 +155,20 @@ class GUI(QtWidgets.QMainWindow):
                                                   set_drawing_strategy("RectangleStrategy"))
         self.button_save_labels.clicked.connect(self.controller.save)
 
+        # BOUNDING BOX PARAMETER
+        self.pos_x_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_x"))
+        self.pos_y_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_y"))
+        self.pos_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_z"))
+
+        self.length_edit.editingFinished.connect(lambda: self.update_bbox_parameter("length"))
+        self.width_edit.editingFinished.connect(lambda: self.update_bbox_parameter("width"))
+        self.height_edit.editingFinished.connect(lambda: self.update_bbox_parameter("height"))
+
+        self.rot_x_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_x"))
+        self.rot_y_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_y"))
+        self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
+
+
         # MENU BAR
         self.action_zrotation.toggled.connect(self.controller.bbox_controller.set_rotation_mode)
         self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
@@ -147,10 +179,10 @@ class GUI(QtWidgets.QMainWindow):
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
         # Keyboard Events
-        if (event.type() == QEvent.KeyPress) and (not self.curr_class_edit.hasFocus()):
+        if (event.type() == QEvent.KeyPress) and not self.line_edited_activated():
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
-            return True
+            return True  # TODO: Recheck pyqt behaviour
         elif event.type() == QEvent.KeyRelease:
             self.controller.key_release_event(event)
 
@@ -203,13 +235,56 @@ class GUI(QtWidgets.QMainWindow):
             self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
 
     def update_bbox_stats(self, bbox):
-        if bbox:
-            tmp_data = {"Center": np.round(bbox.get_center(), 2), "Dimension": np.round(bbox.get_dimensions(), 2),
-                        "Rotation": np.round(bbox.get_rotations(), 1), "Volume": [bbox.get_volume()]}
-            self.curr_bbox_stats.setText(create_html_table(tmp_data))
-        else:
-            self.curr_class_edit.clear()
-            self.curr_bbox_stats.setText("No active bbox.")
+        if bbox and not self.line_edited_activated():
+            self.pos_x_edit.setText(str(round(bbox.get_center()[0], 3)))
+            self.pos_y_edit.setText(str(round(bbox.get_center()[1], 3)))
+            self.pos_z_edit.setText(str(round(bbox.get_center()[2], 3)))
+
+            self.length_edit.setText(str(round(bbox.get_dimensions()[0], 3)))
+            self.width_edit.setText(str(round(bbox.get_dimensions()[1], 3)))
+            self.height_edit.setText(str(round(bbox.get_dimensions()[2], 3)))
+
+            self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
+            self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
+            self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
+
+    def update_bbox_parameter(self, parameter: str):
+        str_value = None
+
+        if parameter == "pos_x":
+            str_value = self.pos_x_edit.text()
+        if parameter == "pos_y":
+            str_value = self.pos_y_edit.text()
+        if parameter == "pos_z":
+            str_value = self.pos_z_edit.text()
+        if str_value and str_value.replace('.','',1).isdigit():
+            self.controller.bbox_controller.update_position(parameter, round(float(str_value), 3))
+            return True
+
+        if parameter == "length":
+            str_value = self.length_edit.text()
+        if parameter == "width":
+            str_value = self.width_edit.text()
+        if parameter == "height":
+            str_value = self.height_edit.text()
+        if str_value and str_value.replace('.','',1).isdigit():  # TODO: improve float check
+            self.controller.bbox_controller.update_dimension(parameter, round(float(str_value), 3))
+            return True
+
+        if parameter == "rot_x":
+            str_value = self.rot_x_edit.text()
+        if parameter == "rot_y":
+            str_value = self.rot_y_edit.text()
+        if parameter == "rot_z":
+            str_value = self.rot_z_edit.text()
+        if str_value and str_value.replace('.','',1).isdigit():
+            self.controller.bbox_controller.update_rotation(parameter, round(float(str_value), 3))
+            return True
+
+    def save_new_length(self):
+        new_length = self.length_edit.text()
+        self.controller.bbox_controller.get_active_bbox().length = float(new_length)
+        print(f"New length for bounding box submitted → {new_length}.")
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool):
@@ -221,6 +296,12 @@ class GUI(QtWidgets.QMainWindow):
         self.tmp_status.setText(message)
         if mode:
             self.update_mode_status(mode)
+
+    def line_edited_activated(self) -> bool:
+        for line_edit in self.all_line_edits:
+            if line_edit.hasFocus():
+                return True
+        return False
 
     def update_mode_status(self, mode: str):
         self.action_alignpcd.setEnabled(True)
