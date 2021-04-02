@@ -46,8 +46,10 @@ Now you will be free to rotate around all three axes.
 
 ## Import & Export Options
 labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
+The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [documentation](docs/documentation.md) for a description of all parameters).
 
 **Supported Import Formats**
+
 | Type | File Formats |
 | --- | --- |
 | Colored | `*.pcd`, `*.ply`, `*.pts`, `*.xyzrgb` |
