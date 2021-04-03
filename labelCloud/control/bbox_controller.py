@@ -132,6 +132,38 @@ class BoundingBoxController:
         self.view.update_status("", mode="navigation")
 
     # MANIPULATORS
+    @has_active_bbox_decorator
+    def update_position(self, axis: str, value: float):
+        if axis == "pos_x":
+            self.get_active_bbox().set_x_translation(value)
+        elif axis == "pos_y":
+            self.get_active_bbox().set_y_translation(value)
+        elif axis == "pos_z":
+            self.get_active_bbox().set_z_translation(value)
+        else:
+            raise Exception("Wrong axis describtion.")
+
+    @has_active_bbox_decorator
+    def update_dimension(self, dimension: str, value: float):
+        if dimension == "length":
+            self.get_active_bbox().set_length(value)
+        elif dimension == "width":
+            self.get_active_bbox().set_width(value)
+        elif dimension == "height":
+            self.get_active_bbox().set_height(value)
+        else:
+            raise Exception("Wrong dimension describtion.")
+
+    @has_active_bbox_decorator
+    def update_rotation(self, axis: str, value: float):
+        if axis == "rot_x":
+            self.get_active_bbox().set_x_rotation(value)
+        elif axis == "rot_y":
+            self.get_active_bbox().set_y_rotation(value)
+        elif axis == "rot_z":
+            self.get_active_bbox().set_z_rotation(value)
+        else:
+            raise Exception("Wrong axis describtion.")
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
