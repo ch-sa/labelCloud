@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
+from control import config_parser
 from view.viewer import GLWidget
 
 if TYPE_CHECKING:
@@ -22,6 +23,7 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
 
 
 class GUI(QtWidgets.QMainWindow):
+    VIEWING_PRECISION = int(config_parser.get_label_settings("VIEWING_PRECISION"))
 
     def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
@@ -248,19 +250,19 @@ class GUI(QtWidgets.QMainWindow):
 
     def update_bbox_stats(self, bbox):
         if bbox and not self.line_edited_activated():
-            self.pos_x_edit.setText(str(round(bbox.get_center()[0], 3)))
-            self.pos_y_edit.setText(str(round(bbox.get_center()[1], 3)))
-            self.pos_z_edit.setText(str(round(bbox.get_center()[2], 3)))
+            self.pos_x_edit.setText(str(round(bbox.get_center()[0], GUI.VIEWING_PRECISION)))
+            self.pos_y_edit.setText(str(round(bbox.get_center()[1], GUI.VIEWING_PRECISION)))
+            self.pos_z_edit.setText(str(round(bbox.get_center()[2], GUI.VIEWING_PRECISION)))
 
-            self.length_edit.setText(str(round(bbox.get_dimensions()[0], 3)))
-            self.width_edit.setText(str(round(bbox.get_dimensions()[1], 3)))
-            self.height_edit.setText(str(round(bbox.get_dimensions()[2], 3)))
+            self.length_edit.setText(str(round(bbox.get_dimensions()[0], GUI.VIEWING_PRECISION)))
+            self.width_edit.setText(str(round(bbox.get_dimensions()[1], GUI.VIEWING_PRECISION)))
+            self.height_edit.setText(str(round(bbox.get_dimensions()[2], GUI.VIEWING_PRECISION)))
 
             self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
             self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
             self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
 
-            self.volume_label.setText(str(round(bbox.get_volume(), 3)))
+            self.volume_label.setText(str(round(bbox.get_volume(), GUI.VIEWING_PRECISION)))
 
     def update_bbox_parameter(self, parameter: str):
         str_value = None
@@ -273,7 +275,7 @@ class GUI(QtWidgets.QMainWindow):
         if parameter == "pos_z":
             str_value = self.pos_z_edit.text()
         if str_value and string_is_float(str_value):
-            self.controller.bbox_controller.update_position(parameter, round(float(str_value), 3))
+            self.controller.bbox_controller.update_position(parameter, float(str_value))
             return True
 
         if parameter == "length":
@@ -283,7 +285,7 @@ class GUI(QtWidgets.QMainWindow):
         if parameter == "height":
             str_value = self.height_edit.text()
         if str_value and string_is_float(str_value, recect_negative=True):
-            self.controller.bbox_controller.update_dimension(parameter, round(float(str_value), 3))
+            self.controller.bbox_controller.update_dimension(parameter, float(str_value))
             return True
 
         if parameter == "rot_x":
@@ -293,7 +295,7 @@ class GUI(QtWidgets.QMainWindow):
         if parameter == "rot_z":
             str_value = self.rot_z_edit.text()
         if str_value and string_is_float(str_value):
-            self.controller.bbox_controller.update_rotation(parameter, round(float(str_value), 3))
+            self.controller.bbox_controller.update_rotation(parameter, float(str_value))
             return True
 
     def save_new_length(self):
