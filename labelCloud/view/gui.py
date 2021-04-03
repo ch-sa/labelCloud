@@ -1,7 +1,6 @@
 import os
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
-import numpy as np
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
@@ -9,6 +8,17 @@ from view.viewer import GLWidget
 
 if TYPE_CHECKING:
     from control.controller import Controller
+
+
+def string_is_float(string: str, recect_negative: bool = False) -> bool:
+    """Returns True if string can be converted to float"""
+    try:
+        decimal = float(string)
+    except ValueError:
+        return False
+    if recect_negative and decimal < 0:
+        return False
+    return True
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -108,6 +118,8 @@ class GUI(QtWidgets.QMainWindow):
                                self.length_edit, self.width_edit, self.height_edit,
                                self.rot_x_edit, self.rot_y_edit, self.rot_z_edit]
 
+        self.volume_label = self.findChild(QtWidgets.QLabel, "volume_value_label")
+
         # Connect with controller
         self.controller = control
         self.controller.set_view(self)
@@ -135,8 +147,9 @@ class GUI(QtWidgets.QMainWindow):
         self.button_forward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y(forward=True))
         self.button_backward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y())
 
-        self.dial_zrotation.valueChanged.connect(lambda x: self.controller.bbox_controller.rotate_around_z(x,
-                                                                                                           absolute=True))
+        self.dial_zrotation.valueChanged.connect(
+            lambda x: self.controller.bbox_controller.rotate_around_z(x, absolute=True)
+        )
         self.button_decr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale(decrease=True))
         self.button_incr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale())
 
@@ -167,7 +180,6 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_x_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_x"))
         self.rot_y_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_y"))
         self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
-
 
         # MENU BAR
         self.action_zrotation.toggled.connect(self.controller.bbox_controller.set_rotation_mode)
@@ -248,8 +260,11 @@ class GUI(QtWidgets.QMainWindow):
             self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
             self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
 
+            self.volume_label.setText(str(round(bbox.get_volume(), 3)))
+
     def update_bbox_parameter(self, parameter: str):
         str_value = None
+        self.setFocus()  # Changes the focus from QLineEdit to the window
 
         if parameter == "pos_x":
             str_value = self.pos_x_edit.text()
@@ -257,7 +272,7 @@ class GUI(QtWidgets.QMainWindow):
             str_value = self.pos_y_edit.text()
         if parameter == "pos_z":
             str_value = self.pos_z_edit.text()
-        if str_value and str_value.replace('.','',1).isdigit():
+        if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_position(parameter, round(float(str_value), 3))
             return True
 
@@ -267,7 +282,7 @@ class GUI(QtWidgets.QMainWindow):
             str_value = self.width_edit.text()
         if parameter == "height":
             str_value = self.height_edit.text()
-        if str_value and str_value.replace('.','',1).isdigit():  # TODO: improve float check
+        if str_value and string_is_float(str_value, recect_negative=True):
             self.controller.bbox_controller.update_dimension(parameter, round(float(str_value), 3))
             return True
 
@@ -277,7 +292,7 @@ class GUI(QtWidgets.QMainWindow):
             str_value = self.rot_y_edit.text()
         if parameter == "rot_z":
             str_value = self.rot_z_edit.text()
-        if str_value and str_value.replace('.','',1).isdigit():
+        if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_rotation(parameter, round(float(str_value), 3))
             return True
 
@@ -315,28 +330,3 @@ class GUI(QtWidgets.QMainWindow):
         else:
             text = "Navigation Mode"
         self.mode_status.setText(text)
-
-
-def create_html_table(data: Dict):
-    style = """<style>
-            th {
-                text-align: left;
-                text-transform: uppercase;
-                font-weight: normal;
-                background-color: #EFEFEF;
-            }
-            td {
-                text-align: right;
-            }</style>"""
-
-    table = "<table width='100%'>"
-    for heading, cells in data.items():
-        table += "<tr> <th>%s</th>" % heading
-        for cell in cells:
-            if heading == "Rotation":
-                table += "<td style='width: 100%'>{:4.1f}</td>".format(cell)
-            else:
-                table += "<td style='width: 100%'>{:4.2f}</td>".format(cell)
-        table += "</tr>"
-    table += "</table>"
-    return style + table

@@ -955,6 +955,12 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
@@ -995,6 +1001,12 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
@@ -1028,6 +1040,12 @@ QListWidget#label_list::item:selected {
                <width>0</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1089,10 +1107,19 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
              <property name="dragEnabled">
+              <bool>false</bool>
+             </property>
+             <property name="readOnly">
               <bool>false</bool>
              </property>
             </widget>
@@ -1122,6 +1149,12 @@ QListWidget#label_list::item:selected {
                <width>0</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1157,6 +1190,12 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
@@ -1190,6 +1229,12 @@ QListWidget#label_list::item:selected {
                <width>0</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1238,6 +1283,12 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
@@ -1272,6 +1323,12 @@ QListWidget#label_list::item:selected {
                <height>0</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969;</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
@@ -1289,8 +1346,29 @@ QListWidget#label_list::item:selected {
            </item>
            <item row="3" column="1">
             <widget class="QLabel" name="volume_value_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #696969; margin-right: 3px;</string>
+             </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="indent">
+              <number>0</number>
              </property>
             </widget>
            </item>
