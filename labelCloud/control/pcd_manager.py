@@ -18,7 +18,7 @@ from model.bbox import BBox
 from model.point_cloud import PointCloud
 
 if TYPE_CHECKING:
-    from labelCloud import GUI
+    from view.gui import GUI
 
 
 def find_pcd_files(path: str) -> List[str]:

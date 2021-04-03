@@ -91,10 +91,10 @@ class Controller:
         """Sets the currently hovered bounding box side in the glWidget."""
         if (not self.side_mode) and self.curr_cursor_pos and self.bbox_controller.has_active_bbox() \
                 and (not self.scroll_mode):
-            self.selected_side = oglhelper.get_intersected_sides(self.curr_cursor_pos.x(), self.curr_cursor_pos.y(),
-                                                                 self.bbox_controller.get_active_bbox().get_vertices(),
-                                                                 self.view.glWidget.modelview,
-                                                                 self.view.glWidget.projection)
+            _, self.selected_side = oglhelper.get_intersected_sides(self.curr_cursor_pos.x(), self.curr_cursor_pos.y(),
+                                                                    self.bbox_controller.get_active_bbox(),
+                                                                    self.view.glWidget.modelview,
+                                                                    self.view.glWidget.projection)
         if self.selected_side and (not self.ctrl_pressed) and self.bbox_controller.has_active_bbox():
             self.view.glWidget.crosshair_col = [1, 0, 0]
             side_vertices = self.bbox_controller.get_active_bbox().get_vertices()

@@ -9,7 +9,7 @@ from control.bbox_controller import BoundingBoxController
 from model.bbox import BBox
 
 if TYPE_CHECKING:
-    from view import GUI
+    from view.gui import GUI
 
 
 class DrawingManager:

@@ -12,7 +12,7 @@ from control import config_parser
 from model.bbox import BBox
 
 if TYPE_CHECKING:
-    from labelCloud import GUI
+    from view.gui import GUI
 
 
 # DECORATORS
