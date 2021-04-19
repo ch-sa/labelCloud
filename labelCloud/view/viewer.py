@@ -63,6 +63,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         GLU.gluPerspective(45.0, aspect, 0.5, 30.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
+        oglhelper.device_pixel_ratio = self.devicePixelRatioF()
+
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glPushMatrix()  # push the current matrix to the current stack
@@ -111,6 +113,11 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(self, x: int, y: int, z: float = None, correction: bool = False):
+        device_pixel_ratio = self.devicePixelRatioF()  # For fixing mac retina bug
+        print(f"DEBUG: Device pixel ratio is: {device_pixel_ratio}")
+        x *= device_pixel_ratio
+        y *= device_pixel_ratio
+
         viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)  # Stored projection matrices are taken from loop
         real_y = viewport[3] - y  # adjust for down-facing y positions
 
