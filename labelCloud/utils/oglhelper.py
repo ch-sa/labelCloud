@@ -12,7 +12,7 @@ from model.point_cloud import PointCloud
 Color4f = Tuple[float, float, float, float]  # type alias for type hinting
 PointList = List[List[float]]
 
-device_pixel_ratio = None
+DEVICE_PIXEL_RATIO = None  # is set once and for every window resize (retina display fix)
 
 
 def draw_points(points: PointList, color: Color4f = (0, 1, 1, 1), point_size: int = 10) -> None:
@@ -98,8 +98,8 @@ def get_pick_ray(x: float, y: float, modelview, projection) -> Tuple[List[float]
     :param projection: projection matrix
     :return: two points of the pick ray from the closest and furthest frustum
     """
-    x *= device_pixel_ratio
-    y *= device_pixel_ratio
+    x *= DEVICE_PIXEL_RATIO
+    y *= DEVICE_PIXEL_RATIO
 
     viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
     real_y = viewport[3] - y  # adjust for down-facing y positions

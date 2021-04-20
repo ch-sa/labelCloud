@@ -15,6 +15,7 @@ from control.drawing_manager import DrawingManager
 
 # Main widget for presenting the point cloud
 class GLWidget(QtOpenGL.QGLWidget):
+
     def __init__(self, parent=None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
@@ -22,6 +23,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         self.modelview = None
         self.projection = None
+        self.DEVICE_PIXEL_RATIO = self.devicePixelRatioF()  # 1 = normal; 2 = retina display
+        oglhelper.DEVICE_PIXEL_RATIO = self.DEVICE_PIXEL_RATIO  # set for helper functions
 
         self.pcd_controller = None
         self.bbox_controller = None
@@ -62,8 +65,6 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         GLU.gluPerspective(45.0, aspect, 0.5, 30.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
-
-        oglhelper.device_pixel_ratio = self.devicePixelRatioF()
 
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -113,10 +114,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(self, x: int, y: int, z: float = None, correction: bool = False):
-        device_pixel_ratio = self.devicePixelRatioF()  # For fixing mac retina bug
-        print(f"DEBUG: Device pixel ratio is: {device_pixel_ratio}")
-        x *= device_pixel_ratio
-        y *= device_pixel_ratio
+        x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
+        y *= self.DEVICE_PIXEL_RATIO
 
         viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)  # Stored projection matrices are taken from loop
         real_y = viewport[3] - y  # adjust for down-facing y positions
