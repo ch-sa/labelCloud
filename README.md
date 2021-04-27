@@ -20,6 +20,8 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 3. Copy point clouds into `pointclouds` folder.
 4. Run `python3 labelCloud.py`.
 
+Configure the software to your needs by editing the `config.ini` file according to the [docs](docs/documentation.md).
+
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
