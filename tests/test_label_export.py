@@ -40,7 +40,7 @@ def test_centroid_rel_export(bounding_box, tmpdir):
     assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply', 'objects':
         [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
           'dimensions': {'length': 1, 'width': 1, 'height': 1},
-          'rotations': {'x': 1.570796, 'y': 3.141593, 'z': -1.570796}}]}
+          'rotations': {'x': 1.57079633, 'y': 3.14159265, 'z': -1.57079633}}]}
 
 
 def test_centroid_abs_export(bounding_box, tmpdir):
@@ -63,4 +63,4 @@ def test_kitti_export(bounding_box, tmpdir):
     with open(os.path.join(tmpdir, "testpcd.txt"), "r") as read_file:
         data = read_file.readlines()
 
-    assert data == ['test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.570796\n']
+    assert data == ['test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.57079633\n']
