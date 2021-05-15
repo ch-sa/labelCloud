@@ -12,7 +12,7 @@ import open3d as o3d
 from PyQt5.QtWidgets import QCompleter, QMessageBox
 from shutil import copyfile
 
-from control import config_parser
+from control import config_manager
 from control.label_manager import LabelManager
 from model.bbox import BBox
 from model.point_cloud import PointCloud
@@ -63,11 +63,11 @@ def color_pointcloud(points, z_min, z_max):
 
 class PointCloudManger:
     PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin")
-    PCD_FOLDER = config_parser.get_file_settings("POINTCLOUD_FOLDER")
+    PCD_FOLDER = config_manager.config.get_file_settings("POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
-    TRANSLATION_FACTOR = config_parser.get_pointcloud_settings("STD_TRANSLATION")
-    ZOOM_FACTOR = config_parser.get_pointcloud_settings("STD_ZOOM")
-    COLORIZE = config_parser.get_pointcloud_settings("COLORLESS_COLORIZE")
+    TRANSLATION_FACTOR = config_manager.config.get_pointcloud_settings("STD_TRANSLATION")
+    ZOOM_FACTOR = config_manager.config.get_pointcloud_settings("STD_ZOOM")
+    COLORIZE = config_manager.config.get_pointcloud_settings("COLORLESS_COLORIZE")
 
     def __init__(self):
         # Point cloud management

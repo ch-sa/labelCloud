@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
-from control import config_parser
+from control import config_manager
+from view.settings_dialog import SettingsDialog
 from view.viewer import GLWidget
 
 if TYPE_CHECKING:
@@ -23,7 +24,7 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
 
 
 class GUI(QtWidgets.QMainWindow):
-    VIEWING_PRECISION = int(config_parser.get_label_settings("VIEWING_PRECISION"))
+    VIEWING_PRECISION = int(config_manager.config.get_label_settings("VIEWING_PRECISION"))
 
     def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
@@ -57,6 +58,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
         self.action_showorientation = self.findChild(QtWidgets.QAction, "action_showorientation")
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
+        self.action_change_settings = self.findChild(QtWidgets.QAction, "action_changesettings")
 
         # STATUS BAR
         self.status = self.findChild(QtWidgets.QStatusBar, "statusbar")
@@ -189,11 +191,16 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showfloor.toggled.connect(self.set_floor_visibility)
         self.action_showorientation.toggled.connect(self.set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
+        self.action_change_settings.triggered.connect(self.open_settings_dialog)
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
+
         # Keyboard Events
-        if (event.type() == QEvent.KeyPress) and not self.line_edited_activated():
+        # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()) and (not isinstance(event_object, SettingsDialog)):
+        if (event.type() == QEvent.KeyPress) and (event_object == self):  # TODO: Cleanup old filter
+            print("EVENT TYPE: %s" % event)
+            print("EVENT OBJECT: %s" % event_object)
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True  # TODO: Recheck pyqt behaviour
@@ -223,6 +230,10 @@ class GUI(QtWidgets.QMainWindow):
         self.controller.save()
         self.timer.stop()
         a0.accept()
+
+    def open_settings_dialog(self):
+        dialog = SettingsDialog(self)
+        dialog.exec()
 
     # VISUALIZATION METHODS
 

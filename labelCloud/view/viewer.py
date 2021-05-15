@@ -6,7 +6,7 @@ from OpenGL import GLU
 from PyQt5 import QtOpenGL, QtGui
 
 from utils import oglhelper
-from control import config_parser
+from control import config_manager
 from control.alignmode import AlignMode
 from control.bbox_controller import BoundingBoxController
 from control.pcd_manager import PointCloudManger
@@ -30,8 +30,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.bbox_controller = None
 
         # Objects to be drawn
-        self.draw_floor = config_parser.get_app_settings("SHOW_FLOOR")
-        self.draw_orientation = config_parser.get_app_settings("SHOW_ORIENTATION")
+        self.draw_floor = config_manager.config.get_app_settings("SHOW_FLOOR")
+        self.draw_orientation = config_manager.config.get_app_settings("SHOW_ORIENTATION")
         self.crosshair_pos = None
         self.crosshair_col = (0, 1, 0, 1)
         self.selected_side_vertices = []
@@ -47,7 +47,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     # QGLWIDGET METHODS
 
     def initializeGL(self):
-        bg_color = [int(fl_color) for fl_color in config_parser.get_app_settings("BACKGROUND_COLOR")]  # floats to ints
+        bg_color = [int(fl_color) for fl_color in config_manager.config.get_app_settings("BACKGROUND_COLOR")]  # floats to ints
         self.qglClearColor(QtGui.QColor(*bg_color))  # screen background color
         GL.glEnable(GL.GL_DEPTH_TEST)  # for visualization of depth
         GL.glEnable(GL.GL_BLEND)  # enable transparency

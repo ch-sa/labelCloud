@@ -7,15 +7,15 @@ from typing import List
 import numpy as np
 
 from utils import math3d
-from control import config_parser
+from control import config_manager
 from model.bbox import BBox
 
 
 class LabelManager:
     LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]  # supported export formats
-    STD_LABEL_FORMAT = config_parser.get_label_settings("LABEL_FORMAT")
-    STD_LABEL_FOLDER = config_parser.get_file_settings("LABEL_FOLDER")
-    EXPORT_PRECISION = int(config_parser.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places
+    STD_LABEL_FORMAT = config_manager.config.get_label_settings("LABEL_FORMAT")
+    STD_LABEL_FOLDER = config_manager.config.get_file_settings("LABEL_FOLDER")
+    EXPORT_PRECISION = int(config_manager.config.get_label_settings("EXPORT_PRECISION"))  # Number of decimal places
 
     def __init__(self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = STD_LABEL_FOLDER):
         self.label_folder = path_to_label_folder
