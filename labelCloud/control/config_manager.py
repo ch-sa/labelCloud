@@ -7,7 +7,7 @@ from typing import List, Union
 
 
 # Parses string to list if it contains a ","
-def float_parser_decorator(func):
+def bool_float_parser_decorator(func):
     def wrapper(*args, **kwargs):
         value = func(*args, **kwargs)
         if value in ["True", "False"]:
@@ -57,20 +57,20 @@ class ConfigManager(object):
     def get_file_settings(self, key: str) -> str:
         return self.config["FILE"][key]
 
-    @float_parser_decorator
+    @bool_float_parser_decorator
     @list_parser_decorator
     def get_pointcloud_settings(self, key: str) -> Union[str, float, List]:
         return self.config["POINTCLOUD"][key]
 
-    @float_parser_decorator
+    @bool_float_parser_decorator
     @list_parser_decorator
     def get_label_settings(self, key: str) -> Union[str, float, List]:
         return self.config["LABEL"][key]
 
-    @float_parser_decorator
+    @bool_float_parser_decorator
     @list_parser_decorator
     def get_app_settings(self, key: str) -> str:
-        return self.config["SETTINGS"][key]
+        return self.config["USER_INTERFACE"][key]
 
 
 config = ConfigManager()
