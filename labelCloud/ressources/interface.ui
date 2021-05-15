@@ -1538,6 +1538,7 @@ QListWidget#label_list::item:selected {
     <addaction name="action_showfloor"/>
     <addaction name="action_showorientation"/>
     <addaction name="action_alignpcd"/>
+    <addaction name="action_changesettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabels"/>
@@ -1626,6 +1627,11 @@ QListWidget#label_list::item:selected {
    </property>
    <property name="text">
     <string>Align Point Cloud</string>
+   </property>
+  </action>
+  <action name="action_changesettings">
+   <property name="text">
+    <string>Change Settings ...</string>
    </property>
   </action>
  </widget>
