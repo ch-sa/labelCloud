@@ -49,9 +49,10 @@ The following parameters can be changed:
 | `OBJECT_CLASSES` | List of object classes for autocompletion | *class1, class2, ...* |
 | `STD_OBJECT_CLASS` | Default object class | *default_class* |
 | `Z_ROTATION_ONLY` | Only allow z-rotation of bounding box. Deactivate to also label x- & y-rotation | *True* |
-| `EXPORT_PRECISION` | Number of decimal places for export label. | *8* |
-| `MIN_BOUNDINGBOX_DIMENSION` | Minimum bounding box dimension. | *0.01* |
-| `STD_BOUNDINGBOX_LENGTH` | Default lenght of the bounding box (for picking mode) | *0.75* |
+| `EXPORT_PRECISION` | Number of decimal places for exporting the bounding box parameters. | *8* |
+| `VIEWING_PRECISION` | Number of decimal places shown on the right side for the parameters of the active bounding box. | *3* |
+| `MIN_BOUNDINGBOX_DIMENSION` | Minimum value for the length, width and height of a bounding box. | *0.01* |
+| `STD_BOUNDINGBOX_LENGTH` | Default length of the bounding box (for picking mode) | *0.75* |
 | `STD_BOUNDINGBOX_WIDTH` | Default width of the bounding box (for picking mode) | *0.55* |
 | `STD_BOUNDINGBOX_HEIGHT`| Default height of the bounding box (for picking mode) | *0.15* |
 | `STD_TRANSLATION`| Standard step for translating the bounding box | *0.03* |
