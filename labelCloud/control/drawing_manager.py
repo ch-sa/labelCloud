@@ -6,6 +6,7 @@ import numpy as np
 import utils.math3d as math3d
 import utils.oglhelper as ogl
 from control.bbox_controller import BoundingBoxController
+from control.config_manager import config
 from model.bbox import BBox
 
 if TYPE_CHECKING:
@@ -223,7 +224,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
         bbox = BBox(*center, length=length, width=width, height=abs(height))
         bbox.set_z_rotation(math3d.radians_to_degrees(z_angle))
 
-        if not self.view.controller.bbox_controller.only_z_rotation:
+        if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             # Also calculate y_angle
             y_angle = np.arctan(len_vec_2d[2] / len_vec_2d[0])
             bbox.set_y_rotation(-math3d.radians_to_degrees(y_angle))

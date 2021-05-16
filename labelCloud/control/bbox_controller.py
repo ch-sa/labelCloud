@@ -27,7 +27,7 @@ def has_active_bbox_decorator(func):
 
 def only_zrotation_decorator(func):
     def wrapper(*args, **kwargs):  # plays function if active bbox exists
-        if not args[0].only_z_rotation:
+        if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             return func(*args, **kwargs)
         else:
             print("Rotations around the x- or y-axis are not supported in this mode.")
@@ -35,7 +35,6 @@ def only_zrotation_decorator(func):
 
 
 class BoundingBoxController:
-    Z_ROTATION = config.getboolean("LABEL", "z_rotation_only")
     STD_TRANSLATION = config.getfloat("LABEL", "std_translation")
     STD_ROTATION = config.getfloat("LABEL", "std_rotation")
     STD_SCALING = config.getfloat("LABEL", "std_scaling")
@@ -44,7 +43,6 @@ class BoundingBoxController:
         self.view = None
         self.bboxes = []
         self.active_bbox_id = -1  # -1 means zero bboxes
-        self.only_z_rotation = BoundingBoxController.Z_ROTATION
         self.pcdc = None
 
     # GETTERS
@@ -71,11 +69,6 @@ class BoundingBoxController:
 
     def set_view(self, view: 'GUI'):
         self.view = view
-        self.view.action_zrotation.setChecked(self.only_z_rotation)
-
-    def set_rotation_mode(self, state: bool):
-        self.only_z_rotation = state
-        print("Z-rotation only mode set to %s." % state)
 
     def add_bbox(self, bbox: BBox):
         if isinstance(bbox, BBox):

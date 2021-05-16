@@ -3,7 +3,7 @@ import configparser
 
 # Read local file `config.ini`.
 import os
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 class ExtendedConfigParser(configparser.ConfigParser):

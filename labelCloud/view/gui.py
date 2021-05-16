@@ -23,6 +23,19 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
     return True
 
 
+def set_floor_visibility(state: bool) -> None:
+    print("SHOW_FLOOR: %s" % state)
+    config.set("USER_INTERFACE", "show_floor", str(state))
+
+
+def set_orientation_visibility(state: bool) -> None:
+    config.set("USER_INTERFACE", "show_orientation", str(state))
+
+
+def set_zrotation_only(state: bool) -> None:
+    config.set("USER_INTERFACE", "z_rotation_only", str(state))
+
+
 class GUI(QtWidgets.QMainWindow):
 
     def __init__(self, control: 'Controller'):
@@ -129,6 +142,7 @@ class GUI(QtWidgets.QMainWindow):
 
         # Connect all events to functions
         self.connect_events()
+        self.set_checkbox_states()
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -185,12 +199,17 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
 
         # MENU BAR
-        self.action_zrotation.toggled.connect(self.controller.bbox_controller.set_rotation_mode)
+        self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
-        self.action_showfloor.toggled.connect(self.set_floor_visibility)
-        self.action_showorientation.toggled.connect(self.set_orientation_visibility)
+        self.action_showfloor.toggled.connect(set_floor_visibility)
+        self.action_showorientation.toggled.connect(set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
         self.action_change_settings.triggered.connect(self.open_settings_dialog)
+
+    def set_checkbox_states(self):
+        self.action_showfloor.setChecked(config.getboolean("USER_INTERFACE", "show_floor"))
+        self.action_showorientation.setChecked(config.getboolean("USER_INTERFACE", "show_orientation"))
+        self.action_zrotation.setChecked(config.getboolean("USER_INTERFACE", "z_rotation_only"))
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
@@ -235,13 +254,6 @@ class GUI(QtWidgets.QMainWindow):
         dialog.exec()
 
     # VISUALIZATION METHODS
-
-    def set_floor_visibility(self, state: bool) -> None:
-        print("SHOW_FLOOR: %s" % state)
-        config.set("USER_INTERFACE", "show_floor", str(state))
-
-    def set_orientation_visibility(self, state: bool) -> None:
-        config.set("USER_INTERFACE", "show_orientation", str(state))
 
     def set_pcd_label(self, pcd_name: str) -> None:
         self.label_curr_pcd.setText("Current: <em>%s</em>" % pcd_name)
