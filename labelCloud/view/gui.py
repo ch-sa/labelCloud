@@ -24,7 +24,6 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
 
 
 class GUI(QtWidgets.QMainWindow):
-    VIEWING_PRECISION = config.getint("LABEL", "VIEWING_PRECISION")
 
     def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
@@ -261,20 +260,21 @@ class GUI(QtWidgets.QMainWindow):
             self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
 
     def update_bbox_stats(self, bbox):
+        viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
         if bbox and not self.line_edited_activated():
-            self.pos_x_edit.setText(str(round(bbox.get_center()[0], GUI.VIEWING_PRECISION)))
-            self.pos_y_edit.setText(str(round(bbox.get_center()[1], GUI.VIEWING_PRECISION)))
-            self.pos_z_edit.setText(str(round(bbox.get_center()[2], GUI.VIEWING_PRECISION)))
+            self.pos_x_edit.setText(str(round(bbox.get_center()[0], viewing_precision)))
+            self.pos_y_edit.setText(str(round(bbox.get_center()[1], viewing_precision)))
+            self.pos_z_edit.setText(str(round(bbox.get_center()[2], viewing_precision)))
 
-            self.length_edit.setText(str(round(bbox.get_dimensions()[0], GUI.VIEWING_PRECISION)))
-            self.width_edit.setText(str(round(bbox.get_dimensions()[1], GUI.VIEWING_PRECISION)))
-            self.height_edit.setText(str(round(bbox.get_dimensions()[2], GUI.VIEWING_PRECISION)))
+            self.length_edit.setText(str(round(bbox.get_dimensions()[0], viewing_precision)))
+            self.width_edit.setText(str(round(bbox.get_dimensions()[1], viewing_precision)))
+            self.height_edit.setText(str(round(bbox.get_dimensions()[2], viewing_precision)))
 
             self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
             self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
             self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
 
-            self.volume_label.setText(str(round(bbox.get_volume(), GUI.VIEWING_PRECISION)))
+            self.volume_label.setText(str(round(bbox.get_volume(), viewing_precision)))
 
     def update_bbox_parameter(self, parameter: str):
         str_value = None

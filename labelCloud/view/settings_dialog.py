@@ -35,7 +35,6 @@ class SettingsDialog(QDialog):
         self.lineEdit_standardobjectclass.setText(config.get("LABEL", "std_object_class"))
         self.checkBox_zrotationonly.setChecked(config.getboolean("LABEL", "z_rotation_only"))
         self.spinBox_exportprecision.setValue(config.getint("LABEL", "export_precision"))
-        self.spinBox_viewingprecision.setValue(config.getint("LABEL", "viewing_precision"))
         self.doubleSpinBox_minbboxdimensions.setValue(config.getfloat("LABEL", "min_boundingbox_dimension"))
         self.doubleSpinBox_stdbboxlength.setValue(config.getfloat("LABEL", "std_boundingbox_length"))
         self.doubleSpinBox_stdbboxwidth.setValue(config.getfloat("LABEL", "std_boundingbox_width"))
@@ -48,6 +47,7 @@ class SettingsDialog(QDialog):
         self.lineEdit_backgroundcolor.setText(config.get("USER_INTERFACE", "background_color"))
         self.checkBox_showfloor.setChecked(config.getboolean("USER_INTERFACE", "show_floor"))
         self.checkBox_showbboxorientation.setChecked(config.getboolean("USER_INTERFACE", "show_orientation"))
+        self.spinBox_viewingprecision.setValue(config.getint("USER_INTERFACE", "viewing_precision"))
 
     def save(self) -> None:
         print("update 1.0 ... %s" % config["USER_INTERFACE"]["show_floor"])
@@ -69,7 +69,6 @@ class SettingsDialog(QDialog):
         config["LABEL"]["std_object_class"] = self.lineEdit_standardobjectclass.text()
         config["LABEL"]["z_rotation_only"] = str(self.checkBox_zrotationonly.isChecked())
         config["LABEL"]["export_precision"] = str(self.spinBox_exportprecision.value())
-        config["LABEL"]["viewing_precision"] = str(self.spinBox_viewingprecision.value())
         config["LABEL"]["min_bounding_box_dimension"] = str(self.doubleSpinBox_minbboxdimensions.value())
         config["LABEL"]["std_boundingbox_length"] = str(self.doubleSpinBox_stdbboxlength.value())
         config["LABEL"]["std_boundingbox_width"] = str(self.doubleSpinBox_stdbboxwidth.value())
@@ -82,6 +81,7 @@ class SettingsDialog(QDialog):
         config["USER_INTERFACE"]["background_color"] = self.lineEdit_backgroundcolor.text()
         config["USER_INTERFACE"]["show_floor"] = str(self.checkBox_showfloor.isChecked())
         config["USER_INTERFACE"]["show_orientation"] = str(self.checkBox_showbboxorientation.isChecked())
+        config["USER_INTERFACE"]["viewing_precision"] = str(self.spinBox_viewingprecision.value())
 
         print("update 1.1 ... %s" % config["USER_INTERFACE"]["show_floor"])
 
