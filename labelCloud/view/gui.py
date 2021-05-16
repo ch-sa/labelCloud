@@ -1,9 +1,9 @@
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtWidgets import QCompleter
+from PyQt5.QtWidgets import QCompleter, QFileDialog, QActionGroup, QAction
 
 from control.config_manager import config
 from view.settings_dialog import SettingsDialog
@@ -49,25 +49,15 @@ class GUI(QtWidgets.QMainWindow):
         # MENU BAR
         # File
         self.action_setpcdfolder = self.findChild(QtWidgets.QAction, "action_setpcdfolder")
-        self.action_setpcdfolder.setEnabled(False)  # TODO: Implement
         self.action_setlabelfolder = self.findChild(QtWidgets.QAction, "action_setlabelfolder")
-        self.action_setlabelfolder.setEnabled(False)  # TODO: Implement
-        self.action_loadsinglepcd = self.findChild(QtWidgets.QAction, "action_loadsinglepcd")
-        self.action_loadsinglepcd.setEnabled(False)  # TODO: Implement
 
         # Labels
-        self.action_zrotation = self.findChild(QtWidgets.QAction, "action_zrotationonly")
         self.action_deletelabels = self.findChild(QtWidgets.QAction, "action_deletealllabels")
-        self.action_setclasslist = self.findChild(QtWidgets.QAction, "action_setclasslist")
-        self.action_setclasslist.setEnabled(False)  # TODO: Implement
-        self.action_setstddimensions = self.findChild(QtWidgets.QAction, "action_setstddimensions")
-        self.action_setstddimensions.setEnabled(False)  # TODO: Implement
-        self.action_setstdtransformations = self.findChild(QtWidgets.QAction, "action_setstdtransformations")
-        self.action_setstddimensions.setEnabled(False)  # TODO: Implement
+        self.menu_setdefaultclass = self.findChild(QtWidgets.QMenu, "menu_setdefaultclass")
+        self.actiongroup_defaultclass = QActionGroup(self.menu_setdefaultclass)
 
         # Settings
-        self.action_pointsize = self.findChild(QtWidgets.QAction, "action_pointsize")
-        self.action_pointsize.setEnabled(False)  # TODO: Implement
+        self.action_zrotation = self.findChild(QtWidgets.QAction, "action_zrotationonly")
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
         self.action_showorientation = self.findChild(QtWidgets.QAction, "action_showorientation")
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
@@ -145,6 +135,7 @@ class GUI(QtWidgets.QMainWindow):
         self.connect_events()
         self.set_checkbox_states()  # tick in menu
         self.update_label_completer()  # initialize label completer with classes in config
+        self.update_default_object_class_menu()
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -201,8 +192,11 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
 
         # MENU BAR
-        self.action_zrotation.toggled.connect(set_zrotation_only)
+        self.action_setpcdfolder.triggered.connect(self.change_pointcloud_folder)
+        self.action_setlabelfolder.triggered.connect(self.change_label_folder)
+        self.actiongroup_defaultclass.triggered.connect(self.change_default_object_class)
         self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
+        self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
@@ -362,3 +356,35 @@ class GUI(QtWidgets.QMainWindow):
         else:
             text = "Navigation Mode"
         self.mode_status.setText(text)
+
+    def change_pointcloud_folder(self):
+        path_to_folder = QFileDialog.getExistingDirectory(self, "Change Point Cloud Folder",
+                                                          directory=config.get("FILE", "pointcloud_folder"))
+        self.controller.pcd_controller.pcd_folder = path_to_folder
+        self.controller.pcd_controller.read_pointcloud_folder()
+        self.init_progress(min_value=0, max_value=len(self.controller.pcd_controller.pcds))
+        self.controller.pcd_controller.get_next_pcd()
+        print("Changed point cloud folder to %s!" % path_to_folder)
+
+    def change_label_folder(self):
+        path_to_folder = QFileDialog.getExistingDirectory(self, "Change Label Folder",
+                                                          directory=config.get("FILE", "label_folder"))
+        self.controller.pcd_controller.label_manager.label_folder = path_to_folder
+        self.controller.pcd_controller.label_manager.label_strategy.update_label_folder(path_to_folder)
+        print("Changed label folder to %s!" % path_to_folder)
+
+    def update_default_object_class_menu(self, new_classes: List[str] = None):
+        object_classes = set(config.getlist("LABEL", "object_classes"))
+        object_classes.update(new_classes or [])
+        existing_classes = {action.text() for action in self.actiongroup_defaultclass.actions()}
+        for object_class in object_classes.difference(existing_classes):
+            action = self.actiongroup_defaultclass.addAction(object_class)  # TODO: Add limiter for number of classes
+            action.setCheckable(True)
+            if object_class == config.get("LABEL", "std_object_class"):
+                action.setChecked(True)
+
+        self.menu_setdefaultclass.addActions(self.actiongroup_defaultclass.actions())
+
+    def change_default_object_class(self, action: QAction):
+        config.set("LABEL", "std_object_class", action.text())
+        print(f"Changed default object class to {action.text()}.")

@@ -40,7 +40,7 @@ def show_no_pcd_dialog():
     msg.setText("Did not find any point cloud.")
     msg.setInformativeText("Please copy all your point clouds into the <i>%s</i> folder. "
                            "If you already have done that check the supported formats %s."
-                           % (PointCloudManger.PCD_FOLDER, str(PointCloudManger.PCD_EXTENSIONS)))
+                           % (config.get("FILE", "POINTCLOUD_FOLDER"), str(PointCloudManger.PCD_EXTENSIONS)))
     msg.setWindowTitle("No Point Clouds Found")
     msg.exec_()
 
@@ -57,7 +57,6 @@ def color_pointcloud(points, z_min, z_max):
 
 class PointCloudManger:
     PCD_EXTENSIONS = (".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin")
-    PCD_FOLDER = config.get("FILE", "POINTCLOUD_FOLDER")
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
@@ -65,20 +64,26 @@ class PointCloudManger:
 
     def __init__(self):
         # Point cloud management
-        self.pcd_folder = PointCloudManger.PCD_FOLDER
-        self.pcds = find_pcd_files(self.pcd_folder)
-        self.no_of_pcds = len(self.pcds)
+        self.pcd_folder = config.get("FILE", "pointcloud_folder")
+        self.pcds = []
         self.current_id = -1
+        self.read_pointcloud_folder()
+
         self.current_o3d_pcd = None
         self.view = None
         self.label_manager = LabelManager()
+
         # Point cloud control
         self.pointcloud = None
         self.collected_object_classes = set()
 
+    def read_pointcloud_folder(self):
+        self.pcds = find_pcd_files(self.pcd_folder)
+        self.current_id = -1
+
     # GETTER
     def pcds_left(self) -> bool:
-        return self.current_id + 1 < self.no_of_pcds
+        return self.current_id + 1 < len(self.pcds)
 
     def get_next_pcd(self):
         print("Loading next point cloud...")
@@ -110,7 +115,7 @@ class PointCloudManger:
 
     def get_current_details(self) -> Tuple[str, int, int]:
         if self.current_id >= 0:
-            return self.get_current_name(), self.current_id + 1, self.no_of_pcds
+            return self.get_current_name(), self.current_id + 1, len(self.pcds)
 
     def get_current_path(self) -> str:
         return os.path.join(self.pcd_folder, self.pcds[self.current_id])
@@ -123,13 +128,15 @@ class PointCloudManger:
     # SETTER
     def set_view(self, view: 'GUI') -> None:
         self.view = view
-        self.view.init_progress(min_value=0, max_value=self.no_of_pcds)
+        self.view.init_progress(min_value=0, max_value=len(self.pcds))
         self.view.glWidget.set_pointcloud_controller(self)
         self.get_next_pcd()
 
     def save_labels_into_file(self, bboxes: List[BBox]):
         self.label_manager.export_labels(self.get_current_path(), bboxes)
-        self.view.update_label_completer({bbox.get_classname() for bbox in bboxes})
+        self.collected_object_classes.update({bbox.get_classname() for bbox in bboxes})
+        self.view.update_label_completer(self.collected_object_classes)
+        self.view.update_default_object_class_menu(self.collected_object_classes)
 
     # MANIPULATOR
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
