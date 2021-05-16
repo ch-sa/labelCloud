@@ -271,6 +271,11 @@ Bounding Box Parameter</string>
      </item>
      <item row="15" column="1" colspan="2">
       <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
        <property name="text">
         <string>Note: Some settings might require a restart to take effect!</string>
        </property>
@@ -537,6 +542,9 @@ Bounding Box Parameter</string>
      </item>
      <item row="16" column="2">
       <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="locale">
+        <locale language="English" country="UnitedStates"/>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -577,6 +585,19 @@ Bounding Box Parameter</string>
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="16" column="1">
+      <widget class="QPushButton" name="reset_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Reset to Default</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

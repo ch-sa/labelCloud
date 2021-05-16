@@ -22,8 +22,6 @@ def create_buffer(attributes):
 
 
 class PointCloud:
-    POINT_SIZE = config.getfloat("POINTCLOUD", "POINT_SIZE")
-    COLOR_FOR_COLORLESS_PCD = config.getlist("POINTCLOUD", "COLORLESS_COLOR")
 
     def __init__(self, path):
         self.path_to_pointcloud = path
@@ -112,13 +110,13 @@ class PointCloud:
 
         GL.glTranslate(*(pcd_center * -1))       # move point cloud to center for rotation
 
-        GL.glPointSize(PointCloud.POINT_SIZE)
+        GL.glPointSize(config.getfloat("POINTCLOUD", "POINT_SIZE"))
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
 
         if self.colorless:
             stride = 3 * SIZE_OF_FLOAT  # (12 bytes) : [x, y, z] * sizeof(float)
             GL.glPointSize(1)
-            GL.glColor3d(*PointCloud.COLOR_FOR_COLORLESS_PCD)  # IDEA: Color by (height) position
+            GL.glColor3d(*config.getlist("POINTCLOUD", "COLORLESS_COLOR"))  # IDEA: Color by (height) position
         else:
             stride = 6 * SIZE_OF_FLOAT  # (24 bytes) : [x, y, z, r, g, b] * sizeof(float)
 

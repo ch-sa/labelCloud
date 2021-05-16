@@ -15,6 +15,7 @@ class SettingsDialog(QDialog):
 
         self.buttonBox.accepted.connect(self.save)
         self.buttonBox.rejected.connect(self.chancel)
+        self.reset_button.clicked.connect(self.reset)
 
     def fill_with_current_settings(self):
         # File
@@ -87,6 +88,10 @@ class SettingsDialog(QDialog):
 
         config_manager.write_into_file()
         print("Saved and activated new configuration!")
+
+    def reset(self):
+        config_manager.reset_to_default()
+        self.fill_with_current_settings()
 
     def chancel(self) -> None:
         print("Settings dialog was chanceled!")
