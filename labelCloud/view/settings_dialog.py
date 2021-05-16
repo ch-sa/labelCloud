@@ -67,7 +67,7 @@ class SettingsDialog(QDialog):
         config["LABEL"]["object_classes"] = self.plainTextEdit_objectclasses.toPlainText()
         config["LABEL"]["std_object_class"] = self.lineEdit_standardobjectclass.text()
         config["LABEL"]["export_precision"] = str(self.spinBox_exportprecision.value())
-        config["LABEL"]["min_bounding_box_dimension"] = str(self.doubleSpinBox_minbboxdimensions.value())
+        config["LABEL"]["min_boundingbox_dimension"] = str(self.doubleSpinBox_minbboxdimensions.value())
         config["LABEL"]["std_boundingbox_length"] = str(self.doubleSpinBox_stdbboxlength.value())
         config["LABEL"]["std_boundingbox_width"] = str(self.doubleSpinBox_stdbboxwidth.value())
         config["LABEL"]["std_boundingbox_height"] = str(self.doubleSpinBox_stdbboxheight.value())
