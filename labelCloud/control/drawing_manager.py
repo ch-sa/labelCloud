@@ -134,17 +134,17 @@ class PickingStrategy(IDrawingStrategy, ABC):
     def register_scrolling(self, distance: float) -> None:
         self.bbox_z_rotation += distance // 30
 
-    def draw_preview(self) -> None:
+    def draw_preview(self) -> None:  # TODO: Refactor
         if self.tmp_p1:
-            tmp_bbox = BBox(*np.add(self.tmp_p1, [0, BBox.STD_WIDTH / 2, -BBox.STD_HEIGHT / 3]))
-            # tmp_bbox = BBox(*self.tmp_p1)
+            tmp_bbox = BBox(*np.add(self.tmp_p1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                                                  -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
             tmp_bbox.set_z_rotation(self.bbox_z_rotation)
             ogl.draw_cuboid(tmp_bbox.get_vertices(), draw_vertices=True, vertex_color=(1, 1, 0, 1))
 
     # Draw bbox with fixed dimensions and rotation at x,y in world space
-    def get_bbox(self) -> BBox:
-        final_bbox = BBox(*np.add(self.point_1, [0, BBox.STD_WIDTH / 2, -BBox.STD_HEIGHT / 3]))
-        # final_bbox = BBox(*self.point_1)
+    def get_bbox(self) -> BBox:  # TODO: Refactor
+        final_bbox = BBox(*np.add(self.point_1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                                                 -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
         final_bbox.set_z_rotation(self.bbox_z_rotation)
         return final_bbox
 

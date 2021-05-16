@@ -17,22 +17,18 @@ class BBox:
                   "back": [0, 3, 7, 4], "left": [0, 1, 5, 4], "front": [1, 2, 6, 5]}
 
     MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
-    STD_LENGTH = config.getfloat("LABEL", "STD_BOUNDINGBOX_LENGTH")
-    STD_WIDTH = config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH")
-    STD_HEIGHT = config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT")
-
     LIST_OF_CLASSES = set(config.getlist("LABEL", "OBJECT_CLASSES"))
-    STD_OBJECT_CLASS = config.get("LABEL", "STD_OBJECT_CLASS")
 
-    def __init__(self, cx, cy, cz, length=STD_LENGTH, width=STD_WIDTH, height=STD_HEIGHT):
+    def __init__(self, cx: float, cy: float, cz: float,
+                 length: float = None, width: float = None, height: float = None):
         self.center = cx, cy, cz
-        self.length = length
-        self.width = width
-        self.height = height
+        self.length = length or config.getfloat("LABEL", "STD_BOUNDINGBOX_LENGTH")
+        self.width = width or config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH")
+        self.height = height or config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT")
         self.x_rotation = 0
         self.y_rotation = 0
         self.z_rotation = 0
-        self.classname = BBox.STD_OBJECT_CLASS
+        self.classname = config.get("LABEL", "STD_OBJECT_CLASS")
         self.verticies = None
         self.set_axis_aligned_verticies()
 
