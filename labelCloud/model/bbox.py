@@ -3,7 +3,7 @@ from typing import Tuple, List
 import OpenGL.GL as GL
 import numpy as np
 
-from control import config_manager
+from control.config_manager import config
 from utils import math3d
 from utils import oglhelper
 
@@ -16,13 +16,13 @@ class BBox:
     BBOX_SIDES = {"top": [4, 5, 6, 7], "bottom": [0, 1, 2, 3], "right": [2, 3, 7, 6],  # vertices of each side
                   "back": [0, 3, 7, 4], "left": [0, 1, 5, 4], "front": [1, 2, 6, 5]}
 
-    MIN_DIMENSION = config_manager.config.get_label_settings("MIN_BOUNDINGBOX_DIMENSION")
-    STD_LENGTH = config_manager.config.get_label_settings("STD_BOUNDINGBOX_LENGTH")
-    STD_WIDTH = config_manager.config.get_label_settings("STD_BOUNDINGBOX_WIDTH")
-    STD_HEIGHT = config_manager.config.get_label_settings("STD_BOUNDINGBOX_HEIGHT")
+    MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
+    STD_LENGTH = config.getfloat("LABEL", "STD_BOUNDINGBOX_LENGTH")
+    STD_WIDTH = config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH")
+    STD_HEIGHT = config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT")
 
-    LIST_OF_CLASSES = set(config_manager.config.get_label_settings("OBJECT_CLASSES"))
-    STD_OBJECT_CLASS = config_manager.config.get_label_settings("STD_OBJECT_CLASS")
+    LIST_OF_CLASSES = set(config.getlist("LABEL", "OBJECT_CLASSES"))
+    STD_OBJECT_CLASS = config.get("LABEL", "STD_OBJECT_CLASS")
 
     def __init__(self, cx, cy, cz, length=STD_LENGTH, width=STD_WIDTH, height=STD_HEIGHT):
         self.center = cx, cy, cz

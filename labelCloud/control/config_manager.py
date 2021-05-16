@@ -6,42 +6,24 @@ import os
 from typing import List, Union
 
 
-# Parses string to list if it contains a ","
-def bool_float_parser_decorator(func):
-    def wrapper(*args, **kwargs):
-        value = func(*args, **kwargs)
-        if value in ["True", "False"]:
-            return value == "True"
-        try:
-            return float(value)
-        except TypeError:
-            return value
-        except ValueError:
-            return value
+class ExtendedConfigParser(configparser.ConfigParser):
 
-    return wrapper
-
-
-# Parses string to list if it contains a ","
-def list_parser_decorator(func):
-    def wrapper(*args, **kwargs):
-        value = func(*args, **kwargs)
-        if "," in value:
-            values = [x.strip() for x in value.split(',')]
+    def getlist(self, section, option, raw=False, vars=None, fallback=None) -> List:
+        raw_value = self.get(section, option, raw=raw, vars=vars, fallback=fallback)
+        if "," in raw_value:
+            values = [x.strip() for x in raw_value.split(',')]
             try:
                 return [float(item) for item in values]
             except ValueError:
                 return values
-        return value
-
-    return wrapper
+        return raw_value
 
 
 class ConfigManager(object):
     PATH_TO_CONFIG = "config.ini"
 
     def __init__(self):
-        self.config = configparser.ConfigParser(comment_prefixes='/', allow_no_value=True)
+        self.config = ExtendedConfigParser(comment_prefixes='/', allow_no_value=True)
         self.read_from_file()
 
     def read_from_file(self):
@@ -57,20 +39,6 @@ class ConfigManager(object):
     def get_file_settings(self, key: str) -> str:
         return self.config["FILE"][key]
 
-    @bool_float_parser_decorator
-    @list_parser_decorator
-    def get_pointcloud_settings(self, key: str) -> Union[str, float, List]:
-        return self.config["POINTCLOUD"][key]
 
-    @bool_float_parser_decorator
-    @list_parser_decorator
-    def get_label_settings(self, key: str) -> Union[str, float, List]:
-        return self.config["LABEL"][key]
-
-    @bool_float_parser_decorator
-    @list_parser_decorator
-    def get_app_settings(self, key: str) -> str:
-        return self.config["USER_INTERFACE"][key]
-
-
-config = ConfigManager()
+config_manager = ConfigManager()
+config = config_manager.config

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Union, List
 import numpy as np
 
 from utils import oglhelper
-from control import config_manager
+from control.config_manager import config
 from model.bbox import BBox
 
 if TYPE_CHECKING:
@@ -35,10 +35,10 @@ def only_zrotation_decorator(func):
 
 
 class BoundingBoxController:
-    Z_ROTATION = config_manager.config.get_label_settings("Z_ROTATION_ONLY")
-    STD_TRANSLATION = config_manager.config.get_label_settings("STD_TRANSLATION")
-    STD_ROTATION = config_manager.config.get_label_settings("STD_ROTATION")
-    STD_SCALING = config_manager.config.get_label_settings("STD_SCALING")
+    Z_ROTATION = config.getboolean("LABEL", "z_rotation_only")
+    STD_TRANSLATION = config.getfloat("LABEL", "std_translation")
+    STD_ROTATION = config.getfloat("LABEL", "std_rotation")
+    STD_SCALING = config.getfloat("LABEL", "std_scaling")
 
     def __init__(self):
         self.view = None

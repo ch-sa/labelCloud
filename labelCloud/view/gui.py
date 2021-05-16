@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
 
-from control import config_manager
+from control.config_manager import config
 from view.settings_dialog import SettingsDialog
 from view.viewer import GLWidget
 
@@ -24,7 +24,7 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
 
 
 class GUI(QtWidgets.QMainWindow):
-    VIEWING_PRECISION = int(config_manager.config.get_label_settings("VIEWING_PRECISION"))
+    VIEWING_PRECISION = config.getint("LABEL", "VIEWING_PRECISION")
 
     def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
@@ -238,10 +238,11 @@ class GUI(QtWidgets.QMainWindow):
     # VISUALIZATION METHODS
 
     def set_floor_visibility(self, state: bool) -> None:
-        self.glWidget.draw_floor = state
+        print("SHOW_FLOOR: %s" % state)
+        config.set("USER_INTERFACE", "show_floor", str(state))
 
     def set_orientation_visibility(self, state: bool) -> None:
-        self.glWidget.draw_orientation = state
+        config.set("USER_INTERFACE", "show_orientation", str(state))
 
     def set_pcd_label(self, pcd_name: str) -> None:
         self.label_curr_pcd.setText("Current: <em>%s</em>" % pcd_name)

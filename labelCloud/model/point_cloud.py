@@ -3,7 +3,7 @@ import ctypes
 import numpy as np
 import OpenGL.GL as GL
 
-from control import config_manager
+from control.config_manager import config
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -22,8 +22,8 @@ def create_buffer(attributes):
 
 
 class PointCloud:
-    POINT_SIZE = config_manager.config.get_pointcloud_settings("POINT_SIZE")
-    COLOR_FOR_COLORLESS_PCD = config_manager.config.get_pointcloud_settings("COLORLESS_COLOR")
+    POINT_SIZE = config.getfloat("POINTCLOUD", "POINT_SIZE")
+    COLOR_FOR_COLORLESS_PCD = config.getlist("POINTCLOUD", "COLORLESS_COLOR")
 
     def __init__(self, path):
         self.path_to_pointcloud = path
