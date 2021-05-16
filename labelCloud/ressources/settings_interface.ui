@@ -47,6 +47,9 @@
        <property name="decimals">
         <number>4</number>
        </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
       </widget>
      </item>
      <item row="7" column="2">
@@ -169,6 +172,9 @@
        <property name="decimals">
         <number>4</number>
        </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
       </widget>
      </item>
      <item row="13" column="1">
@@ -231,7 +237,10 @@ Bounding Box Parameter</string>
         <string>Rasterized diameter of each point from the point cloud.</string>
        </property>
        <property name="decimals">
-        <number>1</number>
+        <number>2</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -382,6 +391,12 @@ Bounding Box Parameter</string>
        <property name="toolTip">
         <string>Minimum value for the length, width and height of a bounding box.</string>
        </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="singleStep">
+        <double>0.001000000000000</double>
+       </property>
       </widget>
      </item>
      <item row="12" column="1">
@@ -406,12 +421,30 @@ Bounding Box Parameter</string>
        <property name="toolTip">
         <string>Standard step for scaling the bounding box.</string>
        </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
       </widget>
      </item>
      <item row="11" column="2">
       <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxtranslation">
        <property name="toolTip">
         <string>Standard step for translating the bounding box (meter).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
        </property>
       </widget>
      </item>
@@ -429,6 +462,15 @@ Bounding Box Parameter</string>
       <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxrotation">
        <property name="toolTip">
         <string>Standard step for rotating the bounding box (degree).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>364.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
        </property>
       </widget>
      </item>
@@ -463,6 +505,15 @@ Bounding Box Parameter</string>
        <property name="toolTip">
         <string>Default height of the bounding box (for picking mode).</string>
        </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
       </widget>
      </item>
      <item row="9" column="1">
@@ -479,6 +530,15 @@ Bounding Box Parameter</string>
       <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxlength">
        <property name="toolTip">
         <string>Default length of the bounding box (for picking mode).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
        </property>
       </widget>
      </item>
@@ -567,6 +627,15 @@ Bounding Box Parameter</string>
       <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxwidth">
        <property name="toolTip">
         <string>Default width of the bounding box (for picking mode).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
        </property>
       </widget>
      </item>

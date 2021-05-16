@@ -213,12 +213,9 @@ class GUI(QtWidgets.QMainWindow):
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
-
         # Keyboard Events
         # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()) and (not isinstance(event_object, SettingsDialog)):
         if (event.type() == QEvent.KeyPress) and (event_object == self):  # TODO: Cleanup old filter
-            print("EVENT TYPE: %s" % event)
-            print("EVENT OBJECT: %s" % event_object)
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True  # TODO: Recheck pyqt behaviour
