@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>888</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Change Settings</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <item row="4" column="1">
+      <widget class="QLabel" name="label_pointsize">
+       <property name="toolTip">
+        <string>Rasterized diameter of each point from the point cloud.</string>
+       </property>
+       <property name="text">
+        <string>Point Size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="2">
+      <widget class="QSpinBox" name="spinBox_viewingprecision">
+       <property name="toolTip">
+        <string>number of decimal places shown for the parameters of the active bounding box.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_standardzoom">
+       <property name="toolTip">
+        <string>Standard step for zooming.</string>
+       </property>
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QLineEdit" name="lineEdit_pointcolor">
+       <property name="toolTip">
+        <string>Point color for colorless point clouds (r,g,b).</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="title_filesettings">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>File Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="label_pointcolor">
+       <property name="toolTip">
+        <string>Point color for colorless point clouds (r,g,b).</string>
+       </property>
+       <property name="text">
+        <string>Point Color
+(for colorless point clouds)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="2">
+      <widget class="QLineEdit" name="lineEdit_backgroundcolor">
+       <property name="toolTip">
+        <string>Background color of the point cloud viewer (rgb).</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_showfloor">
+       <property name="toolTip">
+        <string>Visualizes the pointcloud floor (x-y-plane) as a grid.</string>
+       </property>
+       <property name="text">
+        <string>Show Point Cloud Floor (x-y-Plane)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_colorizecolorless">
+       <property name="toolTip">
+        <string>Colerize colorless point clouds by height value.</string>
+       </property>
+       <property name="text">
+        <string>Colorize colorless point clouds by height</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="title_userinterface">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">margin-top: 10px</string>
+       </property>
+       <property name="text">
+        <string>User Interface</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QLabel" name="title_pointcloudsettings">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">margin-top: 10px</string>
+       </property>
+       <property name="text">
+        <string>Point Cloud Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_labelfolder">
+       <property name="toolTip">
+        <string>Path to the folder where the label files will be saved.</string>
+       </property>
+       <property name="text">
+        <string>Label Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_standardtranslation">
+       <property name="toolTip">
+        <string>Standard step for point cloud translation.</string>
+       </property>
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="QLabel" name="label_viewingprecision">
+       <property name="toolTip">
+        <string>number of decimal places shown for the parameters of the active bounding box.</string>
+       </property>
+       <property name="text">
+        <string>Viewing Precision of
+Bounding Box Parameter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="label_standardtranslation">
+       <property name="toolTip">
+        <string>Standard step for point cloud translation.</string>
+       </property>
+       <property name="text">
+        <string>Standard Translation</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_standardzoom">
+       <property name="toolTip">
+        <string>Standard step for zooming.</string>
+       </property>
+       <property name="text">
+        <string>Standard Zoom Factor</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label_pointcloudfolder">
+       <property name="toolTip">
+        <string>Path to the folder that contains the point cloud files.</string>
+       </property>
+       <property name="text">
+        <string>Point Cloud Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_pointsize">
+       <property name="toolTip">
+        <string>Rasterized diameter of each point from the point cloud.</string>
+       </property>
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_showbboxorientation">
+       <property name="toolTip">
+        <string>Visualizes the object's orientation with an arrow.</string>
+       </property>
+       <property name="text">
+        <string>Show Bounding Box Orientation</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="lineEdit_pointcloudfolder">
+       <property name="toolTip">
+        <string>Path to the folder that contains the point cloud files.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QLabel" name="label_backgroundcolor">
+       <property name="toolTip">
+        <string>Background color of the point cloud viewer (rgb).</string>
+       </property>
+       <property name="text">
+        <string>Background Color</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="lineEdit_labelfolder">
+       <property name="toolTip">
+        <string>Path to the folder where the label files will be saved.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="1" colspan="2">
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="text">
+        <string>Note: Some settings might require a restart to take effect!</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <item row="8" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_zrotationonly">
+       <property name="toolTip">
+        <string>Only allow z-rotation of bounding boxes. Deactivate to also label x- &amp; y-rotation.</string>
+       </property>
+       <property name="text">
+        <string>Z-Rotation-Only Mode (otherwise rotation around x, y and z)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label_labelformat">
+       <property name="toolTip">
+        <string>Format for exporting labels.</string>
+       </property>
+       <property name="text">
+        <string>Label Format</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_stdbboxwidth">
+       <property name="toolTip">
+        <string>Default width of the bounding box (for picking mode).</string>
+       </property>
+       <property name="text">
+        <string>Standard Bounding Box Width</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="2">
+      <widget class="QSpinBox" name="spinBox_exportprecision">
+       <property name="toolTip">
+        <string>Number of decimal places shown for the parameters of the active bounding box.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLabel" name="label_stdbboxtranslation">
+       <property name="toolTip">
+        <string>Standard step for translating the bounding box (meter).</string>
+       </property>
+       <property name="text">
+        <string>Standard Translation Step</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="comboBox_labelformat">
+       <property name="toolTip">
+        <string>Format for exporting labels.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="1">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="14" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_minbboxdimensions">
+       <property name="toolTip">
+        <string>Minimum value for the length, width and height of a bounding box.</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="singleStep">
+        <double>0.001000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1">
+      <widget class="QLabel" name="label_stdbboxrotation">
+       <property name="toolTip">
+        <string>Standard step for rotating the bounding box (degree).</string>
+       </property>
+       <property name="text">
+        <string>Standard Rotation Step</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLineEdit" name="lineEdit_standardobjectclass">
+       <property name="toolTip">
+        <string>Default object class for new bounding boxes.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxscaling">
+       <property name="toolTip">
+        <string>Standard step for scaling the bounding box.</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxtranslation">
+       <property name="toolTip">
+        <string>Standard step for translating the bounding box (meter).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="label_stdbboxlength">
+       <property name="toolTip">
+        <string>Default length of the bounding box (for picking mode).</string>
+       </property>
+       <property name="text">
+        <string>Standard Bounding Box Length</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxrotation">
+       <property name="toolTip">
+        <string>Standard step for rotating the bounding box (degree).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>364.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QLabel" name="label_minbboxdimensions">
+       <property name="toolTip">
+        <string>Minimum value for the length, width and height of a bounding box.</string>
+       </property>
+       <property name="text">
+        <string>Min. Bounding Box Dimensions</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPlainTextEdit" name="plainTextEdit_objectclasses">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>List of object classes for autocompletion in the text field.</string>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxheight">
+       <property name="toolTip">
+        <string>Default height of the bounding box (for picking mode).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="label_exportprecision">
+       <property name="toolTip">
+        <string>Number of decimal places shown for the parameters of the active bounding box.</string>
+       </property>
+       <property name="text">
+        <string>Export Precision</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxlength">
+       <property name="toolTip">
+        <string>Default length of the bounding box (for picking mode).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="QLabel" name="label_stdbboxscaling">
+       <property name="toolTip">
+        <string>Standard step for scaling the bounding box.</string>
+       </property>
+       <property name="text">
+        <string>Standard Scaling Step</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="label_standardobjectclass">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Default object class for new bounding boxes.</string>
+       </property>
+       <property name="text">
+        <string>Standard Object Class</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_objectclasses">
+       <property name="toolTip">
+        <string>List of object classes for autocompletion in the text field.</string>
+       </property>
+       <property name="text">
+        <string>Object Classes</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="title_labelsettings">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Label Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="2">
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="locale">
+        <locale language="English" country="UnitedStates"/>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="label_stdbboxheight">
+       <property name="toolTip">
+        <string>Default height of the bounding box (for picking mode).</string>
+       </property>
+       <property name="text">
+        <string>Standard Bounding Box Height</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_stdbboxwidth">
+       <property name="toolTip">
+        <string>Default width of the bounding box (for picking mode).</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="2">
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="16" column="1">
+      <widget class="QPushButton" name="reset_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Reset to Default</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_colorizecolorless</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_pointcolor</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_colorizecolorless</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_pointcolor</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

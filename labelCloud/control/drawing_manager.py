@@ -6,6 +6,7 @@ import numpy as np
 import utils.math3d as math3d
 import utils.oglhelper as ogl
 from control.bbox_controller import BoundingBoxController
+from control.config_manager import config
 from model.bbox import BBox
 
 if TYPE_CHECKING:
@@ -133,17 +134,17 @@ class PickingStrategy(IDrawingStrategy, ABC):
     def register_scrolling(self, distance: float) -> None:
         self.bbox_z_rotation += distance // 30
 
-    def draw_preview(self) -> None:
+    def draw_preview(self) -> None:  # TODO: Refactor
         if self.tmp_p1:
-            tmp_bbox = BBox(*np.add(self.tmp_p1, [0, BBox.STD_WIDTH / 2, -BBox.STD_HEIGHT / 3]))
-            # tmp_bbox = BBox(*self.tmp_p1)
+            tmp_bbox = BBox(*np.add(self.tmp_p1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                                                  -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
             tmp_bbox.set_z_rotation(self.bbox_z_rotation)
             ogl.draw_cuboid(tmp_bbox.get_vertices(), draw_vertices=True, vertex_color=(1, 1, 0, 1))
 
     # Draw bbox with fixed dimensions and rotation at x,y in world space
-    def get_bbox(self) -> BBox:
-        final_bbox = BBox(*np.add(self.point_1, [0, BBox.STD_WIDTH / 2, -BBox.STD_HEIGHT / 3]))
-        # final_bbox = BBox(*self.point_1)
+    def get_bbox(self) -> BBox:  # TODO: Refactor
+        final_bbox = BBox(*np.add(self.point_1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                                                 -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
         final_bbox.set_z_rotation(self.bbox_z_rotation)
         return final_bbox
 
@@ -223,7 +224,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
         bbox = BBox(*center, length=length, width=width, height=abs(height))
         bbox.set_z_rotation(math3d.radians_to_degrees(z_angle))
 
-        if not self.view.controller.bbox_controller.only_z_rotation:
+        if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             # Also calculate y_angle
             y_angle = np.arctan(len_vec_2d[2] / len_vec_2d[0])
             bbox.set_y_rotation(-math3d.radians_to_degrees(y_angle))

@@ -1524,20 +1524,19 @@ QListWidget#label_list::item:selected {
     <property name="title">
      <string>Labels</string>
     </property>
-    <addaction name="action_zrotationonly"/>
     <addaction name="action_deletealllabels"/>
     <addaction name="action_setclasslist"/>
     <addaction name="action_setstddimensions"/>
-    <addaction name="action_setstdtransformations"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="action_pointsize"/>
+    <addaction name="action_zrotationonly"/>
     <addaction name="action_showfloor"/>
     <addaction name="action_showorientation"/>
     <addaction name="action_alignpcd"/>
+    <addaction name="action_changesettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabels"/>
@@ -1626,6 +1625,11 @@ QListWidget#label_list::item:selected {
    </property>
    <property name="text">
     <string>Align Point Cloud</string>
+   </property>
+  </action>
+  <action name="action_changesettings">
+   <property name="text">
+    <string>Change Settings ...</string>
    </property>
   </action>
  </widget>

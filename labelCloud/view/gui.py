@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtWidgets import QCompleter
 
-from control import config_parser
+from control.config_manager import config
+from view.settings_dialog import SettingsDialog
 from view.viewer import GLWidget
 
 if TYPE_CHECKING:
@@ -22,8 +24,20 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
     return True
 
 
+def set_floor_visibility(state: bool) -> None:
+    print("SHOW_FLOOR: %s" % state)
+    config.set("USER_INTERFACE", "show_floor", str(state))
+
+
+def set_orientation_visibility(state: bool) -> None:
+    config.set("USER_INTERFACE", "show_orientation", str(state))
+
+
+def set_zrotation_only(state: bool) -> None:
+    config.set("USER_INTERFACE", "z_rotation_only", str(state))
+
+
 class GUI(QtWidgets.QMainWindow):
-    VIEWING_PRECISION = int(config_parser.get_label_settings("VIEWING_PRECISION"))
 
     def __init__(self, control: 'Controller'):
         super(GUI, self).__init__()
@@ -57,6 +71,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
         self.action_showorientation = self.findChild(QtWidgets.QAction, "action_showorientation")
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
+        self.action_change_settings = self.findChild(QtWidgets.QAction, "action_changesettings")
 
         # STATUS BAR
         self.status = self.findChild(QtWidgets.QStatusBar, "statusbar")
@@ -128,6 +143,8 @@ class GUI(QtWidgets.QMainWindow):
 
         # Connect all events to functions
         self.connect_events()
+        self.set_checkbox_states()  # tick in menu
+        self.update_label_completer()  # initialize label completer with classes in config
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -184,16 +201,23 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
 
         # MENU BAR
-        self.action_zrotation.toggled.connect(self.controller.bbox_controller.set_rotation_mode)
+        self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
-        self.action_showfloor.toggled.connect(self.set_floor_visibility)
-        self.action_showorientation.toggled.connect(self.set_orientation_visibility)
+        self.action_showfloor.toggled.connect(set_floor_visibility)
+        self.action_showorientation.toggled.connect(set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
+        self.action_change_settings.triggered.connect(self.open_settings_dialog)
+
+    def set_checkbox_states(self):
+        self.action_showfloor.setChecked(config.getboolean("USER_INTERFACE", "show_floor"))
+        self.action_showorientation.setChecked(config.getboolean("USER_INTERFACE", "show_orientation"))
+        self.action_zrotation.setChecked(config.getboolean("USER_INTERFACE", "z_rotation_only"))
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
         # Keyboard Events
-        if (event.type() == QEvent.KeyPress) and not self.line_edited_activated():
+        # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()):
+        if (event.type() == QEvent.KeyPress) and (event_object == self):  # TODO: Cleanup old filter
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True  # TODO: Recheck pyqt behaviour
@@ -224,13 +248,11 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.stop()
         a0.accept()
 
+    def open_settings_dialog(self):
+        dialog = SettingsDialog(self)
+        dialog.exec()
+
     # VISUALIZATION METHODS
-
-    def set_floor_visibility(self, state: bool) -> None:
-        self.glWidget.draw_floor = state
-
-    def set_orientation_visibility(self, state: bool) -> None:
-        self.glWidget.draw_orientation = state
 
     def set_pcd_label(self, pcd_name: str) -> None:
         self.label_curr_pcd.setText("Current: <em>%s</em>" % pcd_name)
@@ -248,21 +270,29 @@ class GUI(QtWidgets.QMainWindow):
         else:
             self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
 
-    def update_bbox_stats(self, bbox):
-        if bbox and not self.line_edited_activated():
-            self.pos_x_edit.setText(str(round(bbox.get_center()[0], GUI.VIEWING_PRECISION)))
-            self.pos_y_edit.setText(str(round(bbox.get_center()[1], GUI.VIEWING_PRECISION)))
-            self.pos_z_edit.setText(str(round(bbox.get_center()[2], GUI.VIEWING_PRECISION)))
+    def update_label_completer(self, classnames=None):
+        if classnames is None:
+            classnames = set()
+        classnames.update(config.getlist("LABEL", "object_classes"))
+        print("COMPLETER CLASSNAMES: %s" % str(classnames))
+        self.curr_class_edit.setCompleter(QCompleter(classnames))
 
-            self.length_edit.setText(str(round(bbox.get_dimensions()[0], GUI.VIEWING_PRECISION)))
-            self.width_edit.setText(str(round(bbox.get_dimensions()[1], GUI.VIEWING_PRECISION)))
-            self.height_edit.setText(str(round(bbox.get_dimensions()[2], GUI.VIEWING_PRECISION)))
+    def update_bbox_stats(self, bbox):
+        viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
+        if bbox and not self.line_edited_activated():
+            self.pos_x_edit.setText(str(round(bbox.get_center()[0], viewing_precision)))
+            self.pos_y_edit.setText(str(round(bbox.get_center()[1], viewing_precision)))
+            self.pos_z_edit.setText(str(round(bbox.get_center()[2], viewing_precision)))
+
+            self.length_edit.setText(str(round(bbox.get_dimensions()[0], viewing_precision)))
+            self.width_edit.setText(str(round(bbox.get_dimensions()[1], viewing_precision)))
+            self.height_edit.setText(str(round(bbox.get_dimensions()[2], viewing_precision)))
 
             self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
             self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
             self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
 
-            self.volume_label.setText(str(round(bbox.get_volume(), GUI.VIEWING_PRECISION)))
+            self.volume_label.setText(str(round(bbox.get_volume(), viewing_precision)))
 
     def update_bbox_parameter(self, parameter: str):
         str_value = None

@@ -36,28 +36,29 @@ The following parameters can be changed:
 | Parameter | Description | Default/ Example |
 | :---: | --- | :---: |
 | **[FILE]** |
-| `POINTCLOUD_FOLDER` | Source of point clouds | *pointclouds/* |
-| `LABEL_FOLDER`| Sink for label files | *labels/* |
+| `POINTCLOUD_FOLDER` | Folder from which the point cloud files are loaded. | *pointclouds/* |
+| `LABEL_FOLDER`| Folder where the label files will be saved. | *labels/* |
 | **[POINTCLOUD]** |
-| `POINT_SIZE` | Drawing size for points in point cloud | *4* |
-| `COLORLESS_COLOR` | Point color for colorless point clouds (r,g,b) | *0.9, 0.9, 0.9* |
-| `COLORLESS_COLORIZE` | Colerize colorless point clouds by height value | *True* |
-| `STD_TRANSLATION` | Standard step for point cloud translation | *0.03* |
-| `STD_ZOOM` | Standard step for zooming | *0.0025* |
+| `POINT_SIZE` | Drawing size for points in point cloud (rasterized diameter). | *4* |
+| `COLORLESS_COLOR` | Point color for colorless point clouds (r,g,b). | *0.9, 0.9, 0.9* |
+| `COLORLESS_COLORIZE` | Colerize colorless point clouds by height value. | *True* |
+| `STD_TRANSLATION` | Standard step for point cloud translation (with mouse move). | *0.03* |
+| `STD_ZOOM` | Standard step for zooming (with mouse scroll). | *0.0025* |
 | **[LABEL]** |
-| `LABEL_FORMAT` | Format for exporting labels. Choose from (`vertices`, `centroid_rel`, `centroid_abs`, `kitti`) | *centroid_abs* |
-| `OBJECT_CLASSES` | List of object classes for autocompletion | *class1, class2, ...* |
-| `STD_OBJECT_CLASS` | Default object class | *default_class* |
-| `Z_ROTATION_ONLY` | Only allow z-rotation of bounding box. Deactivate to also label x- & y-rotation | *True* |
-| `EXPORT_PRECISION` | Number of decimal places for export label. | *8* |
-| `MIN_BOUNDINGBOX_DIMENSION` | Minimum bounding box dimension. | *0.01* |
-| `STD_BOUNDINGBOX_LENGTH` | Default lenght of the bounding box (for picking mode) | *0.75* |
-| `STD_BOUNDINGBOX_WIDTH` | Default width of the bounding box (for picking mode) | *0.55* |
-| `STD_BOUNDINGBOX_HEIGHT`| Default height of the bounding box (for picking mode) | *0.15* |
-| `STD_TRANSLATION`| Standard step for translating the bounding box | *0.03* |
-| `STD_ROTATION` | Standard step for rotating the bounding box | *0.5* |
-| `STD_SCALING` | Standard step for scaling the bounding box | *0.03* |
+| `LABEL_FORMAT` | Format for exporting labels, choose from `vertices`, `centroid_rel`, `centroid_abs` or `kitti`. | *centroid_abs* |
+| `OBJECT_CLASSES` | List of object classes for autocompletion in the class text field. | *class1, class2, ...* |
+| `STD_OBJECT_CLASS` | Default object class for new bounding boxes. | *default_class* |
+| `EXPORT_PRECISION` | Number of decimal places for exporting the bounding box parameters. | *8* |
+| `STD_BOUNDINGBOX_LENGTH` | Default length of the bounding box (for picking mode). | *0.75* |
+| `STD_BOUNDINGBOX_WIDTH` | Default width of the bounding box (for picking mode). | *0.55* |
+| `STD_BOUNDINGBOX_HEIGHT`| Default height of the bounding box (for picking mode). | *0.15* |
+| `STD_TRANSLATION`| Standard step for translating the bounding box (with key or button press). | *0.03* |
+| `STD_ROTATION` | Standard step for rotating the bounding box (with key press). | *0.5* |
+| `STD_SCALING` | Standard step for scaling the bounding box (with button press). | *0.03* |
+| `MIN_BOUNDINGBOX_DIMENSION` | Minimum value for the length, width and height of a bounding box. | *0.01* |
 | **[SETTINGS]** |
-| `BACKGROUND_COLOR` | Background color of the point cloud viewer (rgb) | *100, 100, 100* |
-| `SHOW_FLOOR` | Visualizes the floor (x-y-plane) as a grid | *True* |
-| `SHOW_ORIENTATION` | Visualizes the object's orientation as an arrow | *True* |
+| `Z_ROTATION_ONLY` | Only allow z-rotation of bounding box; deactivate to also label x- & y-rotation. | *True* |
+| `SHOW_FLOOR` | Visualizes the floor (x-y-plane) as a grid. | *True* |
+| `SHOW_ORIENTATION` | Visualizes the object's orientation as an arrow. | *True* |
+| `BACKGROUND_COLOR` | Background color of the point cloud viewer (rgb). | *100, 100, 100* |
+| `VIEWING_PRECISION` | Number of decimal places shown on the right side for the parameters of the active bounding box. | *3* |
