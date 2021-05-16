@@ -5,11 +5,11 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 import ntpath
 import os
 import sys
-from typing import List, Tuple, TYPE_CHECKING, Set
+from typing import List, Tuple, TYPE_CHECKING
 
 import numpy as np
 import open3d as o3d
-from PyQt5.QtWidgets import QCompleter, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 from shutil import copyfile
 
 from control.config_manager import config
@@ -32,12 +32,6 @@ def find_pcd_files(path: str) -> List[str]:
             pcd_files.append(file)
 
     return sorted(pcd_files)
-
-
-def get_unique_classnames(bboxes: List[BBox]) -> Set[str]:
-    for box in bboxes:
-        BBox.LIST_OF_CLASSES.add(box.get_classname())
-    return BBox.LIST_OF_CLASSES
 
 
 def show_no_pcd_dialog():
@@ -80,6 +74,7 @@ class PointCloudManger:
         self.label_manager = LabelManager()
         # Point cloud control
         self.pointcloud = None
+        self.collected_object_classes = set()
 
     # GETTER
     def pcds_left(self) -> bool:
@@ -134,7 +129,7 @@ class PointCloudManger:
 
     def save_labels_into_file(self, bboxes: List[BBox]):
         self.label_manager.export_labels(self.get_current_path(), bboxes)
-        self.update_label_completer(get_unique_classnames(bboxes))
+        self.view.update_label_completer({bbox.get_classname() for bbox in bboxes})
 
     # MANIPULATOR
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
@@ -264,8 +259,6 @@ class PointCloudManger:
         return cosz, sinz, bottom_up
 
     # UPDATE GUI
-    def update_label_completer(self, classnames: Set[str]):
-        self.view.curr_class_edit.setCompleter(QCompleter(classnames))
 
     def update_pcd_infos(self):
         self.view.set_pcd_label(self.get_current_name())

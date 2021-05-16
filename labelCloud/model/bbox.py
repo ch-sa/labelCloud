@@ -17,7 +17,6 @@ class BBox:
                   "back": [0, 3, 7, 4], "left": [0, 1, 5, 4], "front": [1, 2, 6, 5]}
 
     MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
-    LIST_OF_CLASSES = set(config.getlist("LABEL", "OBJECT_CLASSES"))
 
     def __init__(self, cx: float, cy: float, cz: float,
                  length: float = None, width: float = None, height: float = None):

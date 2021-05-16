@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtWidgets import QCompleter
 
 from control.config_manager import config
 from view.settings_dialog import SettingsDialog
@@ -142,7 +143,8 @@ class GUI(QtWidgets.QMainWindow):
 
         # Connect all events to functions
         self.connect_events()
-        self.set_checkbox_states()
+        self.set_checkbox_states()  # tick in menu
+        self.update_label_completer()  # initialize label completer with classes in config
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -214,7 +216,7 @@ class GUI(QtWidgets.QMainWindow):
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
         # Keyboard Events
-        # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()) and (not isinstance(event_object, SettingsDialog)):
+        # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()):
         if (event.type() == QEvent.KeyPress) and (event_object == self):  # TODO: Cleanup old filter
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
@@ -267,6 +269,13 @@ class GUI(QtWidgets.QMainWindow):
             self.curr_class_edit.setText(force)
         else:
             self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
+
+    def update_label_completer(self, classnames=None):
+        if classnames is None:
+            classnames = set()
+        classnames.update(config.getlist("LABEL", "object_classes"))
+        print("COMPLETER CLASSNAMES: %s" % str(classnames))
+        self.curr_class_edit.setCompleter(QCompleter(classnames))
 
     def update_bbox_stats(self, bbox):
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
