@@ -4,13 +4,13 @@
 
 ### Coordinate System
 
-The point cloud is rendered in a right-handed coordinate system (see [OpenGL describtion](https://learnopengl.com/Getting-started/Coordinate-Systems)).
+The point cloud is rendered in a right-handed coordinate system (see [OpenGL description](https://learnopengl.com/Getting-started/Coordinate-Systems)).
 
 ### Bounding Boxes
 
-The bounding box is interally represented with a centroid, three dimensions and absolute rotations in Euler angles.
-Rotations are counter-clockwise and between 0° and 360°.
-The initial bounding boxes is oriented with the x-axis representing the length.
+The bounding box is intenrally represented with a centroid, three dimensions and absolute rotations in Euler angles.
+Rotations are counter-clockwise and inside 0° and 360°.
+The initial bounding box is oriented with the x-axis representing the length.
 The bounding box vertices are ordered clockwise from bottom to top starting at the origin.
 The sequence is adopted from the [bbox library](https://varunagrawal.github.io/bbox/bbox.html#module-bbox.bbox3d).
 
@@ -30,7 +30,7 @@ When labelCloud shows the orientation, the arrow points at the right side of the
 
 ## Configuration
 
-The settings of labelCloud can currently only be changed using the config file (`config.ini`).
+The settings of labelCloud can be changed using the config file (`config.ini`) and for most options exists an entry in the graphical settings (accesible via the menu).
 The following parameters can be changed:
 
 | Parameter | Description | Default/ Example |
