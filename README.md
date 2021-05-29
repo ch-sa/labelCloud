@@ -20,7 +20,7 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 3. Copy point clouds into `pointclouds` folder.
 4. Run `python3 labelCloud.py`.
 
-Configure the software to your needs by editing the `config.ini` file according to the [docs](docs/documentation.md).
+Configure the software to your needs by editing the `config.ini` file or settings according to the [docs](docs/documentation.md).
 
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
@@ -41,9 +41,10 @@ labelCloud supports two different ways of labeling (*picking* & *spanning*) as w
 **Correction**
 
 * Use the buttons on the left-hand side or shortcuts to correct the *translation*, *dimension* and *rotation* of the bounding box
+* Resize the bounding box by holding your cursor above one side and scrolling with the mouse wheel
 
 By default the x- and y-rotation of bounding boxes will be prohibited.
-For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode`.
+For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode` in the menu, settings or `config.ini` file.
 Now you will be free to rotate around all three axes.
 
 ## Import & Export Options
@@ -65,7 +66,6 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 | `centroid_abs` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]` |
 | `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order) |
 | `kitti` | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
-| `votenet` | *Coming soon!* |
 
 You can easily create your own exporter by implementing the [IFormattingInterface](https://github.com/ch-sa/labelCloud/blob/4700915f9c809c827544f08e09727f4755545d73/modules/control/label_manager.py#L94).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
@@ -75,19 +75,19 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 | Shortcut | Description |
 | :---: | --- |
 | *Navigation* | |
-| Left Mouse Button | Rotate the Point Cloud |
-| Right Mouse Button | Translate the Point Cloud |
-| Mouse Wheel | Zoom into the Point Cloud |
+| Left Mouse Button | Rotates the Point Cloud |
+| Right Mouse Button | Translates the Point Cloud |
+| Mouse Wheel | Zooms into the Point Cloud |
 | *Correction* | |
-| `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translate BBox back, left, front, right |
-| `Q`, `E` | Lift BBox up, down |
-| `X`, `Y` | Rotate BBox around z-Axis |
-| Scrolling with Cursor above BBox Side | Side Pulling (Change Dimensions) |
-|`C` & `V`, `B` & `N` | Rotate BBox around y-Axis, x-Axis |
+| `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translates the Bounding Box back, left, front, right |
+| `Q`, `E` | Lifts the Bounding Box up, down |
+| `X`, `Y` | Rotates the Boundign Box around z-Axis |
+| Scrolling with the Cursor above a Bounding Box Side ("Side Pulling") | Changes the Dimension of the Bounding Box |
+|`C` & `V`, `B` & `N` | Rotates the Bounding Box around y-Axis, x-Axis |
 | *General* | |
-| `Del` | Delete Current BBox |
-| `R` | Reset Perspective |
-| `Esc` | Chancel Selected Points |
+| `Del` | Deletes Current Bounding Box |
+| `R` | Resets Perspective |
+| `Esc` | Cancels Selected Points |
 
 
 See [documentation.md](docs/documentation.md) for software conventions.
