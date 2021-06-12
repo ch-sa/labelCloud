@@ -60,16 +60,17 @@ class PointCloudManger:
         else:
             print(f"Point cloud path {self.pcd_folder} is not a valid directory.")
 
-        if not self.pcds:
+        if self.pcds:
+            self.view.update_status(f"Found {len(self.pcds)} point clouds in the point cloud folder.")
+            self.update_pcd_infos()
+        else:
             self.view.show_no_pointcloud_dialog(self.pcd_folder, PointCloudManger.PCD_EXTENSIONS)
             self.view.update_status("Please set the point cloud folder to a location that contains point cloud files.")
             self.pointcloud = self.load_pointcloud("labelCloud/ressources/labelCloud_icon.pcd")
-            self.view.set_pcd_label(" – (select folder!)")
-        else:
-            self.view.update_status(f"Found {len(self.pcds)} point clouds in the point cloud folder.")
+            self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 
-        self.current_id = -1
         self.view.init_progress(min_value=0, max_value=len(self.pcds))
+        self.current_id = -1
 
     # GETTER
     def pcds_left(self) -> bool:
@@ -255,12 +256,14 @@ class PointCloudManger:
 
     # UPDATE GUI
 
-    def update_pcd_infos(self):
-        self.view.set_pcd_label(self.get_current_name())
+    def update_pcd_infos(self, pointcloud_label: str = None):
+        self.view.set_pcd_label(pointcloud_label or self.get_current_name())
         self.view.update_progress(self.current_id)
 
         if self.current_id <= 0:
             self.view.button_prev_pcd.setEnabled(False)
+            if self.pcds:
+                self.view.button_next_pcd.setEnabled(True)
         else:
             self.view.button_next_pcd.setEnabled(True)
             self.view.button_prev_pcd.setEnabled(True)

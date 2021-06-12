@@ -11,6 +11,18 @@ from control.config_manager import config
 from model.bbox import BBox
 
 
+def get_label_strategy(export_format: str, label_folder: str) -> 'IFormattingInterface':
+    if export_format == "vertices":
+        return VerticesFormat(label_folder)
+    elif export_format == "centroid_rel":
+        return CentroidFormat(label_folder, relative_rotation=True)
+    elif export_format == "kitti":
+        return KittiFormat(label_folder, relative_rotation=True)
+    elif export_format != "centroid_abs":
+        print(f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!")
+    return CentroidFormat(label_folder, relative_rotation=False)
+
+
 class LabelManager:
     LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]  # supported export formats
     STD_LABEL_FORMAT = config.get("LABEL", "label_format")
@@ -21,19 +33,7 @@ class LabelManager:
         if not os.path.isdir(self.label_folder):
             os.mkdir(self.label_folder)
 
-        self.label_strategy : IFormattingInterface= None
-        self.set_label_strategy(strategy, path_to_label_folder)
-
-    def set_label_strategy(self, export_format: str, label_folder: str):
-        strategy_map = {"vertices": VerticesFormat(self.label_folder),
-                        "centroid_abs": CentroidFormat(self.label_folder, relative_rotation=False),
-                        "centroid_rel": CentroidFormat(self.label_folder, relative_rotation=True),
-                        "kitti": KittiFormat(self.label_folder, relative_rotation=True)}
-        try:
-            self.label_strategy = strategy_map[export_format]
-        except KeyError:
-            self.label_strategy = strategy_map["centroid_abs"]
-            print("Unknown export strategy '%s'. Proceeding with default (centroid_abs)!" % export_format)
+        self.label_strategy = get_label_strategy(strategy, self.label_folder)
 
     def import_labels(self, pcd_name: str) -> List[BBox]:
         try:

@@ -146,7 +146,7 @@ class GUI(QtWidgets.QMainWindow):
     # Event connectors
     def connect_events(self):
         # POINTCLOUD CONTROL
-        self.button_next_pcd.clicked.connect(self.controller.next_pcd)
+        self.button_next_pcd.clicked.connect(lambda: self.controller.next_pcd(save=True))
         self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
 
         # BBOX CONTROL
@@ -375,7 +375,6 @@ class GUI(QtWidgets.QMainWindow):
         else:
             self.controller.pcd_manager.pcd_folder = path_to_folder
             self.controller.pcd_manager.read_pointcloud_folder()
-            self.init_progress(min_value=0, max_value=len(self.controller.pcd_manager.pcds))
             self.controller.pcd_manager.get_next_pcd()
             print("Changed point cloud folder to %s!" % path_to_folder)
 
