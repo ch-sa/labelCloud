@@ -17,12 +17,12 @@ class Controller:
     def __init__(self):
         """Initializes all controllers and managers."""
         self.view: Union['GUI', None] = None
-        self.pcd_controller = PointCloudManger()
+        self.pcd_manager = PointCloudManger()
         self.bbox_controller = BoundingBoxController()
 
         # Drawing states
         self.drawing_mode = DrawingManager(self.bbox_controller)
-        self.align_mode = AlignMode(self.pcd_controller)
+        self.align_mode = AlignMode(self.pcd_manager)
 
         # Control states
         self.curr_cursor_pos = None  # updated by mouse movement
@@ -34,16 +34,19 @@ class Controller:
         self.side_mode = False
         self.selected_side = None
 
-    def set_view(self, view: 'GUI'):
+    def startup(self, view: 'GUI'):
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
         self.view = view
         self.bbox_controller.set_view(self.view)
-        self.pcd_controller.set_view(self.view)
+        self.pcd_manager.set_view(self.view)
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
         self.view.glWidget.set_bbox_controller(self.bbox_controller)
-        self.bbox_controller.pcdc = self.pcd_controller
-        self.bbox_controller.set_bboxes(self.pcd_controller.get_labels_from_file())  # Load labels for first pcd
+        self.bbox_controller.pcdc = self.pcd_manager
+
+        # Read labels from folders
+        self.pcd_manager.read_pointcloud_folder()
+        self.next_pcd(save=False)
 
     def loop_gui(self):
         """Function collection called during each event loop iteration."""
@@ -52,27 +55,28 @@ class Controller:
         self.view.glWidget.updateGL()
 
     # POINT CLOUD METHODS
-    def next_pcd(self):
-        self.save()
-        if self.pcd_controller.pcds_left():
-            self.pcd_controller.get_next_pcd()
+    def next_pcd(self, save: bool = True):
+        if save:
+            self.save()
+        if self.pcd_manager.pcds_left():
+            self.pcd_manager.get_next_pcd()
             self.reset()
-            self.bbox_controller.set_bboxes(self.pcd_controller.get_labels_from_file())
+            self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
         else:
-            self.view.update_progress(len(self.pcd_controller.pcds))
+            self.view.update_progress(len(self.pcd_manager.pcds))
             self.view.button_next_pcd.setEnabled(False)
 
     def prev_pcd(self):
         self.save()
-        if self.pcd_controller.current_id > 0:
-            self.pcd_controller.get_prev_pcd()
+        if self.pcd_manager.current_id > 0:
+            self.pcd_manager.get_prev_pcd()
             self.reset()
-            self.bbox_controller.set_bboxes(self.pcd_controller.get_labels_from_file())
+            self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
     # CONTROL METHODS
     def save(self):
         """Saves all bounding boxes in the label file."""
-        self.pcd_controller.save_labels_into_file(self.bbox_controller.get_bboxes())
+        self.pcd_manager.save_labels_into_file(self.bbox_controller.get_bboxes())
 
     def reset(self):
         """Resets the controllers and bounding boxes from the current screen."""
@@ -147,11 +151,11 @@ class Controller:
                     self.bbox_controller.set_center(*new_center)  # absolute positioning
             else:
                 if a0.buttons() & QtCore.Qt.LeftButton:  # pcd rotation
-                    self.pcd_controller.rotate_around_x(dy)
-                    self.pcd_controller.rotate_around_z(dx)
+                    self.pcd_manager.rotate_around_x(dy)
+                    self.pcd_manager.rotate_around_z(dx)
                 elif a0.buttons() & QtCore.Qt.RightButton:  # pcd translation
-                    self.pcd_controller.translate_along_x(dx)
-                    self.pcd_controller.translate_along_y(dy)
+                    self.pcd_manager.translate_along_x(dx)
+                    self.pcd_manager.translate_along_y(dy)
 
             if dx > 0.1 or dy > 0.1:  # Reset scroll locks if significant cursor movements
                 if self.side_mode:
@@ -172,7 +176,7 @@ class Controller:
             self.bbox_controller.get_active_bbox().change_side(self.selected_side,
                                                                -a0.angleDelta().y() / 4000)  # ToDo implement method
         else:
-            self.pcd_controller.zoom_into(a0.angleDelta().y())
+            self.pcd_manager.zoom_into(a0.angleDelta().y())
             self.scroll_mode = True
 
     def key_press_event(self, a0: QtGui.QKeyEvent):
@@ -184,7 +188,7 @@ class Controller:
 
         # Reset point cloud pose to intial rotation and translation
         elif (a0.key() == QtCore.Qt.Key_R) or (a0.key() == QtCore.Qt.Key_Home):
-            self.pcd_controller.reset_transformations()
+            self.pcd_manager.reset_transformations()
             print("Reseted position to default.")
 
         elif a0.key() == QtCore.Qt.Key_Delete:  # Delete active bbox

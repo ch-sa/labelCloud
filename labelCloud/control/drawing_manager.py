@@ -288,7 +288,7 @@ class RectangleStrategy(IDrawingStrategy, ABC):
             self.tmp_p2 = new_tmp_point
 
     def get_bbox(self):
-        # self.view.controller.pcd_controller.
+        # self.view.controller.pcd_manager.
         pass
 
     def draw_preview(self):

@@ -1,9 +1,9 @@
 import os
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Set
 
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtWidgets import QCompleter, QFileDialog, QActionGroup, QAction
+from PyQt5.QtWidgets import QCompleter, QFileDialog, QActionGroup, QAction, QMessageBox
 
 from control.config_manager import config
 from view.settings_dialog import SettingsDialog
@@ -129,7 +129,7 @@ class GUI(QtWidgets.QMainWindow):
 
         # Connect with controller
         self.controller = control
-        self.controller.set_view(self)
+        self.controller.startup(self)
 
         # Connect all events to functions
         self.connect_events()
@@ -200,7 +200,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
         self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
-        self.action_change_settings.triggered.connect(self.open_settings_dialog)
+        self.action_change_settings.triggered.connect(self.show_settings_dialog)
 
     def set_checkbox_states(self):
         self.action_showfloor.setChecked(config.getboolean("USER_INTERFACE", "show_floor"))
@@ -242,9 +242,19 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.stop()
         a0.accept()
 
-    def open_settings_dialog(self):
+    def show_settings_dialog(self):
         dialog = SettingsDialog(self)
         dialog.exec()
+
+    def show_no_pointcloud_dialog(self, pcd_folder: str, pcd_extensions: List[str]):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(f"<b>labelCloud could not find any valid point cloud files inside the specified folder.</b>")
+        msg.setInformativeText(f"Please copy all your point clouds into <em>{pcd_folder}</em> or change the point "
+                               f"cloud folder location. labelCloud supports the following point cloud file formats:\n"
+                               f"{', '.join(pcd_extensions)}.")
+        msg.setWindowTitle("No Point Clouds Found")
+        msg.exec_()
 
     # VISUALIZATION METHODS
 
@@ -360,20 +370,26 @@ class GUI(QtWidgets.QMainWindow):
     def change_pointcloud_folder(self):
         path_to_folder = QFileDialog.getExistingDirectory(self, "Change Point Cloud Folder",
                                                           directory=config.get("FILE", "pointcloud_folder"))
-        self.controller.pcd_controller.pcd_folder = path_to_folder
-        self.controller.pcd_controller.read_pointcloud_folder()
-        self.init_progress(min_value=0, max_value=len(self.controller.pcd_controller.pcds))
-        self.controller.pcd_controller.get_next_pcd()
-        print("Changed point cloud folder to %s!" % path_to_folder)
+        if not path_to_folder or path_to_folder.isspace():
+            print("Please specify a valid folder path.")
+        else:
+            self.controller.pcd_manager.pcd_folder = path_to_folder
+            self.controller.pcd_manager.read_pointcloud_folder()
+            self.init_progress(min_value=0, max_value=len(self.controller.pcd_manager.pcds))
+            self.controller.pcd_manager.get_next_pcd()
+            print("Changed point cloud folder to %s!" % path_to_folder)
 
     def change_label_folder(self):
         path_to_folder = QFileDialog.getExistingDirectory(self, "Change Label Folder",
                                                           directory=config.get("FILE", "label_folder"))
-        self.controller.pcd_controller.label_manager.label_folder = path_to_folder
-        self.controller.pcd_controller.label_manager.label_strategy.update_label_folder(path_to_folder)
-        print("Changed label folder to %s!" % path_to_folder)
+        if not path_to_folder or path_to_folder.isspace():
+            print("Please specify a valid folder path.")
+        else:
+            self.controller.pcd_manager.label_manager.label_folder = path_to_folder
+            self.controller.pcd_manager.label_manager.label_strategy.update_label_folder(path_to_folder)
+            print("Changed label folder to %s!" % path_to_folder)
 
-    def update_default_object_class_menu(self, new_classes: List[str] = None):
+    def update_default_object_class_menu(self, new_classes: Set[str] = None):
         object_classes = set(config.getlist("LABEL", "object_classes"))
         object_classes.update(new_classes or [])
         existing_classes = {action.text() for action in self.actiongroup_defaultclass.actions()}
