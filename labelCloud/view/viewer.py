@@ -26,7 +26,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.DEVICE_PIXEL_RATIO = self.devicePixelRatioF()  # 1 = normal; 2 = retina display
         oglhelper.DEVICE_PIXEL_RATIO = self.DEVICE_PIXEL_RATIO  # set for helper functions
 
-        self.pcd_controller = None
+        self.pcd_manager = None
         self.bbox_controller = None
 
         # Objects to be drawn
@@ -36,8 +36,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
-    def set_pointcloud_controller(self, pcd_controller: PointCloudManger):
-        self.pcd_controller = pcd_controller
+    def set_pointcloud_controller(self, pcd_manager: PointCloudManger):
+        self.pcd_manager = pcd_manager
 
     def set_bbox_controller(self, bbox_controller: BoundingBoxController):
         self.bbox_controller = bbox_controller
@@ -53,7 +53,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         print("Intialized widget.")
 
-        self.pcd_controller.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
+        self.pcd_manager.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
 
     def resizeGL(self, width, height):
         print("Resized widget.")
@@ -70,7 +70,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPushMatrix()  # push the current matrix to the current stack
 
         # Draw point cloud
-        self.pcd_controller.get_pointcloud().draw_pointcloud()
+        self.pcd_manager.get_pointcloud().draw_pointcloud()
 
         # Get actual matrices for click unprojection
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
@@ -80,7 +80,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         # Draw floor net
         # if self.draw_floor:
         if config.getboolean("USER_INTERFACE", "show_floor"):
-            oglhelper.draw_xy_plane(self.pcd_controller.get_pointcloud())
+            oglhelper.draw_xy_plane(self.pcd_manager.get_pointcloud())
 
         # Draw crosshair/ cursor in 3D world
         if self.crosshair_pos:

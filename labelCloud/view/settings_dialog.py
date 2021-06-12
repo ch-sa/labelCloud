@@ -83,7 +83,11 @@ class SettingsDialog(QDialog):
         config["USER_INTERFACE"]["viewing_precision"] = str(self.spinBox_viewingprecision.value())
 
         config_manager.write_into_file()
-        self.parent_gui.set_checkbox_states()
+        self.parent_gui.set_checkbox_states()  #
+        self.parent_gui.controller.pcd_manager.label_manager = LabelManager(
+            strategy=config["LABEL"]["label_format"],
+            path_to_label_folder=config["FILE"]["label_folder"]
+        )
         print("Saved and activated new configuration!")
 
     def reset(self):

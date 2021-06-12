@@ -1518,15 +1518,18 @@ QListWidget#label_list::item:selected {
     </property>
     <addaction name="action_setpcdfolder"/>
     <addaction name="action_setlabelfolder"/>
-    <addaction name="action_loadsinglepcd"/>
    </widget>
    <widget class="QMenu" name="menuLabels">
     <property name="title">
      <string>Labels</string>
     </property>
+    <widget class="QMenu" name="menu_setdefaultclass">
+     <property name="title">
+      <string>Set Default Object Class …</string>
+     </property>
+    </widget>
+    <addaction name="menu_setdefaultclass"/>
     <addaction name="action_deletealllabels"/>
-    <addaction name="action_setclasslist"/>
-    <addaction name="action_setstddimensions"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -1574,14 +1577,9 @@ QListWidget#label_list::item:selected {
     <string>Delete All Current Labels</string>
    </property>
   </action>
-  <action name="action_setclasslist">
-   <property name="text">
-    <string>Set Object Class List …</string>
-   </property>
-  </action>
   <action name="action_setstddimensions">
    <property name="text">
-    <string>Set Default Bounding Box Dimensions</string>
+    <string>Set Default Bounding Box Dimensions ...</string>
    </property>
   </action>
   <action name="action_setstdtransformations">
@@ -1630,6 +1628,11 @@ QListWidget#label_list::item:selected {
   <action name="action_changesettings">
    <property name="text">
     <string>Change Settings ...</string>
+   </property>
+  </action>
+  <action name="actiontest">
+   <property name="text">
+    <string>test</string>
    </property>
   </action>
  </widget>

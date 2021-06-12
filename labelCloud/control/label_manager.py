@@ -11,27 +11,29 @@ from control.config_manager import config
 from model.bbox import BBox
 
 
+def get_label_strategy(export_format: str, label_folder: str) -> 'IFormattingInterface':
+    if export_format == "vertices":
+        return VerticesFormat(label_folder)
+    elif export_format == "centroid_rel":
+        return CentroidFormat(label_folder, relative_rotation=True)
+    elif export_format == "kitti":
+        return KittiFormat(label_folder, relative_rotation=True)
+    elif export_format != "centroid_abs":
+        print(f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!")
+    return CentroidFormat(label_folder, relative_rotation=False)
+
+
 class LabelManager:
     LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]  # supported export formats
     STD_LABEL_FORMAT = config.get("LABEL", "label_format")
     EXPORT_PRECISION = config.getint("LABEL", "export_precision")  # Number of decimal places
-    STD_LABEL_FOLDER = config.get("FILE", "label_folder")
 
-    def __init__(self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = STD_LABEL_FOLDER):
-        self.label_folder = path_to_label_folder
+    def __init__(self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None):
+        self.label_folder = path_to_label_folder or config.get("FILE", "label_folder")
         if not os.path.isdir(self.label_folder):
             os.mkdir(self.label_folder)
-        if strategy == "vertices":
-            self.label_strategy = VerticesFormat(self.label_folder)
-        elif strategy == "centroid_abs":
-            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=False)
-        elif strategy == "centroid_rel":
-            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=True)
-        elif strategy == "kitti":
-            self.label_strategy = KittiFormat(self.label_folder, relative_rotation=True)  # KITTI is always relative
-        else:
-            self.label_strategy = CentroidFormat(self.label_folder, relative_rotation=False)
-            print("Unknown export strategy '%s'. Proceeding with default (corners)!" % strategy)
+
+        self.label_strategy = get_label_strategy(strategy, self.label_folder)
 
     def import_labels(self, pcd_name: str) -> List[BBox]:
         try:
@@ -115,6 +117,9 @@ class IFormattingInterface:
     @abstractmethod
     def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
         raise NotImplementedError
+
+    def update_label_folder(self, new_label_folder):
+        self.label_folder = new_label_folder
 
 
 class VerticesFormat(IFormattingInterface, ABC):
