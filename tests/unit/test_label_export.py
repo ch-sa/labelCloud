@@ -2,7 +2,6 @@
 import json
 import os
 import pytest
-import preparation
 
 from model.bbox import BBox
 from control.label_manager import LabelManager

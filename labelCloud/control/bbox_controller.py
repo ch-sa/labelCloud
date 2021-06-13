@@ -261,7 +261,7 @@ class BoundingBoxController:
     @has_active_bbox_decorator
     def update_z_dial(self):
         self.view.dial_zrotation.blockSignals(True)  # To brake signal loop
-        self.view.dial_zrotation.setValue(self.get_active_bbox().get_z_rotation())
+        self.view.dial_zrotation.setValue(int(self.get_active_bbox().get_z_rotation()))
         self.view.dial_zrotation.blockSignals(False)
 
     def update_curr_class(self):
