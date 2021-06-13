@@ -1,7 +1,5 @@
 import os
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPoint, QPointF
-from PyQt5.QtGui import QWheelEvent
 from PyQt5.QtWidgets import QAbstractSlider
 
 from control.config_manager import config
