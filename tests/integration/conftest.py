@@ -15,7 +15,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def startup_pyqt(qtbot):
+def startup_pyqt(qtbot, qapp):
     from control.controller import Controller
     from view.gui import GUI
 
@@ -26,7 +26,14 @@ def startup_pyqt(qtbot):
     qtbot.addWidget(view.glWidget)
 
     # Install event filter to catch user interventions
-    # app.installEventFilter(view)
+    qapp.installEventFilter(view)
+
     # Start GUI
     view.show()
     return view, control
+
+
+@pytest.fixture
+def bbox():
+    from model.bbox import BBox
+    return BBox(cx=0, cy=0, cz=0, length=3, width=2, height=1)

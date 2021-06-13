@@ -19,25 +19,20 @@ def test_gui(qtbot, startup_pyqt):
     bbox = controller.bbox_controller.bboxes[0]
     bbox.center = (0, 0, 0)
     controller.bbox_controller.set_active_bbox(0)
-    print("BBOX: %s" % [str(c) for c in bbox.get_center()])
     qtbot.mouseClick(view.button_right, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_up, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_backward, QtCore.Qt.LeftButton, delay=0)
-    print("BBOX: %s" % [str(c) for c in bbox.get_center()])
     assert bbox.center == (0.03, 0.03, 0.03)
 
     view.close()
 
 
-def test_bbox_control_with_buttons(qtbot, startup_pyqt):
+def test_bbox_control_with_buttons(qtbot, startup_pyqt, bbox):
     view, controller = startup_pyqt
 
-    bbox = controller.bbox_controller.bboxes[0]
-    bbox.center = (0, 0, 0)
-    bbox.length = old_length = 3
-    bbox.width = old_width = 2
-    bbox.height = old_height = 1
-    bbox.z_rotation = 0
+    # Prepare test bounding box
+    controller.bbox_controller.bboxes = [bbox]
+    old_length, old_width, old_height = bbox.get_dimensions()
     controller.bbox_controller.set_active_bbox(0)
 
     # Translation
@@ -45,7 +40,6 @@ def test_bbox_control_with_buttons(qtbot, startup_pyqt):
     qtbot.mouseClick(view.button_right, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_up, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_backward, QtCore.Qt.LeftButton, delay=0)
-    print("BBOX: %s" % [str(c) for c in bbox.get_center()])  # TODO: remove!
     assert bbox.center == (translation_step, translation_step, translation_step)
     qtbot.mouseClick(view.button_left, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_down, QtCore.Qt.LeftButton, delay=0)
@@ -66,5 +60,57 @@ def test_bbox_control_with_buttons(qtbot, startup_pyqt):
     assert bbox.z_rotation == 1
     view.dial_zrotation.triggerAction(QAbstractSlider.SliderPageStepAdd)
     assert bbox.z_rotation == 11
+
+    view.close()
+
+
+def test_bbox_control_with_keyboard(qtbot, startup_pyqt, qapp, bbox):
+    view, controller = startup_pyqt
+
+    # Prepare test bounding box
+    controller.bbox_controller.bboxes = [bbox]
+    controller.bbox_controller.set_active_bbox(0)
+
+    # Translation
+    translation_step = config.getfloat("LABEL", "std_translation")
+    for letter in "dqw":
+        qtbot.keyClick(view, letter)
+    assert bbox.center == (translation_step, translation_step, translation_step)
+    translation_step = config.getfloat("LABEL", "std_translation")
+    for letter in "aes":
+        qtbot.keyClick(view, letter)
+    assert bbox.center == (0, 0, 0)
+
+    for key in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up, QtCore.Qt.Key_PageUp]:
+        qtbot.keyClick(view, key)
+    assert bbox.center == (translation_step, translation_step, translation_step)
+    for key in [QtCore.Qt.Key_Left, QtCore.Qt.Key_Down, QtCore.Qt.Key_PageDown]:
+        qtbot.keyClick(view, key)
+    assert bbox.center == (0, 0, 0)
+
+    # Rotation
+    rotation_step = config.getfloat("LABEL", "std_rotation")
+    config.set("USER_INTERFACE", "z_rotation_only", "False")
+    qtbot.keyClick(view, "y")
+    assert bbox.z_rotation == rotation_step
+    qtbot.keyClick(view, "x")
+    assert bbox.z_rotation == 0
+    qtbot.keyClick(view, QtCore.Qt.Key_Comma)
+    assert bbox.z_rotation == rotation_step
+    qtbot.keyClick(view, QtCore.Qt.Key_Period)
+    assert bbox.z_rotation == 0
+    qtbot.keyClick(view, "c")
+    assert bbox.y_rotation == rotation_step
+    qtbot.keyClick(view, "v")
+    assert bbox.y_rotation == 0
+    qtbot.keyClick(view, "b")
+    assert bbox.x_rotation == rotation_step
+    qtbot.keyClick(view, "n")
+    assert bbox.x_rotation == 0
+
+    # Shortcuts
+    qtbot.keyClick(view, QtCore.Qt.Key_Delete)
+    assert len(controller.bbox_controller.bboxes) == 0
+    assert controller.bbox_controller.get_active_bbox() is None
 
     view.close()
