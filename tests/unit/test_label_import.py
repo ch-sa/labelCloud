@@ -1,7 +1,6 @@
 import os
 
 import pytest
-import preparation
 from control.label_manager import LabelManager
 
 
