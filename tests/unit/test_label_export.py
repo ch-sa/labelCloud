@@ -22,11 +22,26 @@ def test_vertices_export(bounding_box, tmpdir):
     with open(os.path.join(tmpdir, "testpcd.json"), "r") as read_file:
         data = json.load(read_file)
 
-    assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply',
-                    'objects': [{'name': 'test_bbox', 'vertices': [[0.5, -0.5, 0.5], [0.5, -0.5, -0.5],
-                                                                   [0.5, 0.5, -0.5], [0.5, 0.5, 0.5],
-                                                                   [-0.5, -0.5, 0.5], [-0.5, -0.5, -0.5],
-                                                                   [-0.5, 0.5, -0.5], [-0.5, 0.5, 0.5]]}]}
+    assert data == {
+        "folder": "testfolder",
+        "filename": "testpcd.ply",
+        "path": "testfolder/testpcd.ply",
+        "objects": [
+            {
+                "name": "test_bbox",
+                "vertices": [
+                    [0.5, -0.5, 0.5],
+                    [0.5, -0.5, -0.5],
+                    [0.5, 0.5, -0.5],
+                    [0.5, 0.5, 0.5],
+                    [-0.5, -0.5, 0.5],
+                    [-0.5, -0.5, -0.5],
+                    [-0.5, 0.5, -0.5],
+                    [-0.5, 0.5, 0.5],
+                ],
+            }
+        ],
+    }
 
 
 def test_centroid_rel_export(bounding_box, tmpdir):
@@ -36,10 +51,19 @@ def test_centroid_rel_export(bounding_box, tmpdir):
     with open(os.path.join(tmpdir, "testpcd.json"), "r") as read_file:
         data = json.load(read_file)
 
-    assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply', 'objects':
-        [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
-          'dimensions': {'length': 1, 'width': 1, 'height': 1},
-          'rotations': {'x': 1.57079633, 'y': 3.14159265, 'z': -1.57079633}}]}
+    assert data == {
+        "folder": "testfolder",
+        "filename": "testpcd.ply",
+        "path": "testfolder/testpcd.ply",
+        "objects": [
+            {
+                "name": "test_bbox",
+                "centroid": {"x": 0, "y": 0, "z": 0},
+                "dimensions": {"length": 1, "width": 1, "height": 1},
+                "rotations": {"x": 1.57079633, "y": 3.14159265, "z": -1.57079633},
+            }
+        ],
+    }
 
 
 def test_centroid_abs_export(bounding_box, tmpdir):
@@ -49,10 +73,19 @@ def test_centroid_abs_export(bounding_box, tmpdir):
     with open(os.path.join(tmpdir, "testpcd.json"), "r") as read_file:
         data = json.load(read_file)
 
-    assert data == {'folder': 'testfolder', 'filename': 'testpcd.ply', 'path': 'testfolder/testpcd.ply', 'objects':
-        [{'name': 'test_bbox', 'centroid': {'x': 0, 'y': 0, 'z': 0},
-          'dimensions': {'length': 1, 'width': 1, 'height': 1},
-          'rotations': {'x': 90, 'y': 180, 'z': 270}}]}
+    assert data == {
+        "folder": "testfolder",
+        "filename": "testpcd.ply",
+        "path": "testfolder/testpcd.ply",
+        "objects": [
+            {
+                "name": "test_bbox",
+                "centroid": {"x": 0, "y": 0, "z": 0},
+                "dimensions": {"length": 1, "width": 1, "height": 1},
+                "rotations": {"x": 90, "y": 180, "z": 270},
+            }
+        ],
+    }
 
 
 def test_kitti_export(bounding_box, tmpdir):
@@ -62,4 +95,4 @@ def test_kitti_export(bounding_box, tmpdir):
     with open(os.path.join(tmpdir, "testpcd.txt"), "r") as read_file:
         data = read_file.readlines()
 
-    assert data == ['test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.57079633\n']
+    assert data == ["test_bbox 0 0 0 0 0 0 0 1 1 1 0 0 0 -1.57079633\n"]

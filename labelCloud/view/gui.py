@@ -38,35 +38,50 @@ def set_zrotation_only(state: bool) -> None:
 
 
 class GUI(QtWidgets.QMainWindow):
-
-    def __init__(self, control: 'Controller'):
+    def __init__(self, control: "Controller"):
         super(GUI, self).__init__()
         print(os.getcwd())
         uic.loadUi("labelCloud/ressources/interface.ui", self)
         self.resize(1500, 900)
-        self.setWindowTitle('labelCloud')
+        self.setWindowTitle("labelCloud")
 
         # MENU BAR
         # File
-        self.action_setpcdfolder = self.findChild(QtWidgets.QAction, "action_setpcdfolder")
-        self.action_setlabelfolder = self.findChild(QtWidgets.QAction, "action_setlabelfolder")
+        self.action_setpcdfolder = self.findChild(
+            QtWidgets.QAction, "action_setpcdfolder"
+        )
+        self.action_setlabelfolder = self.findChild(
+            QtWidgets.QAction, "action_setlabelfolder"
+        )
 
         # Labels
-        self.action_deletelabels = self.findChild(QtWidgets.QAction, "action_deletealllabels")
-        self.menu_setdefaultclass = self.findChild(QtWidgets.QMenu, "menu_setdefaultclass")
+        self.action_deletelabels = self.findChild(
+            QtWidgets.QAction, "action_deletealllabels"
+        )
+        self.menu_setdefaultclass = self.findChild(
+            QtWidgets.QMenu, "menu_setdefaultclass"
+        )
         self.actiongroup_defaultclass = QActionGroup(self.menu_setdefaultclass)
 
         # Settings
-        self.action_zrotation = self.findChild(QtWidgets.QAction, "action_zrotationonly")
+        self.action_zrotation = self.findChild(
+            QtWidgets.QAction, "action_zrotationonly"
+        )
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
-        self.action_showorientation = self.findChild(QtWidgets.QAction, "action_showorientation")
+        self.action_showorientation = self.findChild(
+            QtWidgets.QAction, "action_showorientation"
+        )
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
-        self.action_change_settings = self.findChild(QtWidgets.QAction, "action_changesettings")
+        self.action_change_settings = self.findChild(
+            QtWidgets.QAction, "action_changesettings"
+        )
 
         # STATUS BAR
         self.status = self.findChild(QtWidgets.QStatusBar, "statusbar")
         self.mode_status = QtWidgets.QLabel("Navigation Mode")
-        self.mode_status.setStyleSheet("font-weight: bold; font-size: 14px; min-width: 235px;")
+        self.mode_status.setStyleSheet(
+            "font-weight: bold; font-size: 14px; min-width: 235px;"
+        )
         self.mode_status.setAlignment(Qt.AlignCenter)
         self.status.addWidget(self.mode_status, stretch=0)
         self.tmp_status = QtWidgets.QLabel()
@@ -81,32 +96,52 @@ class GUI(QtWidgets.QMainWindow):
         self.label_curr_pcd = self.findChild(QtWidgets.QLabel, "label_pcd_current")
         self.button_prev_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")
         self.button_next_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_next")
-        self.progressbar_pcd = self.findChild(QtWidgets.QProgressBar, "progressbar_pcds")
+        self.progressbar_pcd = self.findChild(
+            QtWidgets.QProgressBar, "progressbar_pcds"
+        )
 
         # bbox control section
         self.button_up = self.findChild(QtWidgets.QPushButton, "button_bbox_up")
         self.button_down = self.findChild(QtWidgets.QPushButton, "button_bbox_down")
         self.button_left = self.findChild(QtWidgets.QPushButton, "button_bbox_left")
         self.button_right = self.findChild(QtWidgets.QPushButton, "button_bbox_right")
-        self.button_forward = self.findChild(QtWidgets.QPushButton, "button_bbox_forward")
-        self.button_backward = self.findChild(QtWidgets.QPushButton, "button_bbox_backward")
+        self.button_forward = self.findChild(
+            QtWidgets.QPushButton, "button_bbox_forward"
+        )
+        self.button_backward = self.findChild(
+            QtWidgets.QPushButton, "button_bbox_backward"
+        )
         self.dial_zrotation = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")
         self.button_decr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")
         self.button_incr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")
 
         # label mode selection
-        self.button_activate_picking = self.findChild(QtWidgets.QPushButton, "button_pick_bbox")
-        self.button_activate_drag = self.findChild(QtWidgets.QPushButton, "button_drag_bbox")  # ToDo Remove?
+        self.button_activate_picking = self.findChild(
+            QtWidgets.QPushButton, "button_pick_bbox"
+        )
+        self.button_activate_drag = self.findChild(
+            QtWidgets.QPushButton, "button_drag_bbox"
+        )  # ToDo Remove?
         self.button_activate_drag.setVisible(False)
-        self.button_activate_spanning = self.findChild(QtWidgets.QPushButton, "button_span_bbox")
-        self.button_save_labels = self.findChild(QtWidgets.QPushButton, "button_save_label")
+        self.button_activate_spanning = self.findChild(
+            QtWidgets.QPushButton, "button_span_bbox"
+        )
+        self.button_save_labels = self.findChild(
+            QtWidgets.QPushButton, "button_save_label"
+        )
 
         # RIGHT PANEL
         self.label_list = self.findChild(QtWidgets.QListWidget, "label_list")
-        self.curr_class_edit = self.findChild(QtWidgets.QLineEdit, "current_class_lineedit")
+        self.curr_class_edit = self.findChild(
+            QtWidgets.QLineEdit, "current_class_lineedit"
+        )
         # self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
-        self.button_deselect_label = self.findChild(QtWidgets.QPushButton, "button_label_deselect")
-        self.button_delete_label = self.findChild(QtWidgets.QPushButton, "button_label_delete")
+        self.button_deselect_label = self.findChild(
+            QtWidgets.QPushButton, "button_label_deselect"
+        )
+        self.button_delete_label = self.findChild(
+            QtWidgets.QPushButton, "button_label_delete"
+        )
 
         # BOUNDING BOX PARAMETER EDITS
         self.pos_x_edit = self.findChild(QtWidgets.QLineEdit, "pos_x_edit")
@@ -121,9 +156,18 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_y_edit = self.findChild(QtWidgets.QLineEdit, "rot_y_edit")
         self.rot_z_edit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")
 
-        self.all_line_edits = [self.curr_class_edit, self.pos_x_edit, self.pos_y_edit, self.pos_z_edit,
-                               self.length_edit, self.width_edit, self.height_edit,
-                               self.rot_x_edit, self.rot_y_edit, self.rot_z_edit]
+        self.all_line_edits = [
+            self.curr_class_edit,
+            self.pos_x_edit,
+            self.pos_y_edit,
+            self.pos_z_edit,
+            self.length_edit,
+            self.width_edit,
+            self.height_edit,
+            self.rot_x_edit,
+            self.rot_y_edit,
+            self.rot_z_edit,
+        ]
 
         self.volume_label = self.findChild(QtWidgets.QLabel, "volume_value_label")
 
@@ -146,72 +190,135 @@ class GUI(QtWidgets.QMainWindow):
     # Event connectors
     def connect_events(self):
         # POINTCLOUD CONTROL
-        self.button_next_pcd.clicked.connect(lambda: self.controller.next_pcd(save=True))
+        self.button_next_pcd.clicked.connect(
+            lambda: self.controller.next_pcd(save=True)
+        )
         self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
 
         # BBOX CONTROL
-        self.button_up.pressed.connect(lambda: self.controller.bbox_controller.translate_along_z())
-        self.button_down.pressed.connect(lambda: self.controller.bbox_controller.translate_along_z(down=True))
-        self.button_left.pressed.connect(lambda: self.controller.bbox_controller.translate_along_x(left=True))
-        self.button_right.pressed.connect(self.controller.bbox_controller.translate_along_x)
-        self.button_forward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y(forward=True))
-        self.button_backward.pressed.connect(lambda: self.controller.bbox_controller.translate_along_y())
+        self.button_up.pressed.connect(
+            lambda: self.controller.bbox_controller.translate_along_z()
+        )
+        self.button_down.pressed.connect(
+            lambda: self.controller.bbox_controller.translate_along_z(down=True)
+        )
+        self.button_left.pressed.connect(
+            lambda: self.controller.bbox_controller.translate_along_x(left=True)
+        )
+        self.button_right.pressed.connect(
+            self.controller.bbox_controller.translate_along_x
+        )
+        self.button_forward.pressed.connect(
+            lambda: self.controller.bbox_controller.translate_along_y(forward=True)
+        )
+        self.button_backward.pressed.connect(
+            lambda: self.controller.bbox_controller.translate_along_y()
+        )
 
         self.dial_zrotation.valueChanged.connect(
             lambda x: self.controller.bbox_controller.rotate_around_z(x, absolute=True)
         )
-        self.button_decr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale(decrease=True))
-        self.button_incr_dim.clicked.connect(lambda: self.controller.bbox_controller.scale())
+        self.button_decr_dim.clicked.connect(
+            lambda: self.controller.bbox_controller.scale(decrease=True)
+        )
+        self.button_incr_dim.clicked.connect(
+            lambda: self.controller.bbox_controller.scale()
+        )
 
         # LABELING CONTROL
-        self.curr_class_edit.textChanged.connect(self.controller.bbox_controller.set_classname)
-        self.button_deselect_label.clicked.connect(self.controller.bbox_controller.deselect_bbox)
-        self.button_delete_label.clicked.connect(self.controller.bbox_controller.delete_current_bbox)
-        self.label_list.currentRowChanged.connect(self.controller.bbox_controller.set_active_bbox)
+        self.curr_class_edit.textChanged.connect(
+            self.controller.bbox_controller.set_classname
+        )
+        self.button_deselect_label.clicked.connect(
+            self.controller.bbox_controller.deselect_bbox
+        )
+        self.button_delete_label.clicked.connect(
+            self.controller.bbox_controller.delete_current_bbox
+        )
+        self.label_list.currentRowChanged.connect(
+            self.controller.bbox_controller.set_active_bbox
+        )
 
         # LABEL CONTROL
-        self.button_activate_picking.clicked.connect(lambda: self.controller.drawing_mode.
-                                                     set_drawing_strategy("PickingStrategy"))
-        self.button_activate_spanning.clicked.connect(lambda: self.controller.drawing_mode.
-                                                      set_drawing_strategy("SpanStrategy"))
-        self.button_activate_drag.clicked.connect(lambda: self.controller.drawing_mode.
-                                                  set_drawing_strategy("RectangleStrategy"))
+        self.button_activate_picking.clicked.connect(
+            lambda: self.controller.drawing_mode.set_drawing_strategy("PickingStrategy")
+        )
+        self.button_activate_spanning.clicked.connect(
+            lambda: self.controller.drawing_mode.set_drawing_strategy("SpanStrategy")
+        )
+        self.button_activate_drag.clicked.connect(
+            lambda: self.controller.drawing_mode.set_drawing_strategy(
+                "RectangleStrategy"
+            )
+        )
         self.button_save_labels.clicked.connect(self.controller.save)
 
         # BOUNDING BOX PARAMETER
-        self.pos_x_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_x"))
-        self.pos_y_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_y"))
-        self.pos_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("pos_z"))
+        self.pos_x_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_x")
+        )
+        self.pos_y_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_y")
+        )
+        self.pos_z_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_z")
+        )
 
-        self.length_edit.editingFinished.connect(lambda: self.update_bbox_parameter("length"))
-        self.width_edit.editingFinished.connect(lambda: self.update_bbox_parameter("width"))
-        self.height_edit.editingFinished.connect(lambda: self.update_bbox_parameter("height"))
+        self.length_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("length")
+        )
+        self.width_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("width")
+        )
+        self.height_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("height")
+        )
 
-        self.rot_x_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_x"))
-        self.rot_y_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_y"))
-        self.rot_z_edit.editingFinished.connect(lambda: self.update_bbox_parameter("rot_z"))
+        self.rot_x_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_x")
+        )
+        self.rot_y_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_y")
+        )
+        self.rot_z_edit.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_z")
+        )
 
         # MENU BAR
         self.action_setpcdfolder.triggered.connect(self.change_pointcloud_folder)
         self.action_setlabelfolder.triggered.connect(self.change_label_folder)
-        self.actiongroup_defaultclass.triggered.connect(self.change_default_object_class)
-        self.action_deletelabels.triggered.connect(self.controller.bbox_controller.reset)
+        self.actiongroup_defaultclass.triggered.connect(
+            self.change_default_object_class
+        )
+        self.action_deletelabels.triggered.connect(
+            self.controller.bbox_controller.reset
+        )
         self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
-        self.action_alignpcd.toggled.connect(self.controller.align_mode.change_activation)
+        self.action_alignpcd.toggled.connect(
+            self.controller.align_mode.change_activation
+        )
         self.action_change_settings.triggered.connect(self.show_settings_dialog)
 
     def set_checkbox_states(self):
-        self.action_showfloor.setChecked(config.getboolean("USER_INTERFACE", "show_floor"))
-        self.action_showorientation.setChecked(config.getboolean("USER_INTERFACE", "show_orientation"))
-        self.action_zrotation.setChecked(config.getboolean("USER_INTERFACE", "z_rotation_only"))
+        self.action_showfloor.setChecked(
+            config.getboolean("USER_INTERFACE", "show_floor")
+        )
+        self.action_showorientation.setChecked(
+            config.getboolean("USER_INTERFACE", "show_orientation")
+        )
+        self.action_zrotation.setChecked(
+            config.getboolean("USER_INTERFACE", "z_rotation_only")
+        )
 
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event):
         # Keyboard Events
         # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()):
-        if (event.type() == QEvent.KeyPress) and (event_object == self):  # TODO: Cleanup old filter
+        if (event.type() == QEvent.KeyPress) and (
+            event_object == self
+        ):  # TODO: Cleanup old filter
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True  # TODO: Recheck pyqt behaviour
@@ -225,13 +332,19 @@ class GUI(QtWidgets.QMainWindow):
         elif (event.type() == QEvent.Wheel) and (event_object == self.glWidget):
             self.controller.mouse_scroll_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
-        elif event.type() == QEvent.MouseButtonDblClick and (event_object == self.glWidget):
+        elif event.type() == QEvent.MouseButtonDblClick and (
+            event_object == self.glWidget
+        ):
             self.controller.mouse_double_clicked(event)
             return True
-        elif (event.type() == QEvent.MouseButtonPress) and (event_object == self.glWidget):
+        elif (event.type() == QEvent.MouseButtonPress) and (
+            event_object == self.glWidget
+        ):
             self.controller.mouse_clicked(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
-        elif (event.type() == QEvent.MouseButtonPress) and (event_object != self.curr_class_edit):
+        elif (event.type() == QEvent.MouseButtonPress) and (
+            event_object != self.curr_class_edit
+        ):
             self.curr_class_edit.clearFocus()
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
@@ -249,10 +362,14 @@ class GUI(QtWidgets.QMainWindow):
     def show_no_pointcloud_dialog(self, pcd_folder: str, pcd_extensions: List[str]):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
-        msg.setText(f"<b>labelCloud could not find any valid point cloud files inside the specified folder.</b>")
-        msg.setInformativeText(f"Please copy all your point clouds into <em>{pcd_folder}</em> or change the point "
-                               f"cloud folder location. labelCloud supports the following point cloud file formats:\n"
-                               f"{', '.join(pcd_extensions)}.")
+        msg.setText(
+            f"<b>labelCloud could not find any valid point cloud files inside the specified folder.</b>"
+        )
+        msg.setInformativeText(
+            f"Please copy all your point clouds into <em>{pcd_folder}</em> or change the point "
+            f"cloud folder location. labelCloud supports the following point cloud file formats:\n"
+            f"{', '.join(pcd_extensions)}."
+        )
         msg.setWindowTitle("No Point Clouds Found")
         msg.exec_()
 
@@ -272,7 +389,9 @@ class GUI(QtWidgets.QMainWindow):
         if force is not None:
             self.curr_class_edit.setText(force)
         else:
-            self.curr_class_edit.setText(self.controller.bbox_controller.get_active_bbox().get_classname())
+            self.curr_class_edit.setText(
+                self.controller.bbox_controller.get_active_bbox().get_classname()
+            )
 
     def update_label_completer(self, classnames=None):
         if classnames is None:
@@ -288,9 +407,15 @@ class GUI(QtWidgets.QMainWindow):
             self.pos_y_edit.setText(str(round(bbox.get_center()[1], viewing_precision)))
             self.pos_z_edit.setText(str(round(bbox.get_center()[2], viewing_precision)))
 
-            self.length_edit.setText(str(round(bbox.get_dimensions()[0], viewing_precision)))
-            self.width_edit.setText(str(round(bbox.get_dimensions()[1], viewing_precision)))
-            self.height_edit.setText(str(round(bbox.get_dimensions()[2], viewing_precision)))
+            self.length_edit.setText(
+                str(round(bbox.get_dimensions()[0], viewing_precision))
+            )
+            self.width_edit.setText(
+                str(round(bbox.get_dimensions()[1], viewing_precision))
+            )
+            self.height_edit.setText(
+                str(round(bbox.get_dimensions()[2], viewing_precision))
+            )
 
             self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
             self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
@@ -319,7 +444,9 @@ class GUI(QtWidgets.QMainWindow):
         if parameter == "height":
             str_value = self.height_edit.text()
         if str_value and string_is_float(str_value, recect_negative=True):
-            self.controller.bbox_controller.update_dimension(parameter, float(str_value))
+            self.controller.bbox_controller.update_dimension(
+                parameter, float(str_value)
+            )
             return True
 
         if parameter == "rot_x":
@@ -368,8 +495,11 @@ class GUI(QtWidgets.QMainWindow):
         self.mode_status.setText(text)
 
     def change_pointcloud_folder(self):
-        path_to_folder = QFileDialog.getExistingDirectory(self, "Change Point Cloud Folder",
-                                                          directory=config.get("FILE", "pointcloud_folder"))
+        path_to_folder = QFileDialog.getExistingDirectory(
+            self,
+            "Change Point Cloud Folder",
+            directory=config.get("FILE", "pointcloud_folder"),
+        )
         if not path_to_folder or path_to_folder.isspace():
             print("Please specify a valid folder path.")
         else:
@@ -379,21 +509,28 @@ class GUI(QtWidgets.QMainWindow):
             print("Changed point cloud folder to %s!" % path_to_folder)
 
     def change_label_folder(self):
-        path_to_folder = QFileDialog.getExistingDirectory(self, "Change Label Folder",
-                                                          directory=config.get("FILE", "label_folder"))
+        path_to_folder = QFileDialog.getExistingDirectory(
+            self, "Change Label Folder", directory=config.get("FILE", "label_folder")
+        )
         if not path_to_folder or path_to_folder.isspace():
             print("Please specify a valid folder path.")
         else:
             self.controller.pcd_manager.label_manager.label_folder = path_to_folder
-            self.controller.pcd_manager.label_manager.label_strategy.update_label_folder(path_to_folder)
+            self.controller.pcd_manager.label_manager.label_strategy.update_label_folder(
+                path_to_folder
+            )
             print("Changed label folder to %s!" % path_to_folder)
 
     def update_default_object_class_menu(self, new_classes: Set[str] = None):
         object_classes = set(config.getlist("LABEL", "object_classes"))
         object_classes.update(new_classes or [])
-        existing_classes = {action.text() for action in self.actiongroup_defaultclass.actions()}
+        existing_classes = {
+            action.text() for action in self.actiongroup_defaultclass.actions()
+        }
         for object_class in object_classes.difference(existing_classes):
-            action = self.actiongroup_defaultclass.addAction(object_class)  # TODO: Add limiter for number of classes
+            action = self.actiongroup_defaultclass.addAction(
+                object_class
+            )  # TODO: Add limiter for number of classes
             action.setCheckable(True)
             if object_class == config.get("LABEL", "std_object_class"):
                 action.setChecked(True)
