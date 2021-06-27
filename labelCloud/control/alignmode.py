@@ -1,11 +1,14 @@
-"""A module for aligning point clouds with the floor. The user has to span a triangle with three points on the plane
-that serves as the ground. Then the old point cloud will be saved up and the aligned current will overwrite the old."""
+"""
+A module for aligning point clouds with the floor. The user has to span a triangle with
+three points on the plane that serves as the ground. Then the old point cloud will be
+saved up and the aligned current will overwrite the old.
+"""
 from typing import Union, TYPE_CHECKING
 
 import numpy as np
 
 import utils.oglhelper as ogl
-from control.pcd_manager import PointCloudManger
+from .pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -123,8 +126,8 @@ class AlignMode:
             np.cross(pn_normalized, z_axis)
         )
         print(
-            "Alignment rotation: %s around %s"
-            % (round(rotation_angle, 2), np.round(rotation_axis, 2))
+            f"Alignment rotation: {round(rotation_angle, 2)} "
+            f"around {np.round(rotation_axis, 2)}"
         )
 
         # Initiate point cloud rotation

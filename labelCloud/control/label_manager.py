@@ -6,9 +6,9 @@ from typing import List
 
 import numpy as np
 
-from utils import math3d
-from control.config_manager import config
 from model.bbox import BBox
+from utils import math3d
+from .config_manager import config
 
 
 def get_label_strategy(export_format: str, label_folder: str) -> "IFormattingInterface":
@@ -31,11 +31,9 @@ class LabelManager:
         "centroid_rel",
         "centroid_abs",
         "kitti",
-    ]  # supported export formats
+    ]
     STD_LABEL_FORMAT = config.get("LABEL", "label_format")
-    EXPORT_PRECISION = config.getint(
-        "LABEL", "export_precision"
-    )  # Number of decimal places
+    EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
     def __init__(
         self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None

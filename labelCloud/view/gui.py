@@ -6,8 +6,8 @@ from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtWidgets import QCompleter, QFileDialog, QActionGroup, QAction, QMessageBox
 
 from control.config_manager import config
-from view.settings_dialog import SettingsDialog
-from view.viewer import GLWidget
+from .settings_dialog import SettingsDialog
+from .viewer import GLWidget
 
 if TYPE_CHECKING:
     from control.controller import Controller
@@ -363,12 +363,13 @@ class GUI(QtWidgets.QMainWindow):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setText(
-            f"<b>labelCloud could not find any valid point cloud files inside the specified folder.</b>"
+            "<b>labelCloud could not find any valid point cloud files inside the "
+            "specified folder.</b>"
         )
         msg.setInformativeText(
-            f"Please copy all your point clouds into <em>{pcd_folder}</em> or change the point "
-            f"cloud folder location. labelCloud supports the following point cloud file formats:\n"
-            f"{', '.join(pcd_extensions)}."
+            f"Please copy all your point clouds into <em>{pcd_folder}</em> or change "
+            "the point cloud folder location. labelCloud supports the following point "
+            f"cloud file formats:\n {', '.join(pcd_extensions)}."
         )
         msg.setWindowTitle("No Point Clouds Found")
         msg.exec_()

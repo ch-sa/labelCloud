@@ -1,12 +1,17 @@
 """Load configuration from .ini file."""
 import configparser
 
-# Read local file `config.ini`.
+
 import os
-from typing import List, Union, Optional
+from typing import List
 
 
 class ExtendedConfigParser(configparser.ConfigParser):
+    """Extends the ConfigParser with the ability to read and parse lists.
+
+    Can automatically parse float values besides plain strings.
+    """
+
     def getlist(self, section, option, raw=False, vars=None, fallback=None) -> List:
         raw_value = self.get(section, option, raw=raw, vars=vars, fallback=fallback)
         if "," in raw_value:

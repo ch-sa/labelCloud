@@ -1,15 +1,17 @@
 """
-A class to handle all user manipulations of the bounding boxes and collect all labeling settings in one place.
-Bounding Box Management: adding, updating, deleting bboxes; changing the active bounding box
+A class to handle all user manipulations of the bounding boxes and collect all labeling
+settings in one place.
+Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
 from typing import TYPE_CHECKING, Union, List
 
 import numpy as np
 
+
 from utils import oglhelper
-from control.config_manager import config
 from model.bbox import BBox
+from .config_manager import config
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -17,7 +19,11 @@ if TYPE_CHECKING:
 
 # DECORATORS
 def has_active_bbox_decorator(func):
-    def wrapper(*args, **kwargs):  # plays function if active bbox exists
+    """
+    Only execute bounding box manipulation if there is an active bounding box.
+    """
+
+    def wrapper(*args, **kwargs):
         if args[0].has_active_bbox():
             return func(*args, **kwargs)
         else:
@@ -27,7 +33,11 @@ def has_active_bbox_decorator(func):
 
 
 def only_zrotation_decorator(func):
-    def wrapper(*args, **kwargs):  # plays function if active bbox exists
+    """
+    Only execute x- and y-rotation if z_rotation_only mode is not activated.
+    """
+
+    def wrapper(*args, **kwargs):
         if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             return func(*args, **kwargs)
         else:
@@ -209,9 +219,6 @@ class BoundingBoxController:
         bbox_cosz = round(np.cos(np.deg2rad(total_z_rotation)), 0)
         bbox_sinz = -round(np.sin(np.deg2rad(total_z_rotation)), 0)
 
-        # self.rotate_around_x(y_angle * bbox_cosz + x_angle * bbox_sinz)
-        # self.rotate_around_y(y_angle * bbox_sinz + x_angle * bbox_cosz)
-
         self.rotate_around_x(y_angle * bbox_cosz)
         self.rotate_around_y(y_angle * bbox_sinz)
         self.rotate_around_z(x_angle)
@@ -251,9 +258,14 @@ class BoundingBoxController:
             self.get_active_bbox().center[2] + distance
         )
 
-    # Scale bbox while keeping ratios
     @has_active_bbox_decorator
-    def scale(self, length_increase: float = None, decrease: bool = False):
+    def scale(self, length_increase: float = None, decrease: bool = False) -> None:
+        """Scales a bounding box while keeping the previous aspect ratio.
+
+        :param length_increase: factor by which the length should be increased
+        :param decrease: if True, reverses the length_increasee (* -1)
+        :return: None
+        """
         length_increase = length_increase or config.getfloat("LABEL", "std_scaling")
         if decrease:
             length_increase *= -1
@@ -267,7 +279,7 @@ class BoundingBoxController:
 
         self.get_active_bbox().set_dimensions(new_length, new_width, new_height)
 
-    def select_bbox_by_ray(self, x: int, y: int):
+    def select_bbox_by_ray(self, x: int, y: int) -> None:
         intersected_bbox_id = oglhelper.get_intersected_bboxes(
             x,
             y,
@@ -281,26 +293,30 @@ class BoundingBoxController:
 
     # HELPER
 
-    def update_all(self):
+    def update_all(self) -> None:
         self.update_z_dial()
         self.update_curr_class()
         self.update_label_list()
         self.view.update_bbox_stats(self.get_active_bbox())
 
     @has_active_bbox_decorator
-    def update_z_dial(self):
+    def update_z_dial(self) -> None:
         self.view.dial_zrotation.blockSignals(True)  # To brake signal loop
         self.view.dial_zrotation.setValue(int(self.get_active_bbox().get_z_rotation()))
         self.view.dial_zrotation.blockSignals(False)
 
-    def update_curr_class(self):
+    def update_curr_class(self) -> None:
         if self.has_active_bbox():
             self.view.update_curr_class_edit()
         else:
             self.view.update_curr_class_edit(force="")
 
-    # Updating the list of existing labels if bboxes changed
-    def update_label_list(self):
+    def update_label_list(self) -> None:
+        """Updates the list of drawn labels and highlights the active label.
+
+        Should be always called if the bounding boxes changed.
+        :return: None
+        """
         self.view.label_list.blockSignals(True)  # To brake signal loop
         self.view.label_list.clear()
         for bbox in self.bboxes:

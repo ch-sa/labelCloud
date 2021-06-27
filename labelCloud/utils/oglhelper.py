@@ -1,12 +1,11 @@
+from typing import List, Tuple, Union
+
 import OpenGL.GL as GL
 import numpy as np
 from OpenGL import GLU
-from typing import List, Tuple, Union
 
 from utils import math3d
 from model.bbox import BBox
-
-# DRAWING
 from model.point_cloud import PointCloud
 
 Color4f = Tuple[float, float, float, float]  # type alias for type hinting

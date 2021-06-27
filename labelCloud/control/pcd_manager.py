@@ -4,16 +4,16 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 """
 import ntpath
 import os
+from shutil import copyfile
 from typing import List, Tuple, TYPE_CHECKING, Optional
 
 import numpy as np
 import open3d as o3d
-from shutil import copyfile
 
-from control.config_manager import config
-from control.label_manager import LabelManager
 from model.bbox import BBox
 from model.point_cloud import PointCloud
+from .config_manager import config
+from .label_manager import LabelManager
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -247,8 +247,6 @@ class PointCloudManger:
             self.get_current_path(),
             os.path.join(originals_path, self.get_current_name()),
         )
-        # o3d.io.write_point_cloud(os.path.join(originals_path, self.get_current_name()), self.current_o3d_pcd)
-
         # Rotate and translate point cloud
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
             np.multiply(axis, angle)
@@ -267,12 +265,6 @@ class PointCloudManger:
                 center=(0, 0, 0),
             )
 
-        # Overwrite current point cloud and reload
-        # if os.path.splitext(self.get_current_path())[1] == ".bin":
-        #     points = np.asarray(self.current_o3d_pcd.points)
-        #     flattened_points = np.append(points, np.zeros((len(points), 1)), axis=1).flatten()  # add dummy reflection
-        #     flattened_points.tofile(self.get_current_path())
-        # else:
         save_path = self.get_current_path()
         if os.path.splitext(save_path)[1] == ".bin":
             save_path = save_path[:-4] + ".pcd"
@@ -284,9 +276,7 @@ class PointCloudManger:
 
     def get_perspective(self):
         x_rotation = self.pointcloud.rot_x
-        # y_rotation = self.pcdc.get_pointcloud().rot_y
         z_rotation = self.pointcloud.rot_z
-        # print("PCD-ROTX/y/z: %s, %s, %s" % (x_rotation, y_rotation, z_rotation))
 
         cosz = round(np.cos(np.deg2rad(z_rotation)), 1)
         sinz = -round(np.sin(np.deg2rad(z_rotation)), 1)

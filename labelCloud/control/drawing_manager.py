@@ -5,9 +5,9 @@ import numpy as np
 
 import utils.math3d as math3d
 import utils.oglhelper as ogl
-from control.bbox_controller import BoundingBoxController
-from control.config_manager import config
 from model.bbox import BBox
+from .bbox_controller import BoundingBoxController
+from .config_manager import config
 
 if TYPE_CHECKING:
     from view.gui import GUI

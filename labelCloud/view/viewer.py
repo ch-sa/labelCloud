@@ -60,7 +60,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         print("Intialized widget.")
 
-        self.pcd_manager.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
+        # Must be written again, due to buffer clearing
+        self.pcd_manager.get_pointcloud().write_vbo()
 
     def resizeGL(self, width, height):
         print("Resized widget.")
@@ -83,11 +84,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
         self.projection = GL.glGetDoublev(GL.GL_PROJECTION_MATRIX)
 
-        GL.glDepthMask(
-            GL.GL_FALSE
-        )  # Do not write decoration and preview elements in depth buffer
-        # Draw floor net
-        # if self.draw_floor:
+        # Do not write decoration and preview elements in depth buffer
+        GL.glDepthMask(GL.GL_FALSE)
+
         if config.getboolean("USER_INTERFACE", "show_floor"):
             oglhelper.draw_xy_plane(self.pcd_manager.get_pointcloud())
 
@@ -128,9 +127,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
         y *= self.DEVICE_PIXEL_RATIO
 
-        viewport = GL.glGetIntegerv(
-            GL.GL_VIEWPORT
-        )  # Stored projection matrices are taken from loop
+        # Stored projection matrices are taken from loop
+        viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
         real_y = viewport[3] - y  # adjust for down-facing y positions
 
         if z is None:

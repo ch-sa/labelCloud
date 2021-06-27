@@ -2,17 +2,19 @@ from typing import Union
 
 from PyQt5 import QtGui, QtCore
 
-from control.alignmode import AlignMode
-from control.drawing_manager import DrawingManager
-from control.pcd_manager import PointCloudManger
-from model.bbox import BBox
-from control.bbox_controller import BoundingBoxController
 
-from view.gui import GUI
 from utils import oglhelper
+from model.bbox import BBox
+from view.gui import GUI
+from .alignmode import AlignMode
+from .bbox_controller import BoundingBoxController
+from .drawing_manager import DrawingManager
+from .pcd_manager import PointCloudManger
 
 
 class Controller:
+    MOVEMENT_THRESHOLD = 0.1
+
     def __init__(self):
         """Initializes all controllers and managers."""
         self.view: Union["GUI", None] = None
@@ -172,12 +174,8 @@ class Controller:
                 and (not self.align_mode.is_active())
             ):
                 if a0.buttons() & QtCore.Qt.LeftButton:  # bbox rotation
-                    # self.bbox_controller.rotate_around_x(-dy)
-                    # self.bbox_controller.rotate_around_y(-dx)
                     self.bbox_controller.rotate_with_mouse(-dx, -dy)
                 elif a0.buttons() & QtCore.Qt.RightButton:  # bbox translation
-                    # self.bbox_controller.translate_along_x(-dx / 30)
-                    # self.bbox_controller.translate_along_y(dy / 30)
                     new_center = self.view.glWidget.get_world_coords(
                         a0.x(), a0.y(), correction=True
                     )
@@ -190,9 +188,8 @@ class Controller:
                     self.pcd_manager.translate_along_x(dx)
                     self.pcd_manager.translate_along_y(dy)
 
-            if (
-                dx > 0.1 or dy > 0.1
-            ):  # Reset scroll locks if significant cursor movements
+            # Reset scroll locks of "side scrolling" for significant cursor movements
+            if dx > Controller.MOVEMENT_THRESHOLD or dy > Controller.MOVEMENT_THRESHOLD:
                 if self.side_mode:
                     self.side_mode = False
                 else:
@@ -243,45 +240,41 @@ class Controller:
                 print("Resetted selected points!")
 
         # BBOX MANIPULATION
-        elif (a0.key() == QtCore.Qt.Key_Y) or (
-            a0.key() == QtCore.Qt.Key_Comma
-        ):  # z rotate counterclockwise
+        elif (a0.key() == QtCore.Qt.Key_Y) or (a0.key() == QtCore.Qt.Key_Comma):
+            # z rotate counterclockwise
             self.bbox_controller.rotate_around_z()
-        elif (a0.key() == QtCore.Qt.Key_X) or (
-            a0.key() == QtCore.Qt.Key_Period
-        ):  # z rotate clockwise
+        elif (a0.key() == QtCore.Qt.Key_X) or (a0.key() == QtCore.Qt.Key_Period):
+            # z rotate clockwise
             self.bbox_controller.rotate_around_z(clockwise=True)
-        elif a0.key() == QtCore.Qt.Key_C:  # y rotate counterclockwise
+        elif a0.key() == QtCore.Qt.Key_C:
+            # y rotate counterclockwise
             self.bbox_controller.rotate_around_y()
-        elif a0.key() == QtCore.Qt.Key_V:  # y rotate clockwise
+        elif a0.key() == QtCore.Qt.Key_V:
+            # y rotate clockwise
             self.bbox_controller.rotate_around_y(clockwise=True)
-        elif a0.key() == QtCore.Qt.Key_B:  # x rotate counterclockwise
+        elif a0.key() == QtCore.Qt.Key_B:
+            # x rotate counterclockwise
             self.bbox_controller.rotate_around_x()
-        elif a0.key() == QtCore.Qt.Key_N:  # x rotate clockwise
+        elif a0.key() == QtCore.Qt.Key_N:
+            # x rotate clockwise
             self.bbox_controller.rotate_around_x(clockwise=True)
-        elif (a0.key() == QtCore.Qt.Key_W) or (
-            a0.key() == QtCore.Qt.Key_Up
-        ):  # move backward
+        elif (a0.key() == QtCore.Qt.Key_W) or (a0.key() == QtCore.Qt.Key_Up):
+            # move backward
             self.bbox_controller.translate_along_y()
-        elif (a0.key() == QtCore.Qt.Key_S) or (
-            a0.key() == QtCore.Qt.Key_Down
-        ):  # move forward
+        elif (a0.key() == QtCore.Qt.Key_S) or (a0.key() == QtCore.Qt.Key_Down):
+            # move forward
             self.bbox_controller.translate_along_y(forward=True)
-        elif (a0.key() == QtCore.Qt.Key_A) or (
-            a0.key() == QtCore.Qt.Key_Left
-        ):  # move left
+        elif (a0.key() == QtCore.Qt.Key_A) or (a0.key() == QtCore.Qt.Key_Left):
+            # move left
             self.bbox_controller.translate_along_x(left=True)
-        elif (a0.key() == QtCore.Qt.Key_D) or (
-            a0.key() == QtCore.Qt.Key_Right
-        ):  # move right
+        elif (a0.key() == QtCore.Qt.Key_D) or (a0.key() == QtCore.Qt.Key_Right):
+            # move right
             self.bbox_controller.translate_along_x()
-        elif (a0.key() == QtCore.Qt.Key_Q) or (
-            a0.key() == QtCore.Qt.Key_PageUp
-        ):  # move up
+        elif (a0.key() == QtCore.Qt.Key_Q) or (a0.key() == QtCore.Qt.Key_PageUp):
+            # move up
             self.bbox_controller.translate_along_z()
-        elif (a0.key() == QtCore.Qt.Key_E) or (
-            a0.key() == QtCore.Qt.Key_PageDown
-        ):  # move down
+        elif (a0.key() == QtCore.Qt.Key_E) or (a0.key() == QtCore.Qt.Key_PageDown):
+            # move down
             self.bbox_controller.translate_along_z(down=True)
 
     def key_release_event(self, a0: QtGui.QKeyEvent):
