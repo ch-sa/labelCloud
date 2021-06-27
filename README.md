@@ -3,6 +3,7 @@
     <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
     <img src="https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue" />
     <img src="https://github.com/ch-sa/labelCloud/workflows/Tests/badge.svg" />
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg" />
 </p>
 
 

@@ -1,15 +1,17 @@
 """
-A class to handle all user manipulations of the bounding boxes and collect all labeling settings in one place.
-Bounding Box Management: adding, updating, deleting bboxes; changing the active bounding box
+A class to handle all user manipulations of the bounding boxes and collect all labeling
+settings in one place.
+Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
 from typing import TYPE_CHECKING, Union, List
 
 import numpy as np
 
+
 from utils import oglhelper
-from control.config_manager import config
 from model.bbox import BBox
+from .config_manager import config
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -17,7 +19,11 @@ if TYPE_CHECKING:
 
 # DECORATORS
 def has_active_bbox_decorator(func):
-    def wrapper(*args, **kwargs):  # plays function if active bbox exists
+    """
+    Only execute bounding box manipulation if there is an active bounding box.
+    """
+
+    def wrapper(*args, **kwargs):
         if args[0].has_active_bbox():
             return func(*args, **kwargs)
         else:
@@ -27,7 +33,11 @@ def has_active_bbox_decorator(func):
 
 
 def only_zrotation_decorator(func):
-    def wrapper(*args, **kwargs):  # plays function if active bbox exists
+    """
+    Only execute x- and y-rotation if z_rotation_only mode is not activated.
+    """
+
+    def wrapper(*args, **kwargs):
         if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             return func(*args, **kwargs)
         else:
@@ -67,14 +77,16 @@ class BoundingBoxController:
 
     # SETTERS
 
-    def set_view(self, view: 'GUI'):
+    def set_view(self, view: "GUI"):
         self.view = view
 
     def add_bbox(self, bbox: BBox):
         if isinstance(bbox, BBox):
             self.bboxes.append(bbox)
             self.set_active_bbox(self.bboxes.index(bbox))
-            self.view.update_status("Bounding Box added, it can now be corrected.", mode="correction")
+            self.view.update_status(
+                "Bounding Box added, it can now be corrected.", mode="correction"
+            )
 
     def update_bbox(self, bbox_id: int, bbox: BBox):
         if isinstance(bbox, BBox) and (0 <= bbox_id < len(self.bboxes)):
@@ -97,7 +109,9 @@ class BoundingBoxController:
         if 0 <= bbox_id < len(self.bboxes):
             self.active_bbox_id = bbox_id
             self.update_all()
-            self.view.update_status("Bounding Box selected, it can now be corrected.", mode="correction")
+            self.view.update_status(
+                "Bounding Box selected, it can now be corrected.", mode="correction"
+            )
         else:
             self.deselect_bbox()
 
@@ -164,7 +178,9 @@ class BoundingBoxController:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
-        self.get_active_bbox().set_x_rotation(self.get_active_bbox().get_x_rotation() + dangle)
+        self.get_active_bbox().set_x_rotation(
+            self.get_active_bbox().get_x_rotation() + dangle
+        )
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
@@ -172,21 +188,29 @@ class BoundingBoxController:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
-        self.get_active_bbox().set_y_rotation(self.get_active_bbox().get_y_rotation() + dangle)
+        self.get_active_bbox().set_y_rotation(
+            self.get_active_bbox().get_y_rotation() + dangle
+        )
 
     @has_active_bbox_decorator
-    def rotate_around_z(self, dangle: float = None, clockwise: bool = False, absolute: bool = False):
+    def rotate_around_z(
+        self, dangle: float = None, clockwise: bool = False, absolute: bool = False
+    ):
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
         if absolute:
             self.get_active_bbox().set_z_rotation(dangle)
         else:
-            self.get_active_bbox().set_z_rotation(self.get_active_bbox().get_z_rotation() + dangle)
+            self.get_active_bbox().set_z_rotation(
+                self.get_active_bbox().get_z_rotation() + dangle
+            )
         self.update_all()
 
     @has_active_bbox_decorator
-    def rotate_with_mouse(self, x_angle: float, y_angle: float):  # TODO: Make more intuitive
+    def rotate_with_mouse(
+        self, x_angle: float, y_angle: float
+    ):  # TODO: Make more intuitive
         # Get bbox perspective
         pcd_z_rotation = self.pcdc.get_pointcloud().rot_z
         bbox_z_rotation = self.get_active_bbox().get_z_rotation()
@@ -194,9 +218,6 @@ class BoundingBoxController:
 
         bbox_cosz = round(np.cos(np.deg2rad(total_z_rotation)), 0)
         bbox_sinz = -round(np.sin(np.deg2rad(total_z_rotation)), 0)
-
-        # self.rotate_around_x(y_angle * bbox_cosz + x_angle * bbox_sinz)
-        # self.rotate_around_y(y_angle * bbox_sinz + x_angle * bbox_cosz)
 
         self.rotate_around_x(y_angle * bbox_cosz)
         self.rotate_around_y(y_angle * bbox_sinz)
@@ -208,8 +229,12 @@ class BoundingBoxController:
         if left:
             distance *= -1
         cosz, sinz, bu = self.pcdc.get_perspective()
-        self.get_active_bbox().set_x_translation(self.get_active_bbox().center[0] + distance * cosz)
-        self.get_active_bbox().set_y_translation(self.get_active_bbox().center[1] + distance * sinz)
+        self.get_active_bbox().set_x_translation(
+            self.get_active_bbox().center[0] + distance * cosz
+        )
+        self.get_active_bbox().set_y_translation(
+            self.get_active_bbox().center[1] + distance * sinz
+        )
 
     @has_active_bbox_decorator
     def translate_along_y(self, distance: float = None, forward: bool = False):
@@ -217,19 +242,30 @@ class BoundingBoxController:
         if forward:
             distance *= -1
         cosz, sinz, bu = self.pcdc.get_perspective()
-        self.get_active_bbox().set_x_translation(self.get_active_bbox().center[0] + distance * bu * -sinz)
-        self.get_active_bbox().set_y_translation(self.get_active_bbox().center[1] + distance * bu * cosz)
+        self.get_active_bbox().set_x_translation(
+            self.get_active_bbox().center[0] + distance * bu * -sinz
+        )
+        self.get_active_bbox().set_y_translation(
+            self.get_active_bbox().center[1] + distance * bu * cosz
+        )
 
     @has_active_bbox_decorator
     def translate_along_z(self, distance: float = None, down: bool = False):
         distance = distance or config.getfloat("LABEL", "std_translation")
         if down:
             distance *= -1
-        self.get_active_bbox().set_z_translation(self.get_active_bbox().center[2] + distance)
+        self.get_active_bbox().set_z_translation(
+            self.get_active_bbox().center[2] + distance
+        )
 
-    # Scale bbox while keeping ratios
     @has_active_bbox_decorator
-    def scale(self, length_increase: float = None, decrease: bool = False):
+    def scale(self, length_increase: float = None, decrease: bool = False) -> None:
+        """Scales a bounding box while keeping the previous aspect ratio.
+
+        :param length_increase: factor by which the length should be increased
+        :param decrease: if True, reverses the length_increasee (* -1)
+        :return: None
+        """
         length_increase = length_increase or config.getfloat("LABEL", "std_scaling")
         if decrease:
             length_increase *= -1
@@ -243,35 +279,44 @@ class BoundingBoxController:
 
         self.get_active_bbox().set_dimensions(new_length, new_width, new_height)
 
-    def select_bbox_by_ray(self, x: int, y: int):
-        intersected_bbox_id = oglhelper.get_intersected_bboxes(x, y, self.bboxes, self.view.glWidget.modelview,
-                                                               self.view.glWidget.projection)
+    def select_bbox_by_ray(self, x: int, y: int) -> None:
+        intersected_bbox_id = oglhelper.get_intersected_bboxes(
+            x,
+            y,
+            self.bboxes,
+            self.view.glWidget.modelview,
+            self.view.glWidget.projection,
+        )
         if intersected_bbox_id is not None:
             self.set_active_bbox(intersected_bbox_id)
             print("Selected bounding box %s." % intersected_bbox_id)
 
     # HELPER
 
-    def update_all(self):
+    def update_all(self) -> None:
         self.update_z_dial()
         self.update_curr_class()
         self.update_label_list()
         self.view.update_bbox_stats(self.get_active_bbox())
 
     @has_active_bbox_decorator
-    def update_z_dial(self):
+    def update_z_dial(self) -> None:
         self.view.dial_zrotation.blockSignals(True)  # To brake signal loop
         self.view.dial_zrotation.setValue(int(self.get_active_bbox().get_z_rotation()))
         self.view.dial_zrotation.blockSignals(False)
 
-    def update_curr_class(self):
+    def update_curr_class(self) -> None:
         if self.has_active_bbox():
             self.view.update_curr_class_edit()
         else:
             self.view.update_curr_class_edit(force="")
 
-    # Updating the list of existing labels if bboxes changed
-    def update_label_list(self):
+    def update_label_list(self) -> None:
+        """Updates the list of drawn labels and highlights the active label.
+
+        Should be always called if the bounding boxes changed.
+        :return: None
+        """
         self.view.label_list.blockSignals(True)  # To brake signal loop
         self.view.label_list.clear()
         for bbox in self.bboxes:

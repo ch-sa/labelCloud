@@ -2,21 +2,22 @@ from typing import Union
 
 from PyQt5 import QtGui, QtCore
 
-from control.alignmode import AlignMode
-from control.drawing_manager import DrawingManager
-from control.pcd_manager import PointCloudManger
-from model.bbox import BBox
-from control.bbox_controller import BoundingBoxController
 
-from view.gui import GUI
 from utils import oglhelper
+from model.bbox import BBox
+from view.gui import GUI
+from .alignmode import AlignMode
+from .bbox_controller import BoundingBoxController
+from .drawing_manager import DrawingManager
+from .pcd_manager import PointCloudManger
 
 
 class Controller:
+    MOVEMENT_THRESHOLD = 0.1
 
     def __init__(self):
         """Initializes all controllers and managers."""
-        self.view: Union['GUI', None] = None
+        self.view: Union["GUI", None] = None
         self.pcd_manager = PointCloudManger()
         self.bbox_controller = BoundingBoxController()
 
@@ -34,7 +35,7 @@ class Controller:
         self.side_mode = False
         self.selected_side = None
 
-    def startup(self, view: 'GUI'):
+    def startup(self, view: "GUI"):
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
         self.view = view
         self.bbox_controller.set_view(self.view)
@@ -89,20 +90,36 @@ class Controller:
         """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
             self.view.glWidget.crosshair_col = [0, 1, 0]
-            self.view.glWidget.crosshair_pos = (self.curr_cursor_pos.x(), self.curr_cursor_pos.y())
+            self.view.glWidget.crosshair_pos = (
+                self.curr_cursor_pos.x(),
+                self.curr_cursor_pos.y(),
+            )
 
     def set_selected_side(self):
         """Sets the currently hovered bounding box side in the glWidget."""
-        if (not self.side_mode) and self.curr_cursor_pos and self.bbox_controller.has_active_bbox() \
-                and (not self.scroll_mode):
-            _, self.selected_side = oglhelper.get_intersected_sides(self.curr_cursor_pos.x(), self.curr_cursor_pos.y(),
-                                                                    self.bbox_controller.get_active_bbox(),
-                                                                    self.view.glWidget.modelview,
-                                                                    self.view.glWidget.projection)
-        if self.selected_side and (not self.ctrl_pressed) and self.bbox_controller.has_active_bbox():
+        if (
+            (not self.side_mode)
+            and self.curr_cursor_pos
+            and self.bbox_controller.has_active_bbox()
+            and (not self.scroll_mode)
+        ):
+            _, self.selected_side = oglhelper.get_intersected_sides(
+                self.curr_cursor_pos.x(),
+                self.curr_cursor_pos.y(),
+                self.bbox_controller.get_active_bbox(),
+                self.view.glWidget.modelview,
+                self.view.glWidget.projection,
+            )
+        if (
+            self.selected_side
+            and (not self.ctrl_pressed)
+            and self.bbox_controller.has_active_bbox()
+        ):
             self.view.glWidget.crosshair_col = [1, 0, 0]
             side_vertices = self.bbox_controller.get_active_bbox().get_vertices()
-            self.view.glWidget.selected_side_vertices = side_vertices[BBox.BBOX_SIDES[self.selected_side]]
+            self.view.glWidget.selected_side_vertices = side_vertices[
+                BBox.BBOX_SIDES[self.selected_side]
+            ]
         else:
             self.view.glWidget.selected_side_vertices = []
 
@@ -111,11 +128,17 @@ class Controller:
         """Triggers actions when the user clicks the mouse."""
         self.last_cursor_pos = a0.pos()
 
-        if self.drawing_mode.is_active() and (a0.buttons() & QtCore.Qt.LeftButton) and (not self.ctrl_pressed):
+        if (
+            self.drawing_mode.is_active()
+            and (a0.buttons() & QtCore.Qt.LeftButton)
+            and (not self.ctrl_pressed)
+        ):
             self.drawing_mode.register_point(a0.x(), a0.y(), correction=True)
 
         elif self.align_mode.is_active() and (not self.ctrl_pressed):
-            self.align_mode.register_point(self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False))
+            self.align_mode.register_point(
+                self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
+            )
 
         elif self.selected_side:
             self.side_mode = True
@@ -130,24 +153,32 @@ class Controller:
 
         # Methods that use absolute cursor position
         if self.drawing_mode.is_active() and (not self.ctrl_pressed):
-            self.drawing_mode.register_point(a0.x(), a0.y(), correction=True, is_temporary=True)
+            self.drawing_mode.register_point(
+                a0.x(), a0.y(), correction=True, is_temporary=True
+            )
 
         elif self.align_mode.is_active() and (not self.ctrl_pressed):
-            self.align_mode.register_tmp_point(self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False))
+            self.align_mode.register_tmp_point(
+                self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
+            )
 
         if self.last_cursor_pos:
-            dx = (self.last_cursor_pos.x() - a0.x()) / 5  # Calculate relative movement from last click position
+            dx = (
+                self.last_cursor_pos.x() - a0.x()
+            ) / 5  # Calculate relative movement from last click position
             dy = (self.last_cursor_pos.y() - a0.y()) / 5
 
-            if self.ctrl_pressed and (not self.drawing_mode.is_active()) and (not self.align_mode.is_active()):
+            if (
+                self.ctrl_pressed
+                and (not self.drawing_mode.is_active())
+                and (not self.align_mode.is_active())
+            ):
                 if a0.buttons() & QtCore.Qt.LeftButton:  # bbox rotation
-                    # self.bbox_controller.rotate_around_x(-dy)
-                    # self.bbox_controller.rotate_around_y(-dx)
                     self.bbox_controller.rotate_with_mouse(-dx, -dy)
                 elif a0.buttons() & QtCore.Qt.RightButton:  # bbox translation
-                    # self.bbox_controller.translate_along_x(-dx / 30)
-                    # self.bbox_controller.translate_along_y(dy / 30)
-                    new_center = self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=True)
+                    new_center = self.view.glWidget.get_world_coords(
+                        a0.x(), a0.y(), correction=True
+                    )
                     self.bbox_controller.set_center(*new_center)  # absolute positioning
             else:
                 if a0.buttons() & QtCore.Qt.LeftButton:  # pcd rotation
@@ -157,7 +188,8 @@ class Controller:
                     self.pcd_manager.translate_along_x(dx)
                     self.pcd_manager.translate_along_y(dy)
 
-            if dx > 0.1 or dy > 0.1:  # Reset scroll locks if significant cursor movements
+            # Reset scroll locks of "side scrolling" for significant cursor movements
+            if dx > Controller.MOVEMENT_THRESHOLD or dy > Controller.MOVEMENT_THRESHOLD:
                 if self.side_mode:
                     self.side_mode = False
                 else:
@@ -173,8 +205,9 @@ class Controller:
         if self.drawing_mode.is_active() and (not self.ctrl_pressed):
             self.drawing_mode.drawing_strategy.register_scrolling(a0.angleDelta().y())
         elif self.side_mode and self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().change_side(self.selected_side,
-                                                               -a0.angleDelta().y() / 4000)  # ToDo implement method
+            self.bbox_controller.get_active_bbox().change_side(
+                self.selected_side, -a0.angleDelta().y() / 4000
+            )  # ToDo implement method
         else:
             self.pcd_manager.zoom_into(a0.angleDelta().y())
             self.scroll_mode = True
@@ -207,29 +240,41 @@ class Controller:
                 print("Resetted selected points!")
 
         # BBOX MANIPULATION
-        elif (a0.key() == QtCore.Qt.Key_Y) or (a0.key() == QtCore.Qt.Key_Comma):  # z rotate counterclockwise
+        elif (a0.key() == QtCore.Qt.Key_Y) or (a0.key() == QtCore.Qt.Key_Comma):
+            # z rotate counterclockwise
             self.bbox_controller.rotate_around_z()
-        elif (a0.key() == QtCore.Qt.Key_X) or (a0.key() == QtCore.Qt.Key_Period):  # z rotate clockwise
+        elif (a0.key() == QtCore.Qt.Key_X) or (a0.key() == QtCore.Qt.Key_Period):
+            # z rotate clockwise
             self.bbox_controller.rotate_around_z(clockwise=True)
-        elif a0.key() == QtCore.Qt.Key_C:  # y rotate counterclockwise
+        elif a0.key() == QtCore.Qt.Key_C:
+            # y rotate counterclockwise
             self.bbox_controller.rotate_around_y()
-        elif a0.key() == QtCore.Qt.Key_V:  # y rotate clockwise
+        elif a0.key() == QtCore.Qt.Key_V:
+            # y rotate clockwise
             self.bbox_controller.rotate_around_y(clockwise=True)
-        elif a0.key() == QtCore.Qt.Key_B:  # x rotate counterclockwise
+        elif a0.key() == QtCore.Qt.Key_B:
+            # x rotate counterclockwise
             self.bbox_controller.rotate_around_x()
-        elif a0.key() == QtCore.Qt.Key_N:  # x rotate clockwise
+        elif a0.key() == QtCore.Qt.Key_N:
+            # x rotate clockwise
             self.bbox_controller.rotate_around_x(clockwise=True)
-        elif (a0.key() == QtCore.Qt.Key_W) or (a0.key() == QtCore.Qt.Key_Up):  # move backward
+        elif (a0.key() == QtCore.Qt.Key_W) or (a0.key() == QtCore.Qt.Key_Up):
+            # move backward
             self.bbox_controller.translate_along_y()
-        elif (a0.key() == QtCore.Qt.Key_S) or (a0.key() == QtCore.Qt.Key_Down):  # move forward
+        elif (a0.key() == QtCore.Qt.Key_S) or (a0.key() == QtCore.Qt.Key_Down):
+            # move forward
             self.bbox_controller.translate_along_y(forward=True)
-        elif (a0.key() == QtCore.Qt.Key_A) or (a0.key() == QtCore.Qt.Key_Left):  # move left
+        elif (a0.key() == QtCore.Qt.Key_A) or (a0.key() == QtCore.Qt.Key_Left):
+            # move left
             self.bbox_controller.translate_along_x(left=True)
-        elif (a0.key() == QtCore.Qt.Key_D) or (a0.key() == QtCore.Qt.Key_Right):  # move right
+        elif (a0.key() == QtCore.Qt.Key_D) or (a0.key() == QtCore.Qt.Key_Right):
+            # move right
             self.bbox_controller.translate_along_x()
-        elif (a0.key() == QtCore.Qt.Key_Q) or (a0.key() == QtCore.Qt.Key_PageUp):  # move up
+        elif (a0.key() == QtCore.Qt.Key_Q) or (a0.key() == QtCore.Qt.Key_PageUp):
+            # move up
             self.bbox_controller.translate_along_z()
-        elif (a0.key() == QtCore.Qt.Key_E) or (a0.key() == QtCore.Qt.Key_PageDown):  # move down
+        elif (a0.key() == QtCore.Qt.Key_E) or (a0.key() == QtCore.Qt.Key_PageDown):
+            # move down
             self.bbox_controller.translate_along_z(down=True)
 
     def key_release_event(self, a0: QtGui.QKeyEvent):

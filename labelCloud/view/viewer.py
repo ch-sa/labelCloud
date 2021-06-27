@@ -15,16 +15,21 @@ from control.drawing_manager import DrawingManager
 
 # Main widget for presenting the point cloud
 class GLWidget(QtOpenGL.QGLWidget):
-
     def __init__(self, parent=None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
-        self.setMouseTracking(True)  # mouseMoveEvent is called also without button pressed
+        self.setMouseTracking(
+            True
+        )  # mouseMoveEvent is called also without button pressed
 
         self.modelview = None
         self.projection = None
-        self.DEVICE_PIXEL_RATIO = self.devicePixelRatioF()  # 1 = normal; 2 = retina display
-        oglhelper.DEVICE_PIXEL_RATIO = self.DEVICE_PIXEL_RATIO  # set for helper functions
+        self.DEVICE_PIXEL_RATIO = (
+            self.devicePixelRatioF()
+        )  # 1 = normal; 2 = retina display
+        oglhelper.DEVICE_PIXEL_RATIO = (
+            self.DEVICE_PIXEL_RATIO
+        )  # set for helper functions
 
         self.pcd_manager = None
         self.bbox_controller = None
@@ -45,15 +50,18 @@ class GLWidget(QtOpenGL.QGLWidget):
     # QGLWIDGET METHODS
 
     def initializeGL(self):
-        bg_color = [int(fl_color) for fl_color in
-                    config.getlist("USER_INTERFACE", "BACKGROUND_COLOR")]  # floats to ints
+        bg_color = [
+            int(fl_color)
+            for fl_color in config.getlist("USER_INTERFACE", "BACKGROUND_COLOR")
+        ]  # floats to ints
         self.qglClearColor(QtGui.QColor(*bg_color))  # screen background color
         GL.glEnable(GL.GL_DEPTH_TEST)  # for visualization of depth
         GL.glEnable(GL.GL_BLEND)  # enable transparency
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         print("Intialized widget.")
 
-        self.pcd_manager.get_pointcloud().write_vbo()  # Must be written again, due to buffer clearing
+        # Must be written again, due to buffer clearing
+        self.pcd_manager.get_pointcloud().write_vbo()
 
     def resizeGL(self, width, height):
         print("Resized widget.")
@@ -76,9 +84,9 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
         self.projection = GL.glGetDoublev(GL.GL_PROJECTION_MATRIX)
 
-        GL.glDepthMask(GL.GL_FALSE)  # Do not write decoration and preview elements in depth buffer
-        # Draw floor net
-        # if self.draw_floor:
+        # Do not write decoration and preview elements in depth buffer
+        GL.glDepthMask(GL.GL_FALSE)
+
         if config.getboolean("USER_INTERFACE", "show_floor"):
             oglhelper.draw_xy_plane(self.pcd_manager.get_pointcloud())
 
@@ -113,18 +121,27 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPopMatrix()  # restore the previous modelview matrix
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
-    def get_world_coords(self, x: int, y: int, z: float = None, correction: bool = False):
+    def get_world_coords(
+        self, x: int, y: int, z: float = None, correction: bool = False
+    ):
         x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
         y *= self.DEVICE_PIXEL_RATIO
 
-        viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)  # Stored projection matrices are taken from loop
+        # Stored projection matrices are taken from loop
+        viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
         real_y = viewport[3] - y  # adjust for down-facing y positions
 
         if z is None:
             buffer_size = 21
             center = buffer_size // 2 + 1
-            depths = GL.glReadPixels(x - center + 1, real_y - center + 1, buffer_size, buffer_size,
-                                     GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT)
+            depths = GL.glReadPixels(
+                x - center + 1,
+                real_y - center + 1,
+                buffer_size,
+                buffer_size,
+                GL.GL_DEPTH_COMPONENT,
+                GL.GL_FLOAT,
+            )
             z = depths[center][center]  # Read selected pixel from depth buffer
 
             if z > 0.99:
@@ -132,14 +149,18 @@ class GLWidget(QtOpenGL.QGLWidget):
             elif correction:
                 z = depth_min(depths, center)
 
-        mod_x, mod_y, mod_z = GLU.gluUnProject(x, real_y, z, self.modelview, self.projection, viewport)
+        mod_x, mod_y, mod_z = GLU.gluUnProject(
+            x, real_y, z, self.modelview, self.projection, viewport
+        )
         return mod_x, mod_y, mod_z
 
 
 # Creates a circular mask with radius around center
 def circular_mask(arr_length, center, radius):
     dx = np.arange(arr_length)
-    return (dx[np.newaxis, :] - center) ** 2 + (dx[:, np.newaxis] - center) ** 2 < radius ** 2
+    return (dx[np.newaxis, :] - center) ** 2 + (
+        dx[:, np.newaxis] - center
+    ) ** 2 < radius ** 2
 
 
 # Returns the minimum (closest) depth for a specified radius around the center
@@ -159,6 +180,8 @@ def depth_smoothing(depths, center, r=15):
     selected_depths = depths[circular_mask(len(depths), center, r)]
     if 0 in depths:  # Check if cursor is at widget border
         return 1
-    elif np.isnan(selected_depths[selected_depths < 0.99]).all():  # prevent mean of empty slice
+    elif np.isnan(
+        selected_depths[selected_depths < 0.99]
+    ).all():  # prevent mean of empty slice
         return 1
     return np.nanmedian(selected_depths[selected_depths < 0.99])

@@ -6,12 +6,12 @@ from typing import List
 
 import numpy as np
 
-from utils import math3d
-from control.config_manager import config
 from model.bbox import BBox
+from utils import math3d
+from .config_manager import config
 
 
-def get_label_strategy(export_format: str, label_folder: str) -> 'IFormattingInterface':
+def get_label_strategy(export_format: str, label_folder: str) -> "IFormattingInterface":
     if export_format == "vertices":
         return VerticesFormat(label_folder)
     elif export_format == "centroid_rel":
@@ -19,16 +19,25 @@ def get_label_strategy(export_format: str, label_folder: str) -> 'IFormattingInt
     elif export_format == "kitti":
         return KittiFormat(label_folder, relative_rotation=True)
     elif export_format != "centroid_abs":
-        print(f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!")
+        print(
+            f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!"
+        )
     return CentroidFormat(label_folder, relative_rotation=False)
 
 
 class LabelManager:
-    LABEL_FORMATS = ["vertices", "centroid_rel", "centroid_abs", "kitti"]  # supported export formats
+    LABEL_FORMATS = [
+        "vertices",
+        "centroid_rel",
+        "centroid_abs",
+        "kitti",
+    ]
     STD_LABEL_FORMAT = config.get("LABEL", "label_format")
-    EXPORT_PRECISION = config.getint("LABEL", "export_precision")  # Number of decimal places
+    EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
-    def __init__(self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None):
+    def __init__(
+        self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None
+    ):
         self.label_folder = path_to_label_folder or config.get("FILE", "label_folder")
         if not os.path.isdir(self.label_folder):
             os.mkdir(self.label_folder)
@@ -40,11 +49,15 @@ class LabelManager:
             return self.label_strategy.import_labels(os.path.splitext(pcd_name)[0])
         except KeyError as key_error:
             print("Found a key error with %s in the dictionary." % key_error)
-            print("Could not import labels, please check the consistency of the label format.")
+            print(
+                "Could not import labels, please check the consistency of the label format."
+            )
             return []
         except AttributeError as attribute_error:
             print("Attribute Error: %s. Expected a dictionary." % attribute_error)
-            print("Could not import labels, please check the consistency of the label format.")
+            print(
+                "Could not import labels, please check the consistency of the label format."
+            )
             return []
 
     def export_labels(self, pcd_path: str, bboxes: List[BBox]):
@@ -56,6 +69,7 @@ class LabelManager:
 #
 #   FORMAT HELPERS
 #
+
 
 def save_to_label_file(path_to_file, data):
     if os.path.isfile(path_to_file):
@@ -73,7 +87,7 @@ def round_dec(x, decimal_places: int = LabelManager.EXPORT_PRECISION):
 
 
 def abs2rel_rotation(abs_rotation: float) -> float:
-    """ Convert absolute rotation 0..360° into -pi..+pi from x-Axis.
+    """Convert absolute rotation 0..360° into -pi..+pi from x-Axis.
 
     :param abs_rotation: Counterclockwise rotation from x-axis around z-axis
     :return: Relative rotation from x-axis around z-axis
@@ -85,7 +99,7 @@ def abs2rel_rotation(abs_rotation: float) -> float:
 
 
 def rel2abs_rotation(rel_rotation: float) -> float:
-    """ Convert relative rotation from -pi..+pi into 0..360° from x-Axis.
+    """Convert relative rotation from -pi..+pi into 0..360° from x-Axis.
 
     :param rel_rotation: Rotation from x-axis around z-axis
     :return: Counterclockwise rotation from x-axis around z-axis
@@ -104,7 +118,9 @@ class IFormattingInterface:
         print("Set export strategy to %s." % self.__class__.__name__)
         self.relative_rotation = relative_rotation
         if relative_rotation:
-            print("Saving rotations relatively to positve x-axis in radians (-pi..+pi).")
+            print(
+                "Saving rotations relatively to positve x-axis in radians (-pi..+pi)."
+            )
         elif self.__class__.__name__ == "VerticesFormat":
             print("Saving rotations implicitly in the vertices coordinates.")
         else:
@@ -123,7 +139,6 @@ class IFormattingInterface:
 
 
 class VerticesFormat(IFormattingInterface, ABC):
-
     def import_labels(self, pcd_name_stripped):
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
@@ -136,7 +151,9 @@ class VerticesFormat(IFormattingInterface, ABC):
                 vertices = label["vertices"]
 
                 # Calculate centroid
-                centroid = np.add(np.subtract(vertices[4], vertices[2]) / 2, vertices[2])
+                centroid = np.add(
+                    np.subtract(vertices[4], vertices[2]) / 2, vertices[2]
+                )
 
                 # Calculate dimensions
                 length = math3d.vector_length(np.subtract(vertices[0], vertices[3]))
@@ -165,16 +182,22 @@ class VerticesFormat(IFormattingInterface, ABC):
         for bbox in bboxes:
             label = dict()
             label["name"] = bbox.get_classname()
-            label["vertices"] = round_dec(bbox.get_vertices().tolist())  # ToDo: Add option for axis-aligned vertices
+            label["vertices"] = round_dec(
+                bbox.get_vertices().tolist()
+            )  # ToDo: Add option for axis-aligned vertices
             data["objects"].append(label)
 
-        path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
+        path_to_json = os.path.join(
+            self.label_folder, os.path.splitext(pcd_name)[0] + ".json"
+        )
         save_to_label_file(path_to_json, data)
-        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
+        print(
+            "Exported %s labels to %s in %s formatting!"
+            % (len(bboxes), path_to_json, self.__class__.__name__)
+        )
 
 
 class CentroidFormat(IFormattingInterface, ABC):
-
     def import_labels(self, pcd_name_stripped):
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
@@ -193,7 +216,9 @@ class CentroidFormat(IFormattingInterface, ABC):
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
 
-    def export_labels(self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str):
+    def export_labels(
+        self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str
+    ):
         data = dict()
         # Header
         data["folder"] = pcd_folder
@@ -205,24 +230,38 @@ class CentroidFormat(IFormattingInterface, ABC):
         for bbox in bboxes:
             label = dict()
             label["name"] = bbox.get_classname()
-            label["centroid"] = {str(axis): round_dec(val) for axis, val in zip(["x", "y", "z"], bbox.get_center())}
-            label["dimensions"] = {str(dim): round_dec(val) for dim, val in zip(["length", "width", "height"],
-                                                                                bbox.get_dimensions())}
+            label["centroid"] = {
+                str(axis): round_dec(val)
+                for axis, val in zip(["x", "y", "z"], bbox.get_center())
+            }
+            label["dimensions"] = {
+                str(dim): round_dec(val)
+                for dim, val in zip(
+                    ["length", "width", "height"], bbox.get_dimensions()
+                )
+            }
             conv_rotations = bbox.get_rotations()
             if self.relative_rotation:
                 conv_rotations = map(abs2rel_rotation, conv_rotations)
 
-            label["rotations"] = {str(axis): round_dec(angle) for axis, angle in zip(["x", "y", "z"], conv_rotations)}
+            label["rotations"] = {
+                str(axis): round_dec(angle)
+                for axis, angle in zip(["x", "y", "z"], conv_rotations)
+            }
             data["objects"].append(label)
 
         # Save to JSON
-        path_to_json = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".json")
+        path_to_json = os.path.join(
+            self.label_folder, os.path.splitext(pcd_name)[0] + ".json"
+        )
         save_to_label_file(path_to_json, data)
-        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_json, self.__class__.__name__))
+        print(
+            "Exported %s labels to %s in %s formatting!"
+            % (len(bboxes), path_to_json, self.__class__.__name__)
+        )
 
 
 class KittiFormat(IFormattingInterface, ABC):
-
     def import_labels(self, pcd_name_stripped):
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".txt")
@@ -241,7 +280,9 @@ class KittiFormat(IFormattingInterface, ABC):
             print("Imported %s labels from %s." % (len(label_lines), path_to_label))
         return labels
 
-    def export_labels(self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str):
+    def export_labels(
+        self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str
+    ):
         data = str()
 
         # Labels
@@ -251,9 +292,19 @@ class KittiFormat(IFormattingInterface, ABC):
             dimensions = " ".join([str(round_dec(v)) for v in bbox.get_dimensions()])
             rotation_y = round_dec(abs2rel_rotation(bbox.get_z_rotation()))
 
-            data += " ".join([obj_type, "0 0 0 0 0 0 0", dimensions, location, str(rotation_y)]) + "\n"
+            data += (
+                " ".join(
+                    [obj_type, "0 0 0 0 0 0 0", dimensions, location, str(rotation_y)]
+                )
+                + "\n"
+            )
 
         # Save to TXT
-        path_to_txt = os.path.join(self.label_folder, os.path.splitext(pcd_name)[0] + ".txt")
+        path_to_txt = os.path.join(
+            self.label_folder, os.path.splitext(pcd_name)[0] + ".txt"
+        )
         save_to_label_file(path_to_txt, data)
-        print("Exported %s labels to %s in %s formatting!" % (len(bboxes), path_to_txt, self.__class__.__name__))
+        print(
+            "Exported %s labels to %s in %s formatting!"
+            % (len(bboxes), path_to_txt, self.__class__.__name__)
+        )

@@ -5,22 +5,21 @@ import numpy as np
 
 import utils.math3d as math3d
 import utils.oglhelper as ogl
-from control.bbox_controller import BoundingBoxController
-from control.config_manager import config
 from model.bbox import BBox
+from .bbox_controller import BoundingBoxController
+from .config_manager import config
 
 if TYPE_CHECKING:
     from view.gui import GUI
 
 
 class DrawingManager:
-
     def __init__(self, bbox_controller: BoundingBoxController):
         self.bbox_controller = bbox_controller
-        self.view: Union['GUI', None] = None
+        self.view: Union["GUI", None] = None
         self.drawing_strategy: Union[IDrawingStrategy, None] = None
 
-    def set_view(self, view: 'GUI'):
+    def set_view(self, view: "GUI"):
         self.view = view
         self.view.glWidget.drawing_mode = self
 
@@ -48,24 +47,37 @@ class DrawingManager:
 
             if strategy == "PickingStrategy":
                 self.drawing_strategy = PickingStrategy(self.view)
-                self.view.update_status("Please pick the location for the bounding box front center.", mode="drawing")
+                self.view.update_status(
+                    "Please pick the location for the bounding box front center.",
+                    mode="drawing",
+                )
             elif strategy == "RectangleStrategy":
                 self.drawing_strategy = RectangleStrategy(self.view)
-                self.view.update_status("Please select a corner for the 2D bounding box.", mode="drawing")
+                self.view.update_status(
+                    "Please select a corner for the 2D bounding box.", mode="drawing"
+                )
             elif strategy == "SpanStrategy":
                 self.drawing_strategy = SpanStrategy(self.view)
-                self.view.update_status("Begin by selecting a vertex of the bounding box.", mode="drawing")
+                self.view.update_status(
+                    "Begin by selecting a vertex of the bounding box.", mode="drawing"
+                )
 
-    def register_point(self, x, y, correction: bool = False, is_temporary: bool = False) -> None:
+    def register_point(
+        self, x, y, correction: bool = False, is_temporary: bool = False
+    ) -> None:
         if self.is_mode("RectangleStrategy"):
             world_point = self.view.glWidget.get_world_coords(x, y, z=0)
         else:
-            world_point = self.view.glWidget.get_world_coords(x, y, correction=correction)
+            world_point = self.view.glWidget.get_world_coords(
+                x, y, correction=correction
+            )
         if is_temporary:
             self.drawing_strategy.register_tmp_point(world_point)
         else:
             self.drawing_strategy.register_point(world_point)
-            if self.drawing_strategy.is_bbox_finished():  # Register bbox to bbox controller when finished
+            if (
+                self.drawing_strategy.is_bbox_finished()
+            ):  # Register bbox to bbox controller when finished
                 self.bbox_controller.add_bbox(self.drawing_strategy.get_bbox())
                 self.drawing_strategy.reset()
                 self.drawing_strategy = None
@@ -85,7 +97,7 @@ class IDrawingStrategy:
     POINTS_NEEDED: int
     PREVIEW: bool = False
 
-    def __init__(self, view: 'GUI'):
+    def __init__(self, view: "GUI"):
         self.view = view
         self.points_registered = 0
         self.point_1 = None
@@ -94,7 +106,8 @@ class IDrawingStrategy:
         return self.points_registered >= self.__class__.POINTS_NEEDED
 
     @abstractmethod
-    def register_point(self, new_point: List[float]) -> None: raise NotImplementedError
+    def register_point(self, new_point: List[float]) -> None:
+        raise NotImplementedError
 
     def register_tmp_point(self, new_tmp_point: List[float]) -> None:
         pass
@@ -103,7 +116,8 @@ class IDrawingStrategy:
         pass
 
     @abstractmethod
-    def get_bbox(self) -> BBox: raise NotImplementedError
+    def get_bbox(self) -> BBox:
+        raise NotImplementedError
 
     def draw_preview(self) -> None:
         pass
@@ -117,7 +131,7 @@ class PickingStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 1
     PREVIEW = True
 
-    def __init__(self, view: 'GUI'):
+    def __init__(self, view: "GUI"):
         super().__init__(view)
         print("Enabled drawing mode.")
         self.tmp_p1 = None
@@ -136,15 +150,33 @@ class PickingStrategy(IDrawingStrategy, ABC):
 
     def draw_preview(self) -> None:  # TODO: Refactor
         if self.tmp_p1:
-            tmp_bbox = BBox(*np.add(self.tmp_p1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
-                                                  -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
+            tmp_bbox = BBox(
+                *np.add(
+                    self.tmp_p1,
+                    [
+                        0,
+                        config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                        -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3,
+                    ],
+                )
+            )
             tmp_bbox.set_z_rotation(self.bbox_z_rotation)
-            ogl.draw_cuboid(tmp_bbox.get_vertices(), draw_vertices=True, vertex_color=(1, 1, 0, 1))
+            ogl.draw_cuboid(
+                tmp_bbox.get_vertices(), draw_vertices=True, vertex_color=(1, 1, 0, 1)
+            )
 
     # Draw bbox with fixed dimensions and rotation at x,y in world space
     def get_bbox(self) -> BBox:  # TODO: Refactor
-        final_bbox = BBox(*np.add(self.point_1, [0, config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
-                                                 -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3]))
+        final_bbox = BBox(
+            *np.add(
+                self.point_1,
+                [
+                    0,
+                    config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
+                    -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3,
+                ],
+            )
+        )
         final_bbox.set_z_rotation(self.bbox_z_rotation)
         return final_bbox
 
@@ -159,7 +191,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
     PREVIEW = True
     CORRECTION = True  # Increases dimensions after drawing
 
-    def __init__(self, view: 'GUI'):
+    def __init__(self, view: "GUI"):
         super().__init__(view)
         print("Enabled spanning mode.")
         self.preview_color = (1, 1, 0, 1)
@@ -176,19 +208,31 @@ class SpanStrategy(IDrawingStrategy, ABC):
     def reset(self) -> None:
         super().reset()
         self.point_2, self.point_3, self.point_4 = (None, None, None)
-        self.tmp_p2, self.tmp_p3, self.tmp_p4, self.p1_w, self.p2_w = (None, None, None, None, None)
+        self.tmp_p2, self.tmp_p3, self.tmp_p4, self.p1_w, self.p2_w = (
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
         self.view.button_activate_spanning.setChecked(False)
 
     def register_point(self, new_point: List[float]) -> None:
         if self.point_1 is None:
             self.point_1 = new_point
-            self.view.update_status("Select a point representing the length of the bounding box.")
+            self.view.update_status(
+                "Select a point representing the length of the bounding box."
+            )
         elif not self.point_2:
             self.point_2 = new_point
-            self.view.update_status("Select any point for the depth of the bounding box.")
+            self.view.update_status(
+                "Select any point for the depth of the bounding box."
+            )
         elif not self.point_3:
             self.point_3 = new_point
-            self.view.update_status("Select any point for the height of the bounding box.")
+            self.view.update_status(
+                "Select any point for the height of the bounding box."
+            )
         elif not self.point_4:
             self.point_4 = new_point
         else:
@@ -245,30 +289,53 @@ class SpanStrategy(IDrawingStrategy, ABC):
                 if self.point_3:
                     self.tmp_p3 = self.point_3
                 # Get x-y-aligned vector from line to point with intersection
-                self.dir_vector, intersection = math3d.get_line_perpendicular(self.point_1, self.point_2, self.tmp_p3)
+                self.dir_vector, intersection = math3d.get_line_perpendicular(
+                    self.point_1, self.point_2, self.tmp_p3
+                )
                 # Calculate projected vertices
                 self.p1_w = np.add(self.point_1, self.dir_vector)
                 self.p2_w = np.add(self.point_2, self.dir_vector)
                 ogl.draw_points([self.p1_w, self.p2_w], color=self.preview_color)
-                ogl.draw_rectangles([self.point_1, self.point_2, self.p2_w, self.p1_w], color=(1, 1, 0, 0.5))
+                ogl.draw_rectangles(
+                    [self.point_1, self.point_2, self.p2_w, self.p1_w],
+                    color=(1, 1, 0, 0.5),
+                )
 
-        elif self.point_1 and self.point_2 and self.point_3 and self.tmp_p4 and (not self.point_4):
+        elif (
+            self.point_1
+            and self.point_2
+            and self.point_3
+            and self.tmp_p4
+            and (not self.point_4)
+        ):
             height1 = self.tmp_p4[2] - self.point_1[2]
             p1_t = np.add(self.point_1, [0, 0, height1])
             p2_t = np.add(self.point_2, [0, 0, height1])
             p1_wt = np.add(self.p1_w, [0, 0, height1])
             p2_wt = np.add(self.p2_w, [0, 0, height1])
 
-            ogl.draw_cuboid([self.p1_w, self.point_1, self.point_2, self.p2_w,
-                             p1_wt, p1_t, p2_t, p2_wt],
-                            color=(1, 1, 0, 0.5), draw_vertices=True, vertex_color=self.preview_color)
+            ogl.draw_cuboid(
+                [
+                    self.p1_w,
+                    self.point_1,
+                    self.point_2,
+                    self.p2_w,
+                    p1_wt,
+                    p1_t,
+                    p2_t,
+                    p2_wt,
+                ],
+                color=(1, 1, 0, 0.5),
+                draw_vertices=True,
+                vertex_color=self.preview_color,
+            )
 
 
 class RectangleStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 3
     PREVIEW = True
 
-    def __init__(self, view: 'GUI'):
+    def __init__(self, view: "GUI"):
         super().__init__(view)
         self.point_2 = None
         self.tmp_p2 = None

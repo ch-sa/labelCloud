@@ -36,4 +36,5 @@ def startup_pyqt(qtbot, qapp):
 @pytest.fixture
 def bbox():
     from model.bbox import BBox
+
     return BBox(cx=0, cy=0, cz=0, length=3, width=2, height=1)

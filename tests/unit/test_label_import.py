@@ -13,8 +13,10 @@ def label_centroid():  # absolute and relative
     return label
 
 
-@pytest.mark.parametrize("label_format, rotation", [("centroid_abs", (0, 0, 1.616616)),
-                                                    ("centroid_rel", (0, 0, 92.6252738933211))])
+@pytest.mark.parametrize(
+    "label_format, rotation",
+    [("centroid_abs", (0, 0, 1.616616)), ("centroid_rel", (0, 0, 92.6252738933211))],
+)
 def test_centroid_import(label_centroid, tmpdir, label_format, rotation):
     # Write label to file
     with open(os.path.join(tmpdir, "test.json"), "w") as write_file:
@@ -55,7 +57,9 @@ def test_vertices(label_vertices, tmpdir):
     assert bbox.get_classname() == "cart"
     assert bbox.get_center() == pytest.approx((-0.212846, -0.3679275, 0.0893245))
     assert bbox.get_dimensions() == pytest.approx((0.75, 0.55, 0.15))
-    assert bbox.get_rotations() == pytest.approx((270, 45, 25))  # apply for rounding errors
+    assert bbox.get_rotations() == pytest.approx(
+        (270, 45, 25)
+    )  # apply for rounding errors
 
 
 @pytest.fixture
@@ -78,4 +82,6 @@ def test_kitti(label_kitti, tmpdir):
     assert bbox.get_classname() == "cart"
     assert bbox.get_center() == (-0.409794, -0.012696, 0.076757)
     assert bbox.get_dimensions() == (0.75, 0.55, 0.15)
-    assert bbox.get_rotations() == pytest.approx((0, 0, 25))  # apply for rounding errors
+    assert bbox.get_rotations() == pytest.approx(
+        (0, 0, 25)
+    )  # apply for rounding errors

@@ -4,16 +4,16 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 """
 import ntpath
 import os
+from shutil import copyfile
 from typing import List, Tuple, TYPE_CHECKING, Optional
 
 import numpy as np
 import open3d as o3d
-from shutil import copyfile
 
-from control.config_manager import config
-from control.label_manager import LabelManager
 from model.bbox import BBox
 from model.point_cloud import PointCloud
+from .config_manager import config
+from .label_manager import LabelManager
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -61,12 +61,20 @@ class PointCloudManger:
             print(f"Point cloud path {self.pcd_folder} is not a valid directory.")
 
         if self.pcds:
-            self.view.update_status(f"Found {len(self.pcds)} point clouds in the point cloud folder.")
+            self.view.update_status(
+                f"Found {len(self.pcds)} point clouds in the point cloud folder."
+            )
             self.update_pcd_infos()
         else:
-            self.view.show_no_pointcloud_dialog(self.pcd_folder, PointCloudManger.PCD_EXTENSIONS)
-            self.view.update_status("Please set the point cloud folder to a location that contains point cloud files.")
-            self.pointcloud = self.load_pointcloud("labelCloud/ressources/labelCloud_icon.pcd")
+            self.view.show_no_pointcloud_dialog(
+                self.pcd_folder, PointCloudManger.PCD_EXTENSIONS
+            )
+            self.view.update_status(
+                "Please set the point cloud folder to a location that contains point cloud files."
+            )
+            self.pointcloud = self.load_pointcloud(
+                "labelCloud/ressources/labelCloud_icon.pcd"
+            )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 
         self.view.init_progress(min_value=0, max_value=len(self.pcds))
@@ -114,14 +122,16 @@ class PointCloudManger:
         return bboxes
 
     # SETTER
-    def set_view(self, view: 'GUI') -> None:
+    def set_view(self, view: "GUI") -> None:
         self.view = view
         self.view.glWidget.set_pointcloud_controller(self)
 
     def save_labels_into_file(self, bboxes: List[BBox]):
         if self.pcds:
             self.label_manager.export_labels(self.get_current_path(), bboxes)
-            self.collected_object_classes.update({bbox.get_classname() for bbox in bboxes})
+            self.collected_object_classes.update(
+                {bbox.get_classname() for bbox in bboxes}
+            )
             self.view.update_label_completer(self.collected_object_classes)
             self.view.update_default_object_class_menu(self.collected_object_classes)
         else:
@@ -131,15 +141,25 @@ class PointCloudManger:
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
         print("=" * 20, "Loading", ntpath.basename(path_to_pointcloud), "=" * 20)
 
-        if os.path.splitext(path_to_pointcloud)[1] == ".bin":  # Loading binary pcds with numpy
+        if (
+            os.path.splitext(path_to_pointcloud)[1] == ".bin"
+        ):  # Loading binary pcds with numpy
             bin_pcd = np.fromfile(path_to_pointcloud, dtype=np.float32)
-            points = bin_pcd.reshape((-1, 4))[:, 0:3]  # Reshape and drop reflection values
-            self.current_o3d_pcd = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(points))
+            points = bin_pcd.reshape((-1, 4))[
+                :, 0:3
+            ]  # Reshape and drop reflection values
+            self.current_o3d_pcd = o3d.geometry.PointCloud(
+                o3d.utility.Vector3dVector(points)
+            )
         else:
-            self.current_o3d_pcd = o3d.io.read_point_cloud(path_to_pointcloud)  # Load point cloud with open3d
+            self.current_o3d_pcd = o3d.io.read_point_cloud(
+                path_to_pointcloud
+            )  # Load point cloud with open3d
 
         tmp_pcd = PointCloud(path_to_pointcloud)
-        tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype("float32")  # Unpack point cloud
+        tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype(
+            "float32"
+        )  # Unpack point cloud
         tmp_pcd.colors = np.asarray(self.current_o3d_pcd.colors).astype("float32")
 
         tmp_pcd.colorless = len(tmp_pcd.colors) == 0
@@ -156,7 +176,10 @@ class PointCloudManger:
             tmp_pcd.colorless = False
 
         max_dims = np.subtract(tmp_pcd.pcd_maxs, tmp_pcd.pcd_mins)
-        init_trans_z = max(tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15), -25)
+        init_trans_z = max(
+            tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15),
+            -25,
+        )
         init_trans_x = -tmp_pcd.center[0] + max_dims[0] * 0.1
         init_trans_y = -tmp_pcd.center[1] + max_dims[1] * -0.1
         tmp_pcd.init_translation = init_trans_x, init_trans_y, init_trans_z
@@ -167,7 +190,9 @@ class PointCloudManger:
 
         print("Successfully loaded point cloud from %s!" % path_to_pointcloud)
         if tmp_pcd.colorless:
-            print("Did not find colors for the loaded point cloud, drawing in colorless mode!")
+            print(
+                "Did not find colors for the loaded point cloud, drawing in colorless mode!"
+            )
         print("=" * 65)
         return tmp_pcd
 
@@ -181,13 +206,19 @@ class PointCloudManger:
         self.pointcloud.set_rot_z(self.pointcloud.rot_z - dangle)
 
     def translate_along_x(self, distance):
-        self.pointcloud.set_trans_x(self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_x(
+            self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR
+        )
 
     def translate_along_y(self, distance):
-        self.pointcloud.set_trans_y(self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_y(
+            self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR
+        )
 
     def translate_along_z(self, distance):
-        self.pointcloud.set_trans_z(self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR)
+        self.pointcloud.set_trans_z(
+            self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR
+        )
 
     def zoom_into(self, distance):
         zoom_distance = distance * PointCloudManger.ZOOM_FACTOR
@@ -203,16 +234,23 @@ class PointCloudManger:
         self.reset_translation()
         self.reset_rotation()
 
-    def rotate_pointcloud(self, axis: List[float], angle: float, rotation_point: List[float]) -> None:
+    def rotate_pointcloud(
+        self, axis: List[float], angle: float, rotation_point: List[float]
+    ) -> None:
         # Save current, original point cloud in ORIGINALS_FOLDER
-        originals_path = os.path.join(self.pcd_folder, PointCloudManger.ORIGINALS_FOLDER)
+        originals_path = os.path.join(
+            self.pcd_folder, PointCloudManger.ORIGINALS_FOLDER
+        )
         if not os.path.exists(originals_path):
             os.mkdir(originals_path)
-        copyfile(self.get_current_path(), os.path.join(originals_path, self.get_current_name()))
-        # o3d.io.write_point_cloud(os.path.join(originals_path, self.get_current_name()), self.current_o3d_pcd)
-
+        copyfile(
+            self.get_current_path(),
+            os.path.join(originals_path, self.get_current_name()),
+        )
         # Rotate and translate point cloud
-        rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(np.multiply(axis, angle))
+        rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
+            np.multiply(axis, angle)
+        )
         self.current_o3d_pcd.rotate(rotation_matrix, center=tuple(rotation_point))
         self.current_o3d_pcd.translate([0, 0, -rotation_point[2]])
 
@@ -222,14 +260,11 @@ class PointCloudManger:
 
         if abs(pcd_mins[2]) > pcd_maxs[2]:
             print("Point cloud is upside down, rotating ...")
-            self.current_o3d_pcd.rotate(o3d.geometry.get_rotation_matrix_from_xyz([np.pi, 0, 0]), center=(0, 0, 0))
+            self.current_o3d_pcd.rotate(
+                o3d.geometry.get_rotation_matrix_from_xyz([np.pi, 0, 0]),
+                center=(0, 0, 0),
+            )
 
-        # Overwrite current point cloud and reload
-        # if os.path.splitext(self.get_current_path())[1] == ".bin":
-        #     points = np.asarray(self.current_o3d_pcd.points)
-        #     flattened_points = np.append(points, np.zeros((len(points), 1)), axis=1).flatten()  # add dummy reflection
-        #     flattened_points.tofile(self.get_current_path())
-        # else:
         save_path = self.get_current_path()
         if os.path.splitext(save_path)[1] == ".bin":
             save_path = save_path[:-4] + ".pcd"
@@ -241,9 +276,7 @@ class PointCloudManger:
 
     def get_perspective(self):
         x_rotation = self.pointcloud.rot_x
-        # y_rotation = self.pcdc.get_pointcloud().rot_y
         z_rotation = self.pointcloud.rot_z
-        # print("PCD-ROTX/y/z: %s, %s, %s" % (x_rotation, y_rotation, z_rotation))
 
         cosz = round(np.cos(np.deg2rad(z_rotation)), 1)
         sinz = -round(np.sin(np.deg2rad(z_rotation)), 1)

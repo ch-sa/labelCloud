@@ -1,21 +1,24 @@
+from typing import List, Tuple, Union
+
 import OpenGL.GL as GL
 import numpy as np
 from OpenGL import GLU
-from typing import List, Tuple, Union
 
 from utils import math3d
 from model.bbox import BBox
-
-# DRAWING
 from model.point_cloud import PointCloud
 
 Color4f = Tuple[float, float, float, float]  # type alias for type hinting
 PointList = List[List[float]]
 
-DEVICE_PIXEL_RATIO = None  # is set once and for every window resize (retina display fix)
+DEVICE_PIXEL_RATIO = (
+    None  # is set once and for every window resize (retina display fix)
+)
 
 
-def draw_points(points: PointList, color: Color4f = (0, 1, 1, 1), point_size: int = 10) -> None:
+def draw_points(
+    points: PointList, color: Color4f = (0, 1, 1, 1), point_size: int = 10
+) -> None:
     GL.glColor4d(*color)
     GL.glPointSize(point_size)
     GL.glBegin(GL.GL_POINTS)
@@ -24,7 +27,9 @@ def draw_points(points: PointList, color: Color4f = (0, 1, 1, 1), point_size: in
     GL.glEnd()
 
 
-def draw_lines(points: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2) -> None:
+def draw_lines(
+    points: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2
+) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)
     GL.glBegin(GL.GL_LINES)
@@ -41,7 +46,9 @@ def draw_triangles(vertices: PointList, color: Color4f = (0, 1, 1, 1)) -> None:
     GL.glEnd()
 
 
-def draw_rectangles(vertices: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2) -> None:
+def draw_rectangles(
+    vertices: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2
+) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)
     GL.glBegin(GL.GL_QUADS)
@@ -50,17 +57,25 @@ def draw_rectangles(vertices: PointList, color: Color4f = (0, 1, 1, 1), line_wid
     GL.glEnd()
 
 
-def draw_cuboid(vertices: PointList, color: Color4f = (1, 1, 0, 0.5), draw_vertices: bool = False,
-                vertex_color: Color4f = (0, 1, 1, 1)) -> None:
+def draw_cuboid(
+    vertices: PointList,
+    color: Color4f = (1, 1, 0, 0.5),
+    draw_vertices: bool = False,
+    vertex_color: Color4f = (0, 1, 1, 1),
+) -> None:
     # flatten side vertices
-    side_vertices = [index for side_indices in BBox.BBOX_SIDES.values() for index in side_indices]
+    side_vertices = [
+        index for side_indices in BBox.BBOX_SIDES.values() for index in side_indices
+    ]
     rectangle_vertices = np.array(vertices)[side_vertices]
     draw_rectangles(rectangle_vertices, color=color)
     if draw_vertices:
         draw_points(vertices, color=vertex_color)
 
 
-def draw_crosshair(cx: float, cy: float, cz: float, color: Color4f = (0, 1, 0, 1)) -> None:
+def draw_crosshair(
+    cx: float, cy: float, cz: float, color: Color4f = (0, 1, 0, 1)
+) -> None:
     GL.glBegin(GL.GL_LINES)
     GL.glColor3d(*color)
     GL.glVertex3d(cx + 0.1, cy, cz)  # x-line
@@ -90,7 +105,10 @@ def draw_xy_plane(pcd: PointCloud) -> None:
 
 # RAY PICKING
 
-def get_pick_ray(x: float, y: float, modelview, projection) -> Tuple[List[float], List[float]]:
+
+def get_pick_ray(
+    x: float, y: float, modelview, projection
+) -> Tuple[List[float], List[float]]:
     """
     :param x: rightward screen coordinate
     :param y: downward screen coordinate
@@ -110,8 +128,10 @@ def get_pick_ray(x: float, y: float, modelview, projection) -> Tuple[List[float]
     return p_front, p_back
 
 
-def get_intersected_bboxes(x: float, y: float, bboxes: List[BBox], modelview, projection) -> Union[int, None]:
-    """ Checks if the picking ray intersects any bounding box from bboxes.
+def get_intersected_bboxes(
+    x: float, y: float, bboxes: List[BBox], modelview, projection
+) -> Union[int, None]:
+    """Checks if the picking ray intersects any bounding box from bboxes.
 
     :param x: x screen coordinate
     :param y: y screen coordinate
@@ -127,7 +147,9 @@ def get_intersected_bboxes(x: float, y: float, bboxes: List[BBox], modelview, pr
             intersected_bboxes[index] = intersection_point[2]
 
     p0, p1 = get_pick_ray(x, y, modelview, projection)  # Calculate picking ray
-    if intersected_bboxes and (p0[2] >= p1[2]):  # Calculate which intersected bbox is closer to screen
+    if intersected_bboxes and (
+        p0[2] >= p1[2]
+    ):  # Calculate which intersected bbox is closer to screen
         return max(intersected_bboxes, key=intersected_bboxes.get)
     elif intersected_bboxes:
         return min(intersected_bboxes, key=intersected_bboxes.get)
@@ -135,9 +157,10 @@ def get_intersected_bboxes(x: float, y: float, bboxes: List[BBox], modelview, pr
         return None
 
 
-def get_intersected_sides(x: float, y: float, bbox: BBox, modelview, projection) -> Union[Tuple[List[int], str],
-                                                                                          Tuple[None, None]]:
-    """ Checks if and with which side of the given bounding box the picking ray intersects.
+def get_intersected_sides(
+    x: float, y: float, bbox: BBox, modelview, projection
+) -> Union[Tuple[List[int], str], Tuple[None, None]]:
+    """Checks if and with which side of the given bounding box the picking ray intersects.
 
     :param x: x screen coordinate
     :param y: y screen coordinate:
@@ -171,7 +194,9 @@ def get_intersected_sides(x: float, y: float, bbox: BBox, modelview, projection)
                 intersections.append((intersection, side))
 
     # Calculate which intersected side is closer
-    intersections = sorted(intersections, key=lambda element: element[0][2])  # sort by z-value
+    intersections = sorted(
+        intersections, key=lambda element: element[0][2]
+    )  # sort by z-value
     if intersections and (p0[2] >= p1[2]):
         return intersections[-1]  # intersection point: list, side: str
     elif intersections:

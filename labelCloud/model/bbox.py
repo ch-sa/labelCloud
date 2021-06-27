@@ -9,17 +9,42 @@ from utils import oglhelper
 
 
 class BBox:
-    # Defines the order in which the BBox edges are drawn
-    BBOX_EDGES = [(0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 6),  # lines to draw the bbox
-                  (5, 1), (5, 4), (5, 6), (7, 3), (7, 4), (7, 6)]
-
-    BBOX_SIDES = {"top": [4, 5, 6, 7], "bottom": [0, 1, 2, 3], "right": [2, 3, 7, 6],  # vertices of each side
-                  "back": [0, 3, 7, 4], "left": [0, 1, 5, 4], "front": [1, 2, 6, 5]}
+    # order in which the bounding box edges are drawn
+    BBOX_EDGES = [
+        (0, 1),
+        (0, 3),
+        (0, 4),
+        (2, 1),
+        (2, 3),
+        (2, 6),
+        (5, 1),
+        (5, 4),
+        (5, 6),
+        (7, 3),
+        (7, 4),
+        (7, 6),
+    ]
+    # vertices of each side
+    BBOX_SIDES = {
+        "top": [4, 5, 6, 7],
+        "bottom": [0, 1, 2, 3],
+        "right": [2, 3, 7, 6],
+        "back": [0, 3, 7, 4],
+        "left": [0, 1, 5, 4],
+        "front": [1, 2, 6, 5],
+    }
 
     MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
 
-    def __init__(self, cx: float, cy: float, cz: float,
-                 length: float = None, width: float = None, height: float = None):
+    def __init__(
+        self,
+        cx: float,
+        cy: float,
+        cz: float,
+        length: float = None,
+        width: float = None,
+        height: float = None,
+    ):
         self.center = cx, cy, cz
         self.length = length or config.getfloat("LABEL", "STD_BOUNDINGBOX_LENGTH")
         self.width = width or config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH")
@@ -55,8 +80,11 @@ class BBox:
         return self.classname
 
     def get_vertices(self) -> np.array:
-        rotated_vertices = math3d.rotate_bbox_around_center(self.get_axis_aligned_vertices(), list(self.center),
-                                                            list(self.get_rotations()))
+        rotated_vertices = math3d.rotate_bbox_around_center(
+            self.get_axis_aligned_vertices(),
+            list(self.center),
+            list(self.get_rotations()),
+        )
         return np.array(rotated_vertices)
 
     def get_axis_aligned_vertices(self) -> List[List[float]]:
@@ -125,14 +153,18 @@ class BBox:
 
     # Updates the dimension of the BBox (important after scaling!)
     def set_axis_aligned_verticies(self):
-        self.verticies = np.array([[-self.length / 2, -self.width / 2, -self.height / 2],
-                                   [-self.length / 2, self.width / 2, -self.height / 2],
-                                   [self.length / 2, self.width / 2, -self.height / 2],
-                                   [self.length / 2, -self.width / 2, -self.height / 2],
-                                   [-self.length / 2, -self.width / 2, self.height / 2],
-                                   [-self.length / 2, self.width / 2, self.height / 2],
-                                   [self.length / 2, self.width / 2, self.height / 2],
-                                   [self.length / 2, -self.width / 2, self.height / 2]])
+        self.verticies = np.array(
+            [
+                [-self.length / 2, -self.width / 2, -self.height / 2],
+                [-self.length / 2, self.width / 2, -self.height / 2],
+                [self.length / 2, self.width / 2, -self.height / 2],
+                [self.length / 2, -self.width / 2, -self.height / 2],
+                [-self.length / 2, -self.width / 2, self.height / 2],
+                [-self.length / 2, self.width / 2, self.height / 2],
+                [self.length / 2, self.width / 2, self.height / 2],
+                [self.length / 2, -self.width / 2, self.height / 2],
+            ]
+        )
 
     # Draw the BBox using verticies
     def draw_bbox(self, highlighted=False):
@@ -156,7 +188,11 @@ class BBox:
         # Get object coordinates for arrow
         arrow_length = self.length * 0.4
         bp2 = [arrow_length, 0, 0]
-        first_edge = [arrow_length * 0.8, arrow_length * 0.3, 0]  # TODO: Refactor to OGL helper
+        first_edge = [
+            arrow_length * 0.8,
+            arrow_length * 0.3,
+            0,
+        ]  # TODO: Refactor to OGL helper
         second_edge = [arrow_length * 0.8, arrow_length * -0.3, 0]
         third_edge = [arrow_length * 0.8, 0, arrow_length * 0.3]
 
@@ -196,7 +232,9 @@ class BBox:
 
     # Translate bbox away from extension by half distance
     def translate_side(self, p_id_s, p_id_o, distance):
-        direction = np.subtract(self.get_vertices()[p_id_s], self.get_vertices()[p_id_o])
+        direction = np.subtract(
+            self.get_vertices()[p_id_s], self.get_vertices()[p_id_o]
+        )
         translation_vector = direction / np.linalg.norm(direction) * (distance / 2)
         self.center = math3d.translate_point(self.center, *translation_vector)
 
@@ -204,7 +242,7 @@ class BBox:
     def change_side(self, side, distance):  # ToDo: Move to controller?
         if side == "right" and self.length + distance > BBox.MIN_DIMENSION:
             self.length += distance
-            self.translate_side(3, 0, distance)  # TODO: Make dependen from side list
+            self.translate_side(3, 0, distance)  # TODO: Make dependend from side list
         if side == "left" and self.length + distance > BBox.MIN_DIMENSION:
             self.length += distance
             self.translate_side(0, 3, distance)

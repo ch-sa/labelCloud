@@ -1,11 +1,15 @@
-"""A module for aligning point clouds with the floor. The user has to span a triangle with three points on the plane
-that serves as the ground. Then the old point cloud will be saved up and the aligned current will overwrite the old."""
+"""
+A module for aligning point clouds with the floor. The user has to span a triangle with
+three points on the plane that serves as the ground. Then the old point cloud will be
+saved up and the aligned current will overwrite the old.
+"""
 from typing import Union, TYPE_CHECKING
 
 import numpy as np
 
 import utils.oglhelper as ogl
-from control.pcd_manager import PointCloudManger
+from .pcd_manager import PointCloudManger
+
 if TYPE_CHECKING:
     from view.gui import GUI
 
@@ -24,7 +28,7 @@ class AlignMode:
         self.tmp_p2 = None
         self.tmp_p3 = None
 
-    def set_view(self, view: 'GUI'):
+    def set_view(self, view: "GUI"):
         self.view = view
         self.view.glWidget.align_mode = self
 
@@ -41,9 +45,14 @@ class AlignMode:
             self.activated = True
 
         if self.activated:
-            self.view.update_status("Select three points on the plane that should be the floor.", "alignment")
+            self.view.update_status(
+                "Select three points on the plane that should be the floor.",
+                "alignment",
+            )
         self.view.action_alignpcd.setChecked(self.activated)
-        self.view.activate_draw_modes(not self.activated)  # Prevent bbox drawing while aligning
+        self.view.activate_draw_modes(
+            not self.activated
+        )  # Prevent bbox drawing while aligning
         print("Alignmode was changed to %s!" % self.activated)
 
     def reset(self, points_only: bool = False):
@@ -57,7 +66,9 @@ class AlignMode:
             self.plane1 = new_point
         elif not self.plane2:
             self.plane2 = new_point
-            self.view.update_status("The triangle area should be part over and part under the floor points.")
+            self.view.update_status(
+                "The triangle area should be part over and part under the floor points."
+            )
         elif not self.plane3:
             self.plane3 = new_point
             self.calculate_angles()
@@ -85,28 +96,45 @@ class AlignMode:
                 if self.plane3:
                     self.tmp_p3 = self.plane3
 
-                ogl.draw_points([self.plane1, self.plane2, self.tmp_p3], color=self.point_color)
-                ogl.draw_triangles([self.plane1, self.plane2, self.tmp_p3], color=self.area_color)
+                ogl.draw_points(
+                    [self.plane1, self.plane2, self.tmp_p3], color=self.point_color
+                )
+                ogl.draw_triangles(
+                    [self.plane1, self.plane2, self.tmp_p3], color=self.area_color
+                )
 
         elif self.plane1 and self.plane2 and self.plane3:
 
-            ogl.draw_points([self.plane1, self.plane2, self.plane3], color=self.point_color)
-            ogl.draw_triangles([self.plane1, self.plane2, self.plane3], color=self.area_color)
+            ogl.draw_points(
+                [self.plane1, self.plane2, self.plane3], color=self.point_color
+            )
+            ogl.draw_triangles(
+                [self.plane1, self.plane2, self.plane3], color=self.area_color
+            )
 
     def calculate_angles(self):
         # Calculate plane normal with self.plane1 as origin
-        plane_normal = np.cross(np.subtract(self.plane2, self.plane1), np.subtract(self.plane3, self.plane1))
+        plane_normal = np.cross(
+            np.subtract(self.plane2, self.plane1), np.subtract(self.plane3, self.plane1)
+        )
         pn_normalized = plane_normal / np.linalg.norm(plane_normal)  # normalize normal
         z_axis = np.array([0, 0, 1])
 
         # Calculate axis-angle-rotation
         rotation_angle = np.arccos(np.dot(pn_normalized, z_axis))
-        rotation_axis = np.cross(pn_normalized, z_axis) / np.linalg.norm(np.cross(pn_normalized, z_axis))
-        print("Alignment rotation: %s around %s" % (round(rotation_angle, 2), np.round(rotation_axis, 2)))
+        rotation_axis = np.cross(pn_normalized, z_axis) / np.linalg.norm(
+            np.cross(pn_normalized, z_axis)
+        )
+        print(
+            f"Alignment rotation: {round(rotation_angle, 2)} "
+            f"around {np.round(rotation_axis, 2)}"
+        )
 
         # Initiate point cloud rotation
         self.pcd_manager.rotate_pointcloud(rotation_axis, rotation_angle, self.plane1)
 
-        self.view.update_status("Aligned point cloud with the selected floor.", "navigation")
+        self.view.update_status(
+            "Aligned point cloud with the selected floor.", "navigation"
+        )
         self.change_activation(force=False)
         self.reset()
