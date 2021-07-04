@@ -24,4 +24,7 @@ def get_main_app():
 
 def run():
     app, _ = get_main_app()
+
+    app.setStyle("Fusion")
+
     sys.exit(app.exec_())
