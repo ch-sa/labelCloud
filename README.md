@@ -11,9 +11,9 @@
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ![Overview of the Labeling Tool](docs/io_overview.png)
+:new: *We are currently evaluating labelCloud and invite you to fill this questionaire https://forms.gle/moEyjGSa1Eiiq7VT8 (~5 min)!*
 
 ## Setup
-
 :information_source: *Currently labelCloud supports Python 3.6 to 3.8; Python 3.9 will be supported as soon as Open3D supports it!*
 
 ```bash
@@ -99,7 +99,14 @@ See [documentation.md](docs/documentation.md) for software conventions.
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
 If you are using the tool for a scientific project please consider citing our [pending publication](https://arxiv.org/abs/2103.04970):
 
-
+    # forthcoming
+    @article{sager_2021,
+      title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds},
+      journal={Computer-Aided Design and Applications},
+      author={Sager, Christoph and Zschech, Patrick and Kühl, Niklas},
+      year={2021}}
+   
+    # published
     @misc{sager2021labelcloud,
       title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds}, 
       author={Christoph Sager and Patrick Zschech and Niklas Kühl},
