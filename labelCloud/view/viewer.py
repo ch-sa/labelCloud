@@ -15,6 +15,9 @@ from control.drawing_manager import DrawingManager
 
 # Main widget for presenting the point cloud
 class GLWidget(QtOpenGL.QGLWidget):
+    NEAR_PLANE = config.getfloat("USER_INTERFACE", "near_plane")
+    FAR_PLANE = config.getfloat("USER_INTERFACE", "far_plane")
+
     def __init__(self, parent=None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
@@ -70,7 +73,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glLoadIdentity()
         aspect = width / float(height)
 
-        GLU.gluPerspective(45.0, aspect, 0.5, 30.0)
+        GLU.gluPerspective(45.0, aspect, GLWidget.NEAR_PLANE, GLWidget.FAR_PLANE)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def paintGL(self):

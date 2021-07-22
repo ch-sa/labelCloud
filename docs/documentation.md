@@ -56,9 +56,11 @@ The following parameters can be changed:
 | `STD_ROTATION` | Standard step for rotating the bounding box (with key press). | *0.5* |
 | `STD_SCALING` | Standard step for scaling the bounding box (with button press). | *0.03* |
 | `MIN_BOUNDINGBOX_DIMENSION` | Minimum value for the length, width and height of a bounding box. | *0.01* |
-| **[SETTINGS]** |
+| **[USER_INTERFACE]** |
 | `Z_ROTATION_ONLY` | Only allow z-rotation of bounding box; deactivate to also label x- & y-rotation. | *True* |
 | `SHOW_FLOOR` | Visualizes the floor (x-y-plane) as a grid. | *True* |
 | `SHOW_ORIENTATION` | Visualizes the object's orientation as an arrow. | *True* |
 | `BACKGROUND_COLOR` | Background color of the point cloud viewer (rgb). | *100, 100, 100* |
 | `VIEWING_PRECISION` | Number of decimal places shown on the right side for the parameters of the active bounding box. | *3* |
+| `near_plane` | Min. distance of objects to be displayed by OpenGL | *0.1* |
+| `far_plane` | Max. distance of objects to be displayed by OpenGL | *300* |
