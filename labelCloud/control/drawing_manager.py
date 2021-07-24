@@ -189,7 +189,7 @@ class PickingStrategy(IDrawingStrategy, ABC):
 class SpanStrategy(IDrawingStrategy, ABC):
     POINTS_NEEDED = 4
     PREVIEW = True
-    CORRECTION = True  # Increases dimensions after drawing
+    CORRECTION = False  # Increases dimensions after drawing
 
     def __init__(self, view: "GUI"):
         super().__init__(view)
