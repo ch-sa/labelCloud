@@ -10,9 +10,8 @@ def test_gui(qtbot, startup_pyqt):
 
     assert len(controller.pcd_manager.pcds) > 0
     os.remove("labels/exemplary.json")
-    assert len(os.listdir("labels")) == 0
     qtbot.mouseClick(view.button_next_pcd, QtCore.Qt.LeftButton, delay=0)
-    assert len(os.listdir("labels")) == 1
+    assert "exemplary.json" in os.listdir("labels")
 
     bbox = controller.bbox_controller.bboxes[0]
     bbox.center = (0, 0, 0)

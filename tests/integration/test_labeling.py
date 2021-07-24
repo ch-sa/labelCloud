@@ -52,7 +52,7 @@ def test_spanning_mode(qtbot, startup_pyqt):
         pytest.approx(x, 0.01) for x in [-0.2100, -0.2348, 0.0568]
     )
     assert new_bbox.get_dimensions() == tuple(
-        pytest.approx(x, 0.01) for x in [0.7344, 0.5305, 0.1212]
+        pytest.approx(x, 0.01) for x in [0.6677, 0.4823, 0.1101]
     )
     assert new_bbox.get_rotations() == tuple(
         pytest.approx(x % 360, 0.5) for x in [0, 0, 55.2205]
