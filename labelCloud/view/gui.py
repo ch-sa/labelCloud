@@ -46,8 +46,6 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("labelCloud")
 
         # MENU BAR
-        self.menu_bar = self.findChild(QtWidgets.QMenuBar, "menubar")
-        self.menu_bar.setNativeMenuBar(False)
         # File
         self.action_setpcdfolder = self.findChild(
             QtWidgets.QAction, "action_setpcdfolder"
