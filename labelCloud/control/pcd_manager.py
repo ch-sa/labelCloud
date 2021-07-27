@@ -176,13 +176,10 @@ class PointCloudManger:
             tmp_pcd.colorless = False
 
         max_dims = np.subtract(tmp_pcd.pcd_maxs, tmp_pcd.pcd_mins)
-        init_trans_z = max(
-            tmp_pcd.center[2] - max(((max(max_dims[:2]) / 2) / np.tan(0.39) + 2), -15),
-            -25,
-        )
-        init_trans_x = -tmp_pcd.center[0] + max_dims[0] * 0.1
-        init_trans_y = -tmp_pcd.center[1] + max_dims[1] * -0.1
-        tmp_pcd.init_translation = init_trans_x, init_trans_y, init_trans_z
+        diagonal = np.linalg.norm(max_dims)
+
+        tmp_pcd.init_translation = -self.current_o3d_pcd.get_center() - [0, 0, diagonal]
+
         tmp_pcd.reset_translation()
         tmp_pcd.print_details()
         if self.pointcloud is not None:  # Skip first pcd to intialize OpenGL first
