@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
     env:
       DISPLAY: ':99.0'
 
@@ -23,18 +23,19 @@ jobs:
 
     - name: setup ${{ matrix.os }}
       run: |
+        sudo apt update
         sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
 
     - name: Install freeglut
       run: |
-        sudo apt-get install freeglut3 freeglut3-dev
+        sudo apt install freeglut3 freeglut3-dev
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        pip install -r requirements.txt
+        pip install .[tests]
 
     - name: Test with pytest
       run: |
