@@ -1538,6 +1538,7 @@ QListWidget#label_list::item:selected {
     <addaction name="action_zrotationonly"/>
     <addaction name="action_showfloor"/>
     <addaction name="action_showorientation"/>
+    <addaction name="action_saveperspective"/>
     <addaction name="action_alignpcd"/>
     <addaction name="action_changesettings"/>
    </widget>
@@ -1612,6 +1613,17 @@ QListWidget#label_list::item:selected {
    </property>
    <property name="text">
     <string>Show Orientation</string>
+   </property>
+  </action>
+  <action name="action_saveperspective">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save current Perspective</string>
    </property>
   </action>
   <action name="action_alignpcd">

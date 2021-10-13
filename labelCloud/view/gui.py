@@ -71,6 +71,9 @@ class GUI(QtWidgets.QMainWindow):
         self.action_showorientation = self.findChild(
             QtWidgets.QAction, "action_showorientation"
         )
+        self.action_saveperspective = self.findChild(
+            QtWidgets.QAction, "action_saveperspective"
+        )
         self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
         self.action_change_settings = self.findChild(
             QtWidgets.QAction, "action_changesettings"
@@ -296,6 +299,9 @@ class GUI(QtWidgets.QMainWindow):
         self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
+        self.action_saveperspective.toggled.connect(
+            lambda state: self.controller.pcd_manager.save_current_perspective(state)
+        )
         self.action_alignpcd.toggled.connect(
             self.controller.align_mode.change_activation
         )
