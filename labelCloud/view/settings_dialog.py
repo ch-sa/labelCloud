@@ -82,6 +82,9 @@ class SettingsDialog(QDialog):
         self.checkBox_showbboxorientation.setChecked(
             config.getboolean("USER_INTERFACE", "show_orientation")
         )
+        self.checkBox_keepperspective.setChecked(
+            config.getboolean("USER_INTERFACE", "keep_perspective")
+        )
         self.spinBox_viewingprecision.setValue(
             config.getint("USER_INTERFACE", "viewing_precision")
         )
@@ -140,7 +143,10 @@ class SettingsDialog(QDialog):
             self.checkBox_showfloor.isChecked()
         )
         config["USER_INTERFACE"]["show_orientation"] = str(
-            self.checkBox_showbboxorientation.isChecked()
+            self.checkBox_keepperspective.isChecked()
+        )
+        config["USER_INTERFACE"]["keep_perspective"] = str(
+            self.checkBox_keepperspective.isChecked()
         )
         config["USER_INTERFACE"][
             "background_color"

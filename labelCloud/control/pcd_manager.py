@@ -15,8 +15,16 @@ from model.point_cloud import PointCloud
 from .config_manager import config
 from .label_manager import LabelManager
 
+from dataclasses import dataclass
+
 if TYPE_CHECKING:
     from view.gui import GUI
+
+
+@dataclass
+class Perspective:
+    zoom: float
+    rotation: Tuple[float, float, float]
 
 
 def color_pointcloud(points, z_min, z_max):
@@ -49,6 +57,7 @@ class PointCloudManger:
         # Point cloud control
         self.pointcloud = None
         self.collected_object_classes = set()
+        self.saved_perspective: Perspective = None
 
     def read_pointcloud_folder(self):
         """Checks point cloud folder and sets self.pcds to all valid point cloud file names."""
@@ -137,9 +146,23 @@ class PointCloudManger:
         else:
             print("No point clouds to save labels for!")
 
+    def save_current_perspective(self, active: bool = True) -> None:
+        if active:
+            self.saved_perspective = Perspective(
+                zoom=self.pointcloud.trans_z,
+                rotation=tuple(self.pointcloud.get_rotations()),
+            )
+            print(f"Saved current perspective ({self.saved_perspective}).")
+        else:
+            self.saved_perspective = None
+            print("Reset saved perspective.")
+
     # MANIPULATOR
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
         print("=" * 20, "Loading", ntpath.basename(path_to_pointcloud), "=" * 20)
+
+        if config.getboolean("USER_INTERFACE", "keep_perspective"):
+            self.save_current_perspective()
 
         if (
             os.path.splitext(path_to_pointcloud)[1] == ".bin"
@@ -179,6 +202,12 @@ class PointCloudManger:
         diagonal = np.linalg.norm(max_dims)
 
         tmp_pcd.init_translation = -self.current_o3d_pcd.get_center() - [0, 0, diagonal]
+
+        if self.saved_perspective != None:
+            tmp_pcd.init_translation = tuple(
+                list(tmp_pcd.init_translation[:2]) + [self.saved_perspective.zoom]
+            )
+            tmp_pcd.set_rotations(*self.saved_perspective.rotation)
 
         tmp_pcd.reset_translation()
         tmp_pcd.print_details()

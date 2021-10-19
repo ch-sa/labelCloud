@@ -73,6 +73,11 @@ class PointCloud:
     def set_rot_z(self, angle):
         self.rot_z = angle % 360
 
+    def set_rotations(self, x: float, y: float, z: float):
+        self.rot_x = x % 360
+        self.rot_y = y % 360
+        self.rot_z = z % 360
+
     def set_trans_x(self, val):
         self.trans_x = val
 
@@ -81,6 +86,11 @@ class PointCloud:
 
     def set_trans_z(self, val):
         self.trans_z = val
+
+    def set_translations(self, x: float, y: float, z: float):
+        self.trans_x = x
+        self.trans_y = y
+        self.trans_z = z
 
     # MANIPULATORS
 
