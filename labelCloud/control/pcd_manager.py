@@ -161,6 +161,9 @@ class PointCloudManger:
     def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
         print("=" * 20, "Loading", ntpath.basename(path_to_pointcloud), "=" * 20)
 
+        if config.getboolean("USER_INTERFACE", "keep_perspective"):
+            self.save_current_perspective()
+
         if (
             os.path.splitext(path_to_pointcloud)[1] == ".bin"
         ):  # Loading binary pcds with numpy
