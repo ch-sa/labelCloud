@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -146,7 +146,7 @@ def vertices2rotations(
 
 def get_line_perpendicular(
     line_start: List[float], line_end: List[float], point: List[float]
-):
+) -> Tuple[tuple, tuple]:
     """Get line perpendicular to point parallel to x-y-plane
 
     Returns:
@@ -170,7 +170,7 @@ def get_line_perpendicular(
 # Calculates intersection between vector (p0, p1) and plane (p_co, p_no)
 def get_line_plane_intersection(
     p0: List[float], p1: List[float], p_co: List[float], p_no: List[float], epsilon=1e-6
-):
+) -> Optional[np.ndarray]:
     """Calculate the intersection between a point and a plane.
 
     :param p0: Point on the line

@@ -4,30 +4,29 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 """
 import ntpath
 import os
+from dataclasses import dataclass
 from shutil import copyfile
-from typing import List, Tuple, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import numpy as np
 import open3d as o3d
-
 from model.bbox import BBox
 from model.point_cloud import PointCloud
+
 from .config_manager import config
 from .label_manager import LabelManager
-
-from dataclasses import dataclass
 
 if TYPE_CHECKING:
     from view.gui import GUI
 
 
 @dataclass
-class Perspective:
+class Perspective(object):
     zoom: float
     rotation: Tuple[float, float, float]
 
 
-def color_pointcloud(points, z_min, z_max):
+def color_pointcloud(points, z_min, z_max) -> np.ndarray:
     palette = np.loadtxt("labelCloud/ressources/rocket-palette.txt")
     palette_len = len(palette) - 1
 
@@ -37,14 +36,14 @@ def color_pointcloud(points, z_min, z_max):
     return colors
 
 
-class PointCloudManger:
+class PointCloudManger(object):
     PCD_EXTENSIONS = [".pcd", ".ply", ".pts", ".xyz", ".xyzn", ".xyzrgb", ".bin"]
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
     COLORIZE = config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE")
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Point cloud management
         self.pcd_folder = config.get("FILE", "pointcloud_folder")
         self.pcds = []
@@ -59,7 +58,7 @@ class PointCloudManger:
         self.collected_object_classes = set()
         self.saved_perspective: Perspective = None
 
-    def read_pointcloud_folder(self):
+    def read_pointcloud_folder(self) -> None:
         """Checks point cloud folder and sets self.pcds to all valid point cloud file names."""
         if os.path.isdir(self.pcd_folder):
             self.pcds = []
@@ -93,7 +92,7 @@ class PointCloudManger:
     def pcds_left(self) -> bool:
         return self.current_id + 1 < len(self.pcds)
 
-    def get_next_pcd(self):
+    def get_next_pcd(self) -> None:
         print("Loading next point cloud...")
         if self.pcds_left():
             self.current_id += 1
@@ -102,7 +101,7 @@ class PointCloudManger:
         else:
             print("No point clouds left!")
 
-    def get_prev_pcd(self):
+    def get_prev_pcd(self) -> None:
         print("Loading previous point cloud...")
         if self.current_id > 0:
             self.current_id -= 1
@@ -111,7 +110,7 @@ class PointCloudManger:
         else:
             raise Exception("No point cloud left for loading!")
 
-    def get_pointcloud(self):
+    def get_pointcloud(self) -> PointCloud:
         return self.pointcloud
 
     def get_current_name(self) -> str:
@@ -125,7 +124,7 @@ class PointCloudManger:
     def get_current_path(self) -> str:
         return os.path.join(self.pcd_folder, self.pcds[self.current_id])
 
-    def get_labels_from_file(self):
+    def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.get_current_name())
         print("Loaded %s bboxes!" % len(bboxes))
         return bboxes
@@ -135,7 +134,7 @@ class PointCloudManger:
         self.view = view
         self.view.glWidget.set_pointcloud_controller(self)
 
-    def save_labels_into_file(self, bboxes: List[BBox]):
+    def save_labels_into_file(self, bboxes: List[BBox]) -> None:
         if self.pcds:
             self.label_manager.export_labels(self.get_current_path(), bboxes)
             self.collected_object_classes.update(
@@ -222,41 +221,41 @@ class PointCloudManger:
         print("=" * 65)
         return tmp_pcd
 
-    def rotate_around_x(self, dangle):
+    def rotate_around_x(self, dangle) -> None:
         self.pointcloud.set_rot_x(self.pointcloud.rot_x - dangle)
 
-    def rotate_around_y(self, dangle):
+    def rotate_around_y(self, dangle) -> None:
         self.pointcloud.set_rot_y(self.pointcloud.rot_y - dangle)
 
-    def rotate_around_z(self, dangle):
+    def rotate_around_z(self, dangle) -> None:
         self.pointcloud.set_rot_z(self.pointcloud.rot_z - dangle)
 
-    def translate_along_x(self, distance):
+    def translate_along_x(self, distance) -> None:
         self.pointcloud.set_trans_x(
             self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
-    def translate_along_y(self, distance):
+    def translate_along_y(self, distance) -> None:
         self.pointcloud.set_trans_y(
             self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
-    def translate_along_z(self, distance):
+    def translate_along_z(self, distance) -> None:
         self.pointcloud.set_trans_z(
             self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
-    def zoom_into(self, distance):
+    def zoom_into(self, distance) -> None:
         zoom_distance = distance * PointCloudManger.ZOOM_FACTOR
         self.pointcloud.set_trans_z(self.pointcloud.trans_z + zoom_distance)
 
-    def reset_translation(self):
+    def reset_translation(self) -> None:
         self.pointcloud.reset_translation()
 
-    def reset_rotation(self):
+    def reset_rotation(self) -> None:
         self.pointcloud.rot_x, self.pointcloud.rot_y, self.pointcloud.rot_z = (0, 0, 0)
 
-    def reset_transformations(self):
+    def reset_transformations(self) -> None:
         self.reset_translation()
         self.reset_rotation()
 
@@ -300,7 +299,7 @@ class PointCloudManger:
 
     # HELPER
 
-    def get_perspective(self):
+    def get_perspective(self) -> Tuple[float, float, float]:
         x_rotation = self.pointcloud.rot_x
         z_rotation = self.pointcloud.rot_z
 
@@ -315,7 +314,7 @@ class PointCloudManger:
 
     # UPDATE GUI
 
-    def update_pcd_infos(self, pointcloud_label: str = None):
+    def update_pcd_infos(self, pointcloud_label: str = None) -> None:
         self.view.set_pcd_label(pointcloud_label or self.get_current_name())
         self.view.update_progress(self.current_id)
 

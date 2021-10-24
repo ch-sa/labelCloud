@@ -1,14 +1,12 @@
-from typing import Tuple, List
+from typing import List, Tuple
 
-import OpenGL.GL as GL
 import numpy as np
-
+import OpenGL.GL as GL
 from control.config_manager import config
-from utils import math3d
-from utils import oglhelper
+from utils import math3d, oglhelper
 
 
-class BBox:
+class BBox(object):
     # order in which the bounding box edges are drawn
     BBOX_EDGES = [
         (0, 1),
@@ -44,7 +42,7 @@ class BBox:
         length: float = None,
         width: float = None,
         height: float = None,
-    ):
+    ) -> None:
         self.center = cx, cy, cz
         self.length = length or config.getfloat("LABEL", "STD_BOUNDINGBOX_LENGTH")
         self.width = width or config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH")
@@ -98,29 +96,29 @@ class BBox:
 
     # SETTERS
 
-    def set_classname(self, classname):
+    def set_classname(self, classname) -> None:
         if classname:
             self.classname = classname
 
-    def set_length(self, length):
+    def set_length(self, length) -> None:
         if length > 0:
             self.length = length
         else:
             print("New length is too small.")
 
-    def set_width(self, width):
+    def set_width(self, width) -> None:
         if width > 0:
             self.width = width
         else:
             print("New width is too small.")
 
-    def set_height(self, height):
+    def set_height(self, height) -> None:
         if height > 0:
             self.height = height
         else:
             print("New height is too small.")
 
-    def set_dimensions(self, length, width, height):
+    def set_dimensions(self, length, width, height) -> None:
         if (length > 0) and (width > 0) and (height > 0):
             self.length = length
             self.width = width
@@ -128,13 +126,13 @@ class BBox:
         else:
             print("New dimensions are too small.")
 
-    def set_x_rotation(self, angle):
+    def set_x_rotation(self, angle) -> None:
         self.x_rotation = angle % 360
 
-    def set_y_rotation(self, angle):
+    def set_y_rotation(self, angle) -> None:
         self.y_rotation = angle % 360
 
-    def set_z_rotation(self, angle):
+    def set_z_rotation(self, angle) -> None:
         self.z_rotation = angle % 360
 
     def set_rotations(self, x_angle, y_angle, z_angle):
@@ -142,17 +140,17 @@ class BBox:
         self.y_rotation = y_angle
         self.z_rotation = z_angle
 
-    def set_x_translation(self, x_translation):
+    def set_x_translation(self, x_translation) -> None:
         self.center = (x_translation, *self.center[1:])
 
-    def set_y_translation(self, y_translation):
+    def set_y_translation(self, y_translation) -> None:
         self.center = (self.center[0], y_translation, self.center[2])
 
-    def set_z_translation(self, z_translation):
+    def set_z_translation(self, z_translation) -> None:
         self.center = (*self.center[:2], z_translation)
 
     # Updates the dimension of the BBox (important after scaling!)
-    def set_axis_aligned_verticies(self):
+    def set_axis_aligned_verticies(self) -> None:
         self.verticies = np.array(
             [
                 [-self.length / 2, -self.width / 2, -self.height / 2],
@@ -167,7 +165,7 @@ class BBox:
         )
 
     # Draw the BBox using verticies
-    def draw_bbox(self, highlighted=False):
+    def draw_bbox(self, highlighted=False) -> None:
         self.set_axis_aligned_verticies()
 
         GL.glPushMatrix()
@@ -184,7 +182,7 @@ class BBox:
         oglhelper.draw_lines(drawing_sequence, color=bbox_color)
         GL.glPopMatrix()
 
-    def draw_orientation(self, crossed_side: bool = True):
+    def draw_orientation(self, crossed_side: bool = True) -> None:
         # Get object coordinates for arrow
         arrow_length = self.length * 0.4
         bp2 = [arrow_length, 0, 0]
@@ -227,11 +225,11 @@ class BBox:
     # MANIPULATORS
 
     # Translate bbox by cx, cy, cz
-    def translate_bbox(self, dx, dy, dz):
+    def translate_bbox(self, dx, dy, dz) -> None:
         self.center = math3d.translate_point(list(self.center), dx, dy, dz)
 
     # Translate bbox away from extension by half distance
-    def translate_side(self, p_id_s, p_id_o, distance):
+    def translate_side(self, p_id_s, p_id_o, distance) -> None:
         direction = np.subtract(
             self.get_vertices()[p_id_s], self.get_vertices()[p_id_o]
         )
@@ -239,7 +237,7 @@ class BBox:
         self.center = math3d.translate_point(self.center, *translation_vector)
 
     # Extend bbox side by distance
-    def change_side(self, side, distance):  # ToDo: Move to controller?
+    def change_side(self, side, distance) -> None:  # ToDo: Move to controller?
         if side == "right" and self.length + distance > BBox.MIN_DIMENSION:
             self.length += distance
             self.translate_side(3, 0, distance)  # TODO: Make dependend from side list

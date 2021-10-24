@@ -1,8 +1,8 @@
 import ctypes
+from typing import List, Tuple
 
 import numpy as np
 import OpenGL.GL as GL
-
 from control.config_manager import config
 
 # Get size of float (4 bytes) for VBOs
@@ -10,7 +10,7 @@ SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
 
 
 # Creates an array buffer in a VBO
-def create_buffer(attributes):
+def create_buffer(attributes) -> GL.glGenBuffers:
     bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
     buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
 
@@ -21,8 +21,8 @@ def create_buffer(attributes):
     return vbo
 
 
-class PointCloud:
-    def __init__(self, path):
+class PointCloud(object):
+    def __init__(self, path) -> None:
         self.path_to_pointcloud = path
         self.points = None
         self.colors = None
@@ -42,59 +42,59 @@ class PointCloud:
         self.trans_z = 0.0
 
     # GETTERS AND SETTERS
-    def get_no_of_points(self):
+    def get_no_of_points(self) -> int:
         return len(self.points)
 
-    def get_no_of_colors(self):
+    def get_no_of_colors(self) -> int:
         return len(self.colors)
 
-    def get_rotations(self):
+    def get_rotations(self) -> List[float]:
         return [self.rot_x, self.rot_y, self.rot_z]
 
-    def get_translations(self):
+    def get_translations(self) -> List[float]:
         return [self.trans_x, self.trans_y, self.trans_z]
 
-    def get_mins_maxs(self):
+    def get_mins_maxs(self) -> Tuple[float, float]:
         return self.pcd_mins, self.pcd_maxs
 
-    def get_min_max_height(self):
+    def get_min_max_height(self) -> Tuple[float, float]:
         return self.pcd_mins[2], self.pcd_maxs[2]
 
-    def set_mins_maxs(self):
+    def set_mins_maxs(self) -> None:
         self.pcd_mins = np.amin(self.points, axis=0)
         self.pcd_maxs = np.amax(self.points, axis=0)
 
-    def set_rot_x(self, angle):
+    def set_rot_x(self, angle) -> None:
         self.rot_x = angle % 360
 
-    def set_rot_y(self, angle):
+    def set_rot_y(self, angle) -> None:
         self.rot_y = angle % 360
 
-    def set_rot_z(self, angle):
+    def set_rot_z(self, angle) -> None:
         self.rot_z = angle % 360
 
-    def set_rotations(self, x: float, y: float, z: float):
+    def set_rotations(self, x: float, y: float, z: float) -> None:
         self.rot_x = x % 360
         self.rot_y = y % 360
         self.rot_z = z % 360
 
-    def set_trans_x(self, val):
+    def set_trans_x(self, val) -> None:
         self.trans_x = val
 
-    def set_trans_y(self, val):
+    def set_trans_y(self, val) -> None:
         self.trans_y = val
 
-    def set_trans_z(self, val):
+    def set_trans_z(self, val) -> None:
         self.trans_z = val
 
-    def set_translations(self, x: float, y: float, z: float):
+    def set_translations(self, x: float, y: float, z: float) -> None:
         self.trans_x = x
         self.trans_y = y
         self.trans_z = z
 
     # MANIPULATORS
 
-    def transform_data(self):
+    def transform_data(self) -> np.ndarray:
         if self.colorless:
             attributes = self.points
         else:
@@ -103,11 +103,11 @@ class PointCloud:
 
         return attributes.flatten()  # flatten to single list
 
-    def write_vbo(self):
+    def write_vbo(self) -> None:
         v_array = self.transform_data()
         self.vbo = create_buffer(v_array)
 
-    def draw_pointcloud(self):
+    def draw_pointcloud(self) -> None:
         GL.glTranslate(
             self.trans_x, self.trans_y, self.trans_z
         )  # third, pcd translation
@@ -153,10 +153,10 @@ class PointCloud:
             GL.glDisableClientState(GL.GL_COLOR_ARRAY)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
-    def reset_translation(self):
+    def reset_translation(self) -> None:
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
 
-    def print_details(self):
+    def print_details(self) -> None:
         print("Point Cloud Center:\t\t%s" % np.round(self.center, 2))
         print("Point Cloud Minimums:\t%s" % np.round(self.pcd_mins, 2))
         print("Point Cloud Maximums:\t%s" % np.round(self.pcd_maxs, 2))

@@ -1,13 +1,13 @@
 import json
 import ntpath
 import os
-from abc import ABCMeta, abstractmethod, ABC
+from abc import ABC, ABCMeta, abstractmethod
 from typing import List
 
 import numpy as np
-
 from model.bbox import BBox
 from utils import math3d
+
 from .config_manager import config
 
 
@@ -25,7 +25,7 @@ def get_label_strategy(export_format: str, label_folder: str) -> "IFormattingInt
     return CentroidFormat(label_folder, relative_rotation=False)
 
 
-class LabelManager:
+class LabelManager(object):
     LABEL_FORMATS = [
         "vertices",
         "centroid_rel",
@@ -37,7 +37,7 @@ class LabelManager:
 
     def __init__(
         self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None
-    ):
+    ) -> None:
         self.label_folder = path_to_label_folder or config.get("FILE", "label_folder")
         if not os.path.isdir(self.label_folder):
             os.mkdir(self.label_folder)
@@ -60,7 +60,7 @@ class LabelManager:
             )
             return []
 
-    def export_labels(self, pcd_path: str, bboxes: List[BBox]):
+    def export_labels(self, pcd_path: str, bboxes: List[BBox]) -> None:
         pcd_name = ntpath.basename(pcd_path)
         pcd_folder = os.path.dirname(pcd_path)
         self.label_strategy.export_labels(bboxes, pcd_name, pcd_folder, pcd_path)
@@ -71,7 +71,7 @@ class LabelManager:
 #
 
 
-def save_to_label_file(path_to_file, data):
+def save_to_label_file(path_to_file, data) -> None:
     if os.path.isfile(path_to_file):
         print("File %s already exists, replacing file ..." % path_to_file)
     if os.path.splitext(path_to_file)[1] == ".json":
@@ -82,7 +82,7 @@ def save_to_label_file(path_to_file, data):
             write_file.write(data)
 
 
-def round_dec(x, decimal_places: int = LabelManager.EXPORT_PRECISION):
+def round_dec(x, decimal_places: int = LabelManager.EXPORT_PRECISION) -> List[float]:
     return np.round(x, decimal_places).tolist()
 
 
@@ -110,10 +110,10 @@ def rel2abs_rotation(rel_rotation: float) -> float:
     return abs_rotation
 
 
-class IFormattingInterface:
+class IFormattingInterface(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, label_folder, relative_rotation=False):
+    def __init__(self, label_folder, relative_rotation=False) -> None:
         self.label_folder = label_folder
         print("Set export strategy to %s." % self.__class__.__name__)
         self.relative_rotation = relative_rotation
@@ -127,19 +127,19 @@ class IFormattingInterface:
             print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
 
     @abstractmethod
-    def import_labels(self, pcd_name_stripped):
+    def import_labels(self, pcd_name_stripped) -> List[BBox]:
         raise NotImplementedError
 
     @abstractmethod
-    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
+    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path) -> None:
         raise NotImplementedError
 
-    def update_label_folder(self, new_label_folder):
+    def update_label_folder(self, new_label_folder) -> None:
         self.label_folder = new_label_folder
 
 
 class VerticesFormat(IFormattingInterface, ABC):
-    def import_labels(self, pcd_name_stripped):
+    def import_labels(self, pcd_name_stripped) -> List[BBox]:
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
 
@@ -170,7 +170,7 @@ class VerticesFormat(IFormattingInterface, ABC):
             print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
         return labels
 
-    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path):
+    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path) -> None:
         data = dict()
         # Header
         data["folder"] = pcd_folder
@@ -198,7 +198,7 @@ class VerticesFormat(IFormattingInterface, ABC):
 
 
 class CentroidFormat(IFormattingInterface, ABC):
-    def import_labels(self, pcd_name_stripped):
+    def import_labels(self, pcd_name_stripped) -> List[BBox]:
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
         if os.path.isfile(path_to_label):
@@ -218,7 +218,7 @@ class CentroidFormat(IFormattingInterface, ABC):
 
     def export_labels(
         self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str
-    ):
+    ) -> None:
         data = dict()
         # Header
         data["folder"] = pcd_folder
@@ -262,7 +262,7 @@ class CentroidFormat(IFormattingInterface, ABC):
 
 
 class KittiFormat(IFormattingInterface, ABC):
-    def import_labels(self, pcd_name_stripped):
+    def import_labels(self, pcd_name_stripped) -> List[BBox]:
         labels = []
         path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".txt")
         if os.path.isfile(path_to_label):
@@ -282,7 +282,7 @@ class KittiFormat(IFormattingInterface, ABC):
 
     def export_labels(
         self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str
-    ):
+    ) -> None:
         data = str()
 
         # Labels

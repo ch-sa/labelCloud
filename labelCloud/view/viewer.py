@@ -1,16 +1,15 @@
-from typing import Union
+from typing import Tuple, Union
 
 import numpy as np
 import OpenGL.GL as GL
-from OpenGL import GLU
-from PyQt5 import QtOpenGL, QtGui
-
-from utils import oglhelper
-from control.config_manager import config
 from control.alignmode import AlignMode
 from control.bbox_controller import BoundingBoxController
-from control.pcd_manager import PointCloudManger
+from control.config_manager import config
 from control.drawing_manager import DrawingManager
+from control.pcd_manager import PointCloudManger
+from OpenGL import GLU
+from PyQt5 import QtGui, QtOpenGL
+from utils import oglhelper
 
 
 # Main widget for presenting the point cloud
@@ -18,7 +17,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     NEAR_PLANE = config.getfloat("USER_INTERFACE", "near_plane")
     FAR_PLANE = config.getfloat("USER_INTERFACE", "far_plane")
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
         self.setMouseTracking(
@@ -44,15 +43,15 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
-    def set_pointcloud_controller(self, pcd_manager: PointCloudManger):
+    def set_pointcloud_controller(self, pcd_manager: PointCloudManger) -> None:
         self.pcd_manager = pcd_manager
 
-    def set_bbox_controller(self, bbox_controller: BoundingBoxController):
+    def set_bbox_controller(self, bbox_controller: BoundingBoxController) -> None:
         self.bbox_controller = bbox_controller
 
     # QGLWIDGET METHODS
 
-    def initializeGL(self):
+    def initializeGL(self) -> None:
         bg_color = [
             int(fl_color)
             for fl_color in config.getlist("USER_INTERFACE", "BACKGROUND_COLOR")
@@ -66,7 +65,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         # Must be written again, due to buffer clearing
         self.pcd_manager.get_pointcloud().write_vbo()
 
-    def resizeGL(self, width, height):
+    def resizeGL(self, width, height) -> None:
         print("Resized widget.")
         GL.glViewport(0, 0, width, height)
         GL.glMatrixMode(GL.GL_PROJECTION)
@@ -76,7 +75,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GLU.gluPerspective(45.0, aspect, GLWidget.NEAR_PLANE, GLWidget.FAR_PLANE)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
-    def paintGL(self):
+    def paintGL(self) -> None:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glPushMatrix()  # push the current matrix to the current stack
 
@@ -102,7 +101,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.drawing_mode.draw_preview()
 
         if self.align_mode is not None:
-            if self.align_mode.is_active():
+            if self.align_mode.is_active:
                 self.align_mode.draw_preview()
 
         # Highlight selected side with filled rectangle
@@ -126,7 +125,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(
         self, x: int, y: int, z: float = None, correction: bool = False
-    ):
+    ) -> Tuple[float, float, float]:
         x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
         y *= self.DEVICE_PIXEL_RATIO
 
@@ -159,7 +158,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
 
 # Creates a circular mask with radius around center
-def circular_mask(arr_length, center, radius):
+def circular_mask(arr_length, center, radius) -> np.ndarray:
     dx = np.arange(arr_length)
     return (dx[np.newaxis, :] - center) ** 2 + (
         dx[:, np.newaxis] - center
@@ -167,7 +166,7 @@ def circular_mask(arr_length, center, radius):
 
 
 # Returns the minimum (closest) depth for a specified radius around the center
-def depth_min(depths, center, r=4):
+def depth_min(depths, center, r=4) -> float:
     selected_depths = depths[circular_mask(len(depths), center, r)]
     filtered_depths = selected_depths[(0 < selected_depths) & (selected_depths < 1)]
     if 0 in depths:  # Check if cursor is at widget border
@@ -179,7 +178,7 @@ def depth_min(depths, center, r=4):
 
 
 # Returns the mean depth for a specified radius around the center
-def depth_smoothing(depths, center, r=15):
+def depth_smoothing(depths, center, r=15) -> float:
     selected_depths = depths[circular_mask(len(depths), center, r)]
     if 0 in depths:  # Check if cursor is at widget border
         return 1
