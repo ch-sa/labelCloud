@@ -1,12 +1,11 @@
+from control.config_manager import config, config_manager
+from control.label_manager import LabelManager
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 
-from control.config_manager import config, config_manager
-from control.label_manager import LabelManager
-
 
 class SettingsDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.parent_gui = parent
         uic.loadUi("labelCloud/ressources/settings_interface.ui", self)
@@ -16,7 +15,7 @@ class SettingsDialog(QDialog):
         self.buttonBox.rejected.connect(self.chancel)
         self.reset_button.clicked.connect(self.reset)
 
-    def fill_with_current_settings(self):
+    def fill_with_current_settings(self) -> None:
         # File
         self.lineEdit_pointcloudfolder.setText(config.get("FILE", "pointcloud_folder"))
         self.lineEdit_labelfolder.setText(config.get("FILE", "label_folder"))
@@ -163,7 +162,7 @@ class SettingsDialog(QDialog):
         )
         print("Saved and activated new configuration!")
 
-    def reset(self):
+    def reset(self) -> None:
         config_manager.reset_to_default()
         self.fill_with_current_settings()
 

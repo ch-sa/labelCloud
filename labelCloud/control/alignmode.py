@@ -3,22 +3,22 @@ A module for aligning point clouds with the floor. The user has to span a triang
 three points on the plane that serves as the ground. Then the old point cloud will be
 saved up and the aligned current will overwrite the old.
 """
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
-
 import utils.oglhelper as ogl
+
 from .pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
     from view.gui import GUI
 
 
-class AlignMode:
-    def __init__(self, pcd_manager: PointCloudManger):
+class AlignMode(object):
+    def __init__(self, pcd_manager: PointCloudManger) -> None:
         self.pcd_manager = pcd_manager
         self.view: Union[GUI, None] = None
-        self.activated = False
+        self.is_active = False
         self.point_color = (1, 1, 0, 1)
         self.area_color = (1, 1, 0, 0.6)
         self.plane1 = None
@@ -28,40 +28,37 @@ class AlignMode:
         self.tmp_p2 = None
         self.tmp_p3 = None
 
-    def set_view(self, view: "GUI"):
+    def set_view(self, view: "GUI") -> None:
         self.view = view
         self.view.glWidget.align_mode = self
 
-    def is_active(self):
-        return self.activated
-
-    def change_activation(self, force=None):
+    def change_activation(self, force=None) -> None:
         if force is not None:
-            self.activated = force
-        elif self.activated:
-            self.activated = False
+            self.is_active = force
+        elif self.is_active:
+            self.is_active = False
             self.reset()
         else:
-            self.activated = True
+            self.is_active = True
 
-        if self.activated:
+        if self.is_active:
             self.view.update_status(
                 "Select three points on the plane that should be the floor.",
                 "alignment",
             )
-        self.view.action_alignpcd.setChecked(self.activated)
+        self.view.action_alignpcd.setChecked(self.is_active)
         self.view.activate_draw_modes(
-            not self.activated
+            not self.is_active
         )  # Prevent bbox drawing while aligning
-        print("Alignmode was changed to %s!" % self.activated)
+        print(f"Alignmode was changed to {self.is_active}!")
 
-    def reset(self, points_only: bool = False):
+    def reset(self, points_only: bool = False) -> None:
         self.plane1, self.plane2, self.plane3 = (None, None, None)
         self.tmp_p2, self.tmp_p3 = (None, None)
         if not points_only:
             self.change_activation(force=False)
 
-    def register_point(self, new_point):
+    def register_point(self, new_point) -> None:
         if self.plane1 is None:
             self.plane1 = new_point
         elif not self.plane2:
@@ -75,13 +72,13 @@ class AlignMode:
         else:
             print("Cannot register point.")
 
-    def register_tmp_point(self, new_tmp_point):
+    def register_tmp_point(self, new_tmp_point) -> None:
         if self.plane1 and (not self.plane2):
             self.tmp_p2 = new_tmp_point
         elif self.plane2 and (not self.plane3):
             self.tmp_p3 = new_tmp_point
 
-    def draw_preview(self):
+    def draw_preview(self) -> None:
         if not self.plane3:
             if self.plane1:
                 ogl.draw_points([self.plane1], color=self.point_color)
@@ -104,7 +101,6 @@ class AlignMode:
                 )
 
         elif self.plane1 and self.plane2 and self.plane3:
-
             ogl.draw_points(
                 [self.plane1, self.plane2, self.plane3], color=self.point_color
             )
@@ -112,7 +108,7 @@ class AlignMode:
                 [self.plane1, self.plane2, self.plane3], color=self.area_color
             )
 
-    def calculate_angles(self):
+    def calculate_angles(self) -> None:
         # Calculate plane normal with self.plane1 as origin
         plane_normal = np.cross(
             np.subtract(self.plane2, self.plane1), np.subtract(self.plane3, self.plane1)

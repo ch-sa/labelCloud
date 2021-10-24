@@ -1,7 +1,5 @@
 """Load configuration from .ini file."""
 import configparser
-
-
 import os
 from typing import List
 
@@ -27,21 +25,21 @@ class ConfigManager(object):
     PATH_TO_CONFIG = "config.ini"
     PATH_TO_DEFAULT_CONFIG = "ressources/default_config.ini"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.config = ExtendedConfigParser(comment_prefixes="/", allow_no_value=True)
         self.read_from_file()
 
-    def read_from_file(self):
+    def read_from_file(self) -> None:
         if os.path.isfile(ConfigManager.PATH_TO_CONFIG):
             self.config.read(ConfigManager.PATH_TO_CONFIG)
         else:
             self.config.read(ConfigManager.PATH_TO_DEFAULT_CONFIG)
 
-    def write_into_file(self):
+    def write_into_file(self) -> None:
         with open(ConfigManager.PATH_TO_CONFIG, "w") as configfile:
             self.config.write(configfile, space_around_delimiters=True)
 
-    def reset_to_default(self):
+    def reset_to_default(self) -> None:
         self.config.read(ConfigManager.PATH_TO_DEFAULT_CONFIG)
 
     def get_file_settings(self, key: str) -> str:

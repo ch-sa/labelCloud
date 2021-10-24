@@ -1,11 +1,10 @@
 from typing import Union
 
-from PyQt5 import QtGui, QtCore
-
-
+from PyQt5 import QtCore, QtGui
 from utils import oglhelper
 from model.bbox import BBox
 from view.gui import GUI
+
 from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
 from .drawing_manager import DrawingManager
@@ -15,7 +14,7 @@ from .pcd_manager import PointCloudManger
 class Controller:
     MOVEMENT_THRESHOLD = 0.1
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes all controllers and managers."""
         self.view: Union["GUI", None] = None
         self.pcd_manager = PointCloudManger()
@@ -35,7 +34,7 @@ class Controller:
         self.side_mode = False
         self.selected_side = None
 
-    def startup(self, view: "GUI"):
+    def startup(self, view: "GUI") -> None:
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
         self.view = view
         self.bbox_controller.set_view(self.view)
@@ -49,14 +48,14 @@ class Controller:
         self.pcd_manager.read_pointcloud_folder()
         self.next_pcd(save=False)
 
-    def loop_gui(self):
+    def loop_gui(self) -> None:
         """Function collection called during each event loop iteration."""
         self.set_crosshair()
         self.set_selected_side()
         self.view.glWidget.updateGL()
 
     # POINT CLOUD METHODS
-    def next_pcd(self, save: bool = True):
+    def next_pcd(self, save: bool = True) -> None:
         if save:
             self.save()
         if self.pcd_manager.pcds_left():
@@ -67,7 +66,7 @@ class Controller:
             self.view.update_progress(len(self.pcd_manager.pcds))
             self.view.button_next_pcd.setEnabled(False)
 
-    def prev_pcd(self):
+    def prev_pcd(self) -> None:
         self.save()
         if self.pcd_manager.current_id > 0:
             self.pcd_manager.get_prev_pcd()
@@ -75,18 +74,18 @@ class Controller:
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
     # CONTROL METHODS
-    def save(self):
+    def save(self) -> None:
         """Saves all bounding boxes in the label file."""
         self.pcd_manager.save_labels_into_file(self.bbox_controller.get_bboxes())
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets the controllers and bounding boxes from the current screen."""
         self.bbox_controller.reset()
         self.drawing_mode.reset()
         self.align_mode.reset()
 
     # CORRECTION METHODS
-    def set_crosshair(self):
+    def set_crosshair(self) -> None:
         """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
             self.view.glWidget.crosshair_col = [0, 1, 0]
@@ -95,7 +94,7 @@ class Controller:
                 self.curr_cursor_pos.y(),
             )
 
-    def set_selected_side(self):
+    def set_selected_side(self) -> None:
         """Sets the currently hovered bounding box side in the glWidget."""
         if (
             (not self.side_mode)
@@ -124,7 +123,7 @@ class Controller:
             self.view.glWidget.selected_side_vertices = []
 
     # EVENT PROCESSING
-    def mouse_clicked(self, a0: QtGui.QMouseEvent):
+    def mouse_clicked(self, a0: QtGui.QMouseEvent) -> None:
         """Triggers actions when the user clicks the mouse."""
         self.last_cursor_pos = a0.pos()
 
@@ -135,7 +134,7 @@ class Controller:
         ):
             self.drawing_mode.register_point(a0.x(), a0.y(), correction=True)
 
-        elif self.align_mode.is_active() and (not self.ctrl_pressed):
+        elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_point(
                 self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
             )
@@ -143,11 +142,11 @@ class Controller:
         elif self.selected_side:
             self.side_mode = True
 
-    def mouse_double_clicked(self, a0: QtGui.QMouseEvent):
+    def mouse_double_clicked(self, a0: QtGui.QMouseEvent) -> None:
         """Triggers actions when the user double clicks the mouse."""
         self.bbox_controller.select_bbox_by_ray(a0.x(), a0.y())
 
-    def mouse_move_event(self, a0: QtGui.QMouseEvent):
+    def mouse_move_event(self, a0: QtGui.QMouseEvent) -> None:
         """Triggers actions when the user moves the mouse."""
         self.curr_cursor_pos = a0.pos()  # Updates the current mouse cursor position
 
@@ -157,7 +156,7 @@ class Controller:
                 a0.x(), a0.y(), correction=True, is_temporary=True
             )
 
-        elif self.align_mode.is_active() and (not self.ctrl_pressed):
+        elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_tmp_point(
                 self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
             )
@@ -171,7 +170,7 @@ class Controller:
             if (
                 self.ctrl_pressed
                 and (not self.drawing_mode.is_active())
-                and (not self.align_mode.is_active())
+                and (not self.align_mode.is_active)
             ):
                 if a0.buttons() & QtCore.Qt.LeftButton:  # bbox rotation
                     self.bbox_controller.rotate_with_mouse(-dx, -dy)
@@ -196,9 +195,8 @@ class Controller:
                     self.scroll_mode = False
         self.last_cursor_pos = a0.pos()
 
-    def mouse_scroll_event(self, a0: QtGui.QWheelEvent):
+    def mouse_scroll_event(self, a0: QtGui.QWheelEvent) -> None:
         """Triggers actions when the user scrolls the mouse wheel."""
-
         if self.selected_side:
             self.side_mode = True
 
@@ -212,9 +210,8 @@ class Controller:
             self.pcd_manager.zoom_into(a0.angleDelta().y())
             self.scroll_mode = True
 
-    def key_press_event(self, a0: QtGui.QKeyEvent):
+    def key_press_event(self, a0: QtGui.QKeyEvent) -> None:
         """Triggers actions when the user presses a key."""
-
         # Reset position to intial value
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = True
@@ -235,7 +232,7 @@ class Controller:
             if self.drawing_mode.is_active():
                 self.drawing_mode.reset()
                 print("Resetted drawn points!")
-            elif self.align_mode.is_active():
+            elif self.align_mode.is_active:
                 self.align_mode.reset()
                 print("Resetted selected points!")
 
@@ -277,7 +274,7 @@ class Controller:
             # move down
             self.bbox_controller.translate_along_z(down=True)
 
-    def key_release_event(self, a0: QtGui.QKeyEvent):
+    def key_release_event(self, a0: QtGui.QKeyEvent) -> None:
         """Triggers actions when the user releases a key."""
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False

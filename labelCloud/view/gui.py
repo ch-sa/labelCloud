@@ -1,11 +1,12 @@
 import os
 from typing import TYPE_CHECKING, List, Set
 
-from PyQt5 import QtWidgets, uic, QtCore, QtGui
-from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtWidgets import QCompleter, QFileDialog, QActionGroup, QAction, QMessageBox
-
 from control.config_manager import config
+from control.drawing_strategies import PickingStrategy, SpanStrategy
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtWidgets import QAction, QActionGroup, QCompleter, QFileDialog, QMessageBox
+
 from .settings_dialog import SettingsDialog
 from .viewer import GLWidget
 
@@ -38,7 +39,7 @@ def set_zrotation_only(state: bool) -> None:
 
 
 class GUI(QtWidgets.QMainWindow):
-    def __init__(self, control: "Controller"):
+    def __init__(self, control: "Controller") -> None:
         super(GUI, self).__init__()
         print(os.getcwd())
         uic.loadUi("labelCloud/ressources/interface.ui", self)
@@ -122,10 +123,6 @@ class GUI(QtWidgets.QMainWindow):
         self.button_activate_picking = self.findChild(
             QtWidgets.QPushButton, "button_pick_bbox"
         )
-        self.button_activate_drag = self.findChild(
-            QtWidgets.QPushButton, "button_drag_bbox"
-        )  # ToDo Remove?
-        self.button_activate_drag.setVisible(False)
         self.button_activate_spanning = self.findChild(
             QtWidgets.QPushButton, "button_span_bbox"
         )
@@ -191,7 +188,7 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.start()
 
     # Event connectors
-    def connect_events(self):
+    def connect_events(self) -> None:
         # POINTCLOUD CONTROL
         self.button_next_pcd.clicked.connect(
             lambda: self.controller.next_pcd(save=True)
@@ -244,14 +241,13 @@ class GUI(QtWidgets.QMainWindow):
 
         # LABEL CONTROL
         self.button_activate_picking.clicked.connect(
-            lambda: self.controller.drawing_mode.set_drawing_strategy("PickingStrategy")
+            lambda: self.controller.drawing_mode.set_drawing_strategy(
+                PickingStrategy(self)
+            )
         )
         self.button_activate_spanning.clicked.connect(
-            lambda: self.controller.drawing_mode.set_drawing_strategy("SpanStrategy")
-        )
-        self.button_activate_drag.clicked.connect(
             lambda: self.controller.drawing_mode.set_drawing_strategy(
-                "RectangleStrategy"
+                SpanStrategy(self)
             )
         )
         self.button_save_labels.clicked.connect(self.controller.save)
@@ -307,7 +303,7 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.action_change_settings.triggered.connect(self.show_settings_dialog)
 
-    def set_checkbox_states(self):
+    def set_checkbox_states(self) -> None:
         self.action_showfloor.setChecked(
             config.getboolean("USER_INTERFACE", "show_floor")
         )
@@ -319,7 +315,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
     # Collect, filter and forward events to viewer
-    def eventFilter(self, event_object, event):
+    def eventFilter(self, event_object, event) -> bool:
         # Keyboard Events
         # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()):
         if (event.type() == QEvent.KeyPress) and (
@@ -361,11 +357,13 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.stop()
         a0.accept()
 
-    def show_settings_dialog(self):
+    def show_settings_dialog(self) -> None:
         dialog = SettingsDialog(self)
         dialog.exec()
 
-    def show_no_pointcloud_dialog(self, pcd_folder: str, pcd_extensions: List[str]):
+    def show_no_pointcloud_dialog(
+        self, pcd_folder: str, pcd_extensions: List[str]
+    ) -> None:
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setText(
@@ -389,10 +387,10 @@ class GUI(QtWidgets.QMainWindow):
         self.progressbar_pcd.setMinimum(min_value)
         self.progressbar_pcd.setMaximum(max_value)
 
-    def update_progress(self, value):
+    def update_progress(self, value) -> None:
         self.progressbar_pcd.setValue(value)
 
-    def update_curr_class_edit(self, force: str = None):
+    def update_curr_class_edit(self, force: str = None) -> None:
         if force is not None:
             self.curr_class_edit.setText(force)
         else:
@@ -400,14 +398,14 @@ class GUI(QtWidgets.QMainWindow):
                 self.controller.bbox_controller.get_active_bbox().get_classname()
             )
 
-    def update_label_completer(self, classnames=None):
+    def update_label_completer(self, classnames=None) -> None:
         if classnames is None:
             classnames = set()
         classnames.update(config.getlist("LABEL", "object_classes"))
         print("COMPLETER CLASSNAMES: %s" % str(classnames))
         self.curr_class_edit.setCompleter(QCompleter(classnames))
 
-    def update_bbox_stats(self, bbox):
+    def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
         if bbox and not self.line_edited_activated():
             self.pos_x_edit.setText(str(round(bbox.get_center()[0], viewing_precision)))
@@ -430,7 +428,7 @@ class GUI(QtWidgets.QMainWindow):
 
             self.volume_label.setText(str(round(bbox.get_volume(), viewing_precision)))
 
-    def update_bbox_parameter(self, parameter: str):
+    def update_bbox_parameter(self, parameter: str) -> None:
         str_value = None
         self.setFocus()  # Changes the focus from QLineEdit to the window
 
@@ -466,18 +464,17 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.update_rotation(parameter, float(str_value))
             return True
 
-    def save_new_length(self):
+    def save_new_length(self) -> None:
         new_length = self.length_edit.text()
         self.controller.bbox_controller.get_active_bbox().length = float(new_length)
         print(f"New length for bounding box submitted → {new_length}.")
 
     # Enables, disables the draw mode
-    def activate_draw_modes(self, state: bool):
+    def activate_draw_modes(self, state: bool) -> None:
         self.button_activate_picking.setEnabled(state)
-        self.button_activate_drag.setEnabled(state)
         self.button_activate_spanning.setEnabled(state)
 
-    def update_status(self, message: str, mode: str = None):
+    def update_status(self, message: str, mode: str = None) -> None:
         self.tmp_status.setText(message)
         if mode:
             self.update_mode_status(mode)
@@ -488,7 +485,7 @@ class GUI(QtWidgets.QMainWindow):
                 return True
         return False
 
-    def update_mode_status(self, mode: str):
+    def update_mode_status(self, mode: str) -> None:
         self.action_alignpcd.setEnabled(True)
         if mode == "drawing":
             text = "Drawing Mode"
@@ -501,7 +498,7 @@ class GUI(QtWidgets.QMainWindow):
             text = "Navigation Mode"
         self.mode_status.setText(text)
 
-    def change_pointcloud_folder(self):
+    def change_pointcloud_folder(self) -> None:
         path_to_folder = QFileDialog.getExistingDirectory(
             self,
             "Change Point Cloud Folder",
@@ -515,7 +512,7 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.pcd_manager.get_next_pcd()
             print("Changed point cloud folder to %s!" % path_to_folder)
 
-    def change_label_folder(self):
+    def change_label_folder(self) -> None:
         path_to_folder = QFileDialog.getExistingDirectory(
             self, "Change Label Folder", directory=config.get("FILE", "label_folder")
         )
@@ -528,7 +525,7 @@ class GUI(QtWidgets.QMainWindow):
             )
             print("Changed label folder to %s!" % path_to_folder)
 
-    def update_default_object_class_menu(self, new_classes: Set[str] = None):
+    def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
         object_classes = set(config.getlist("LABEL", "object_classes"))
         object_classes.update(new_classes or [])
         existing_classes = {
@@ -544,6 +541,6 @@ class GUI(QtWidgets.QMainWindow):
 
         self.menu_setdefaultclass.addActions(self.actiongroup_defaultclass.actions())
 
-    def change_default_object_class(self, action: QAction):
+    def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())
         print(f"Changed default object class to {action.text()}.")

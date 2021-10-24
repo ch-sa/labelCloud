@@ -4,13 +4,12 @@ settings in one place.
 Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
-from typing import TYPE_CHECKING, Union, List
+from typing import TYPE_CHECKING, List, Optional, Union
 
 import numpy as np
-
-
-from utils import oglhelper
 from model.bbox import BBox
+from utils import oglhelper
+
 from .config_manager import config
 
 if TYPE_CHECKING:
@@ -46,41 +45,41 @@ def only_zrotation_decorator(func):
     return wrapper
 
 
-class BoundingBoxController:
+class BoundingBoxController(object):
     STD_SCALING = config.getfloat("LABEL", "std_scaling")
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.view = None
         self.bboxes = []
         self.active_bbox_id = -1  # -1 means zero bboxes
         self.pcdc = None
 
     # GETTERS
-    def has_active_bbox(self):
+    def has_active_bbox(self) -> bool:
         return 0 <= self.active_bbox_id < self.get_no_of_bboxes()
 
-    def get_active_bbox(self) -> Union[BBox, None]:
+    def get_active_bbox(self) -> Optional[BBox]:
         if self.has_active_bbox():
             return self.bboxes[self.active_bbox_id]
         else:
             return None
 
-    def get_bboxes(self):
+    def get_bboxes(self) -> List[BBox]:
         return self.bboxes
 
-    def get_no_of_bboxes(self):
+    def get_no_of_bboxes(self) -> int:
         return len(self.bboxes)
 
     @has_active_bbox_decorator
-    def get_classname(self):
+    def get_classname(self) -> str:
         return self.get_active_bbox().get_classname()
 
     # SETTERS
 
-    def set_view(self, view: "GUI"):
+    def set_view(self, view: "GUI") -> None:
         self.view = view
 
-    def add_bbox(self, bbox: BBox):
+    def add_bbox(self, bbox: BBox) -> None:
         if isinstance(bbox, BBox):
             self.bboxes.append(bbox)
             self.set_active_bbox(self.bboxes.index(bbox))
@@ -88,12 +87,12 @@ class BoundingBoxController:
                 "Bounding Box added, it can now be corrected.", mode="correction"
             )
 
-    def update_bbox(self, bbox_id: int, bbox: BBox):
+    def update_bbox(self, bbox_id: int, bbox: BBox) -> None:
         if isinstance(bbox, BBox) and (0 <= bbox_id < len(self.bboxes)):
             self.bboxes[bbox_id] = bbox
             self.update_label_list()
 
-    def delete_bbox(self, bbox_id: int):
+    def delete_bbox(self, bbox_id: int) -> None:
         if 0 <= bbox_id < len(self.bboxes):
             del self.bboxes[bbox_id]
             if bbox_id == self.active_bbox_id:
@@ -101,11 +100,11 @@ class BoundingBoxController:
             else:
                 self.update_label_list()
 
-    def delete_current_bbox(self):
+    def delete_current_bbox(self) -> None:
         selected_item_id = self.view.label_list.currentRow()
         self.delete_bbox(selected_item_id)
 
-    def set_active_bbox(self, bbox_id: int):
+    def set_active_bbox(self, bbox_id: int) -> None:
         if 0 <= bbox_id < len(self.bboxes):
             self.active_bbox_id = bbox_id
             self.update_all()
@@ -116,31 +115,31 @@ class BoundingBoxController:
             self.deselect_bbox()
 
     @has_active_bbox_decorator
-    def set_classname(self, new_class: str):
+    def set_classname(self, new_class: str) -> None:
         self.get_active_bbox().set_classname(new_class)
         self.update_label_list()
 
     @has_active_bbox_decorator
-    def set_center(self, cx: float, cy: float, cz: float):
+    def set_center(self, cx: float, cy: float, cz: float) -> None:
         self.get_active_bbox().center = (cx, cy, cz)
 
-    def set_bboxes(self, bboxes: List[BBox]):
+    def set_bboxes(self, bboxes: List[BBox]) -> None:
         self.bboxes = bboxes
         self.deselect_bbox()
         self.update_label_list()
 
-    def reset(self):
+    def reset(self) -> None:
         self.deselect_bbox()
         self.set_bboxes([])
 
-    def deselect_bbox(self):
+    def deselect_bbox(self) -> None:
         self.active_bbox_id = -1
         self.update_all()
         self.view.update_status("", mode="navigation")
 
     # MANIPULATORS
     @has_active_bbox_decorator
-    def update_position(self, axis: str, value: float):
+    def update_position(self, axis: str, value: float) -> None:
         if axis == "pos_x":
             self.get_active_bbox().set_x_translation(value)
         elif axis == "pos_y":
@@ -151,7 +150,7 @@ class BoundingBoxController:
             raise Exception("Wrong axis describtion.")
 
     @has_active_bbox_decorator
-    def update_dimension(self, dimension: str, value: float):
+    def update_dimension(self, dimension: str, value: float) -> None:
         if dimension == "length":
             self.get_active_bbox().set_length(value)
         elif dimension == "width":
@@ -162,7 +161,7 @@ class BoundingBoxController:
             raise Exception("Wrong dimension describtion.")
 
     @has_active_bbox_decorator
-    def update_rotation(self, axis: str, value: float):
+    def update_rotation(self, axis: str, value: float) -> None:
         if axis == "rot_x":
             self.get_active_bbox().set_x_rotation(value)
         elif axis == "rot_y":
@@ -174,7 +173,7 @@ class BoundingBoxController:
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
-    def rotate_around_x(self, dangle: float = None, clockwise: bool = False):
+    def rotate_around_x(self, dangle: float = None, clockwise: bool = False) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
@@ -184,7 +183,7 @@ class BoundingBoxController:
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
-    def rotate_around_y(self, dangle: float = None, clockwise: bool = False):
+    def rotate_around_y(self, dangle: float = None, clockwise: bool = False) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
@@ -195,7 +194,7 @@ class BoundingBoxController:
     @has_active_bbox_decorator
     def rotate_around_z(
         self, dangle: float = None, clockwise: bool = False, absolute: bool = False
-    ):
+    ) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
@@ -210,7 +209,7 @@ class BoundingBoxController:
     @has_active_bbox_decorator
     def rotate_with_mouse(
         self, x_angle: float, y_angle: float
-    ):  # TODO: Make more intuitive
+    ) -> None:  # TODO: Make more intuitive
         # Get bbox perspective
         pcd_z_rotation = self.pcdc.get_pointcloud().rot_z
         bbox_z_rotation = self.get_active_bbox().get_z_rotation()
@@ -224,7 +223,7 @@ class BoundingBoxController:
         self.rotate_around_z(x_angle)
 
     @has_active_bbox_decorator
-    def translate_along_x(self, distance: float = None, left: bool = False):
+    def translate_along_x(self, distance: float = None, left: bool = False) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if left:
             distance *= -1
@@ -237,7 +236,7 @@ class BoundingBoxController:
         )
 
     @has_active_bbox_decorator
-    def translate_along_y(self, distance: float = None, forward: bool = False):
+    def translate_along_y(self, distance: float = None, forward: bool = False) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if forward:
             distance *= -1
@@ -250,7 +249,7 @@ class BoundingBoxController:
         )
 
     @has_active_bbox_decorator
-    def translate_along_z(self, distance: float = None, down: bool = False):
+    def translate_along_z(self, distance: float = None, down: bool = False) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if down:
             distance *= -1

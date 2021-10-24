@@ -716,25 +716,6 @@ QListWidget#label_list::item:selected {
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="button_drag_bbox">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Drag Bounding Box</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="button_span_bbox">
         <property name="text">
          <string>Span Bounding Box</string>
@@ -1668,7 +1649,6 @@ QListWidget#label_list::item:selected {
   <tabstop>button_bbox_decr</tabstop>
   <tabstop>dial_bbox_zrotation</tabstop>
   <tabstop>button_pick_bbox</tabstop>
-  <tabstop>button_drag_bbox</tabstop>
   <tabstop>button_span_bbox</tabstop>
   <tabstop>button_save_label</tabstop>
   <tabstop>current_class_lineedit</tabstop>
