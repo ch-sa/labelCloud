@@ -117,7 +117,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 self.bbox_controller.get_active_bbox().draw_orientation()
 
         # Draw labeled bboxes
-        for bbox in self.bbox_controller.get_bboxes():
+        for bbox in self.bbox_controller.bboxes:
             bbox.draw_bbox()
 
         GL.glPopMatrix()  # restore the previous modelview matrix

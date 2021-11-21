@@ -2,7 +2,7 @@ import os
 from typing import TYPE_CHECKING, List, Set
 
 from control.config_manager import config
-from control.drawing_strategies import PickingStrategy, SpanStrategy
+from labeling_strategies import PickingStrategy, SpanningStrategy
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtWidgets import QAction, QActionGroup, QCompleter, QFileDialog, QMessageBox
@@ -247,7 +247,7 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.button_activate_spanning.clicked.connect(
             lambda: self.controller.drawing_mode.set_drawing_strategy(
-                SpanStrategy(self)
+                SpanningStrategy(self)
             )
         )
         self.button_save_labels.clicked.connect(self.controller.save)

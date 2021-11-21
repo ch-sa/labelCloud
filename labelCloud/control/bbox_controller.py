@@ -56,19 +56,13 @@ class BoundingBoxController(object):
 
     # GETTERS
     def has_active_bbox(self) -> bool:
-        return 0 <= self.active_bbox_id < self.get_no_of_bboxes()
+        return 0 <= self.active_bbox_id < len(self.bboxes)
 
     def get_active_bbox(self) -> Optional[BBox]:
         if self.has_active_bbox():
             return self.bboxes[self.active_bbox_id]
         else:
             return None
-
-    def get_bboxes(self) -> List[BBox]:
-        return self.bboxes
-
-    def get_no_of_bboxes(self) -> int:
-        return len(self.bboxes)
 
     @has_active_bbox_decorator
     def get_classname(self) -> str:
@@ -96,7 +90,7 @@ class BoundingBoxController(object):
         if 0 <= bbox_id < len(self.bboxes):
             del self.bboxes[bbox_id]
             if bbox_id == self.active_bbox_id:
-                self.set_active_bbox(self.get_no_of_bboxes() - 1)
+                self.set_active_bbox(len(self.bboxes) - 1)
             else:
                 self.update_label_list()
 
