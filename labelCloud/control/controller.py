@@ -76,7 +76,7 @@ class Controller:
     # CONTROL METHODS
     def save(self) -> None:
         """Saves all bounding boxes in the label file."""
-        self.pcd_manager.save_labels_into_file(self.bbox_controller.get_bboxes())
+        self.pcd_manager.save_labels_into_file(self.bbox_controller.bboxes)
 
     def reset(self) -> None:
         """Resets the controllers and bounding boxes from the current screen."""

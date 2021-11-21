@@ -1,12 +1,12 @@
-from abc import ABC, ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, List
 
 import numpy as np
 import utils.math3d as math3d
 import utils.oglhelper as ogl
-from model.bbox import BBox
+from control.config_manager import config
+from model import BBox
 
-from .config_manager import config
+from . import BaseLabelingStrategy
 
 if TYPE_CHECKING:
     from view.gui import GUI
@@ -14,105 +14,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 
-class IDrawingStrategy:
-    __metaclass__ = ABCMeta
-    POINTS_NEEDED: int
-    PREVIEW: bool = False
-
-    def __init__(self, view: "GUI") -> None:
-        self.view = view
-        self.points_registered = 0
-        self.point_1 = None
-
-    def is_bbox_finished(self) -> bool:
-        return self.points_registered >= self.__class__.POINTS_NEEDED
-
-    @abstractmethod
-    def register_point(self, new_point: List[float]) -> None:
-        raise NotImplementedError
-
-    def register_tmp_point(self, new_tmp_point: List[float]) -> None:
-        pass
-
-    def register_scrolling(self, distance: float) -> None:
-        pass
-
-    @abstractmethod
-    def get_bbox(self) -> BBox:
-        raise NotImplementedError
-
-    def draw_preview(self) -> None:
-        pass
-
-    def reset(self) -> None:
-        self.points_registered = 0
-        self.point_1 = None
-
-
-class PickingStrategy(IDrawingStrategy, ABC):
-    POINTS_NEEDED = 1
-    PREVIEW = True
-
-    def __init__(self, view: "GUI") -> None:
-        super().__init__(view)
-        print("Enabled drawing mode.")
-        self.view.update_status(
-            "Please pick the location for the bounding box front center.",
-            mode="drawing",
-        )
-        self.tmp_p1 = None
-        self.bbox_z_rotation = 0
-
-    def register_point(self, new_point: List[float]) -> None:
-        self.point_1 = new_point
-        print("registered point " + str(self.point_1))
-        self.points_registered += 1
-
-    def register_tmp_point(self, new_tmp_point: List[float]) -> None:
-        self.tmp_p1 = new_tmp_point
-
-    def register_scrolling(self, distance: float) -> None:
-        self.bbox_z_rotation += distance // 30
-
-    def draw_preview(self) -> None:  # TODO: Refactor
-        if self.tmp_p1:
-            tmp_bbox = BBox(
-                *np.add(
-                    self.tmp_p1,
-                    [
-                        0,
-                        config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
-                        -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3,
-                    ],
-                )
-            )
-            tmp_bbox.set_z_rotation(self.bbox_z_rotation)
-            ogl.draw_cuboid(
-                tmp_bbox.get_vertices(), draw_vertices=True, vertex_color=(1, 1, 0, 1)
-            )
-
-    # Draw bbox with fixed dimensions and rotation at x,y in world space
-    def get_bbox(self) -> BBox:  # TODO: Refactor
-        final_bbox = BBox(
-            *np.add(
-                self.point_1,
-                [
-                    0,
-                    config.getfloat("LABEL", "STD_BOUNDINGBOX_WIDTH") / 2,
-                    -config.getfloat("LABEL", "STD_BOUNDINGBOX_HEIGHT") / 3,
-                ],
-            )
-        )
-        final_bbox.set_z_rotation(self.bbox_z_rotation)
-        return final_bbox
-
-    def reset(self) -> None:
-        super().reset()
-        self.tmp_p1 = None
-        self.view.button_activate_picking.setChecked(False)
-
-
-class SpanStrategy(IDrawingStrategy, ABC):
+class SpanningStrategy(BaseLabelingStrategy):
     POINTS_NEEDED = 4
     PREVIEW = True
     CORRECTION = False  # Increases dimensions after drawing
@@ -189,7 +91,7 @@ class SpanStrategy(IDrawingStrategy, ABC):
         len_vec_2d = np.subtract(self.point_1, self.point_2)
         z_angle = np.arctan(len_vec_2d[1] / len_vec_2d[0])
 
-        if SpanStrategy.CORRECTION:
+        if SpanningStrategy.CORRECTION:
             length *= 1.1
             width *= 1.1
             height *= 1.1
