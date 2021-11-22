@@ -1,3 +1,4 @@
+import logging
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Set
@@ -36,7 +37,11 @@ def string_is_float(string: str, recect_negative: bool = False) -> bool:
 
 
 def set_floor_visibility(state: bool) -> None:
-    print("SHOW_FLOOR: %s" % state)
+    logging.info(
+        "%s floor grid (SHOW_FLOOR: %s).",
+        "Activated" if state else "Deactivated",
+        state,
+    )
     config.set("USER_INTERFACE", "show_floor", str(state))
 
 
@@ -410,7 +415,7 @@ class GUI(QtWidgets.QMainWindow):
         return False
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        print("Closing window after saving ...")
+        logging.info("Closing window after saving ...")
         self.controller.save()
         self.timer.stop()
         a0.accept()
@@ -550,11 +555,6 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.update_rotation(parameter, float(str_value))
             return True
 
-    def save_new_length(self) -> None:
-        new_length = self.length_edit.text()
-        self.controller.bbox_controller.get_active_bbox().length = float(new_length)
-        print(f"New length for bounding box submitted → {new_length}.")
-
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
         self.button_activate_picking.setEnabled(state)
@@ -591,25 +591,25 @@ class GUI(QtWidgets.QMainWindow):
             directory=config.get("FILE", "pointcloud_folder"),
         )
         if not path_to_folder or path_to_folder.isspace():
-            print("Please specify a valid folder path.")
+            logging.warning("Please specify a valid folder path.")
         else:
             self.controller.pcd_manager.pcd_folder = path_to_folder
             self.controller.pcd_manager.read_pointcloud_folder()
             self.controller.pcd_manager.get_next_pcd()
-            print("Changed point cloud folder to %s!" % path_to_folder)
+            logging.info("Changed point cloud folder to %s!" % path_to_folder)
 
     def change_label_folder(self) -> None:
         path_to_folder = QFileDialog.getExistingDirectory(
             self, "Change Label Folder", directory=config.get("FILE", "label_folder")
         )
         if not path_to_folder or path_to_folder.isspace():
-            print("Please specify a valid folder path.")
+            logging.warning("Please specify a valid folder path.")
         else:
             self.controller.pcd_manager.label_manager.label_folder = path_to_folder
             self.controller.pcd_manager.label_manager.label_strategy.update_label_folder(
                 path_to_folder
             )
-            print("Changed label folder to %s!" % path_to_folder)
+            logging.info("Changed label folder to %s!" % path_to_folder)
 
     def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
         object_classes = set(config.getlist("LABEL", "object_classes"))
@@ -629,4 +629,4 @@ class GUI(QtWidgets.QMainWindow):
 
     def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())
-        print(f"Changed default object class to {action.text()}.")
+        logging.info("Changed default object class to %s.", action.text())

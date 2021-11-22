@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, List
 
 import numpy as np
@@ -21,7 +22,7 @@ class SpanningStrategy(BaseLabelingStrategy):
 
     def __init__(self, view: "GUI") -> None:
         super().__init__(view)
-        print("Enabled spanning mode.")
+        logging.info("Enabled spanning mode.")
         self.view.update_status(
             "Begin by selecting a vertex of the bounding box.", mode="drawing"
         )
@@ -67,7 +68,7 @@ class SpanningStrategy(BaseLabelingStrategy):
         elif not self.point_4:
             self.point_4 = new_point
         else:
-            print("Cannot register point.")
+            logging.warning("Cannot register point.")
         self.points_registered += 1
 
     def register_tmp_point(self, new_tmp_point: List[float]) -> None:

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List
 
@@ -25,7 +26,7 @@ def get_label_strategy(export_format: str, label_folder: Path) -> "BaseLabelForm
             transformed=False,
         )
     elif export_format != "centroid_abs":
-        print(
+        logging.warning(
             f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!"
         )
     return CentroidFormat(
@@ -58,14 +59,16 @@ class LabelManager(object):
         try:
             return self.label_strategy.import_labels(pcd_path)
         except KeyError as key_error:
-            print("Found a key error with %s in the dictionary." % key_error)
-            print(
+            logging.warning("Found a key error with %s in the dictionary." % key_error)
+            logging.warning(
                 "Could not import labels, please check the consistency of the label format."
             )
             return []
         except AttributeError as attribute_error:
-            print("Attribute Error: %s. Expected a dictionary." % attribute_error)
-            print(
+            logging.warning(
+                "Attribute Error: %s. Expected a dictionary." % attribute_error
+            )
+            logging.warning(
                 "Could not import labels, please check the consistency of the label format."
             )
             return []

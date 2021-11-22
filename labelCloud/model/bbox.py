@@ -1,3 +1,4 @@
+import logging
 from typing import List, Tuple
 
 import numpy as np
@@ -82,19 +83,19 @@ class BBox(object):
         if length > 0:
             self.length = length
         else:
-            print("New length is too small.")
+            logging.warning("New length is too small.")
 
     def set_width(self, width) -> None:
         if width > 0:
             self.width = width
         else:
-            print("New width is too small.")
+            logging.warning("New width is too small.")
 
     def set_height(self, height) -> None:
         if height > 0:
             self.height = height
         else:
-            print("New height is too small.")
+            logging.warning("New height is too small.")
 
     def set_dimensions(self, length, width, height) -> None:
         if (length > 0) and (width > 0) and (height > 0):
@@ -102,7 +103,7 @@ class BBox(object):
             self.width = width
             self.height = height
         else:
-            print("New dimensions are too small.")
+            logging.warning("New dimensions are too small.")
 
     def set_x_rotation(self, angle) -> None:
         self.x_rotation = angle % 360

@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import List, Optional, Tuple
 
@@ -117,7 +118,7 @@ def vertices2rotations(
 
     # Calculate y_rotation
     if vertices[3][2] != vertices[0][2]:
-        print("Bounding box is y-rotated!")
+        logging.info("Bounding box is y-rotated!")
         x_vec_rot = rotate_around_z(
             x_vec, -z_rotation, degrees=True
         )  # apply z-rotation
@@ -125,16 +126,16 @@ def vertices2rotations(
 
     # Calculate x_rotation
     if vertices[0][2] != vertices[1][2]:
-        print("Bounding box is x-rotated!")
+        logging.info("Bounding box is x-rotated!")
         y_vec = np.subtract(vertices_trans[1], vertices_trans[0])  # width vector
         y_vec_rot = rotate_around_z(
             y_vec, -z_rotation, degrees=True
         )  # apply z- & y-rotation
         y_vec_rot = rotate_around_y(y_vec_rot, -y_rotation, degrees=True)
         x_rotation = radians_to_degrees(np.arctan2(y_vec_rot[2], y_vec_rot[1])) % 360
-        print("X-Rotation: %s" % x_rotation)
+        logging.info("x-Rotation: %s" % x_rotation)
 
-    print(
+    logging.info(
         "Loaded bounding box has rotation (x, y, z): %s, %s, %s"
         % (x_rotation, y_rotation, z_rotation)
     )

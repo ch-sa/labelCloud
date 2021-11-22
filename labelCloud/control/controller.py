@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 from PyQt5 import QtCore, QtGui
@@ -219,7 +220,7 @@ class Controller:
         # Reset point cloud pose to intial rotation and translation
         elif (a0.key() == QtCore.Qt.Key_R) or (a0.key() == QtCore.Qt.Key_Home):
             self.pcd_manager.reset_transformations()
-            print("Reseted position to default.")
+            logging.info("Reseted position to default.")
 
         elif a0.key() == QtCore.Qt.Key_Delete:  # Delete active bbox
             self.bbox_controller.delete_current_bbox()
@@ -231,10 +232,10 @@ class Controller:
         elif a0.key() == QtCore.Qt.Key_Escape:
             if self.drawing_mode.is_active():
                 self.drawing_mode.reset()
-                print("Resetted drawn points!")
+                logging.info("Resetted drawn points!")
             elif self.align_mode.is_active:
                 self.align_mode.reset()
-                print("Resetted selected points!")
+                logging.info("Resetted selected points!")
 
         # BBOX MANIPULATION
         elif (a0.key() == QtCore.Qt.Key_Y) or (a0.key() == QtCore.Qt.Key_Comma):

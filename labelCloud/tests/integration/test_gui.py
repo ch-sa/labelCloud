@@ -1,3 +1,4 @@
+import logging
 import os
 
 from labelCloud.control.config_manager import config
@@ -41,7 +42,7 @@ def test_bbox_control_with_buttons(qtbot, startup_pyqt, bbox):
     qtbot.mouseClick(view.button_left, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_down, QtCore.Qt.LeftButton, delay=0)
     qtbot.mouseClick(view.button_forward, QtCore.Qt.LeftButton)
-    print("BBOX: %s" % [str(c) for c in bbox.get_center()])
+    logging.info("BBOX: %s" % [str(c) for c in bbox.get_center()])
     assert bbox.center == (0.00, 0.00, 0.00)
 
     # Scaling

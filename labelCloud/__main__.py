@@ -1,4 +1,5 @@
 import argparse
+import logging
 
 from labelCloud import __version__
 
@@ -32,7 +33,7 @@ def setup_example_project() -> None:
 
     from labelCloud.control.config_manager import config
 
-    print(
+    logging.info(
         "Starting labelCloud in example mode.\n"
         "Setting up project with example point cloud ,label and default config."
     )
@@ -61,7 +62,7 @@ def setup_example_project() -> None:
         ),
         str(label_folder.joinpath("exemplary.json")),
     )
-    print(
+    logging.info(
         f"Setup example project in {cwdir}:"
         "\n - config.ini"
         "\n - pointclouds/exemplary.ply"
@@ -95,7 +96,7 @@ def start_gui():
     height = (desktop.height() - view.height()) / 2
     view.move(width, height)
 
-    print("Showing GUI...")
+    logging.info("Showing GUI...")
     sys.exit(app.exec_())
 
 

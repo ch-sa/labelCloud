@@ -1,3 +1,4 @@
+import logging
 import math
 from pathlib import Path
 from typing import List
@@ -44,7 +45,7 @@ class KittiFormat(BaseLabelFormat):
                     bbox.set_rotations(0, 0, rel2abs_rotation(float(line_elements[14])))
                 bbox.set_classname(line_elements[0])
                 labels.append(bbox)
-            print("Imported %s labels from %s." % (len(label_lines), label_path))
+            logging.info("Imported %s labels from %s." % (len(label_lines), label_path))
         return labels
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
@@ -78,7 +79,7 @@ class KittiFormat(BaseLabelFormat):
 
         # Save to TXT
         path_to_file = self.save_label_to_file(pcd_path, data)
-        print(
+        logging.info(
             f"Exported {len(bboxes)} labels to {path_to_file} "
             f"in {self.__class__.__name__} formatting!"
         )

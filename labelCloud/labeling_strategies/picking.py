@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, List
 
 import numpy as np
@@ -17,7 +18,7 @@ class PickingStrategy(BaseLabelingStrategy):
 
     def __init__(self, view: "GUI") -> None:
         super().__init__(view)
-        print("Enabled drawing mode.")
+        logging.info("Enabled drawing mode.")
         self.view.update_status(
             "Please pick the location for the bounding box front center.",
             mode="drawing",
@@ -27,7 +28,6 @@ class PickingStrategy(BaseLabelingStrategy):
 
     def register_point(self, new_point: List[float]) -> None:
         self.point_1 = new_point
-        print("registered point " + str(self.point_1))
         self.points_registered += 1
 
     def register_tmp_point(self, new_tmp_point: List[float]) -> None:
