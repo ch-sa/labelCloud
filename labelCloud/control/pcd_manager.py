@@ -198,7 +198,10 @@ class PointCloudManger(object):
             tmp_pcd.colorless = False
 
         max_dims = np.subtract(tmp_pcd.pcd_maxs, tmp_pcd.pcd_mins)
-        diagonal = np.linalg.norm(max_dims)
+        diagonal = min(
+            np.linalg.norm(max_dims),
+            config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
+        )
 
         tmp_pcd.init_translation = -self.current_o3d_pcd.get_center() - [0, 0, diagonal]
 
