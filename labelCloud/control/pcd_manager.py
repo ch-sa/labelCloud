@@ -146,7 +146,7 @@ class PointCloudManger(object):
             print("No point clouds to save labels for!")
 
     def save_current_perspective(self, active: bool = True) -> None:
-        if active and self.point_cloud:
+        if active and self.pointcloud:
             self.saved_perspective = Perspective(
                 zoom=self.pointcloud.trans_z,
                 rotation=tuple(self.pointcloud.get_rotations()),
