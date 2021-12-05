@@ -74,7 +74,9 @@ def test_kitti(label_kitti, tmpdir):
         write_file.write(label_kitti)
 
     # Import label file
-    label_manager = LabelManager(strategy="kitti", path_to_label_folder=tmpdir)
+    label_manager = LabelManager(
+        strategy="kitti_untransformed", path_to_label_folder=tmpdir
+    )
     bounding_boxes = label_manager.import_labels("test.txt")
     bbox = bounding_boxes[0]
 

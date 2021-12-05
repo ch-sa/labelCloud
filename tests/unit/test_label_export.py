@@ -89,7 +89,9 @@ def test_centroid_abs_export(bounding_box, tmpdir):
 
 
 def test_kitti_export(bounding_box, tmpdir):
-    label_manager = LabelManager(strategy="kitti", path_to_label_folder=tmpdir)
+    label_manager = LabelManager(
+        strategy="kitti_untransformed", path_to_label_folder=tmpdir
+    )
     label_manager.export_labels("testfolder/testpcd.ply", [bounding_box])
 
     with open(os.path.join(tmpdir, "testpcd.txt"), "r") as read_file:

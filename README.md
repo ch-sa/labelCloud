@@ -69,6 +69,7 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 | `centroid_abs` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]` |
 | `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order) |
 | `kitti` | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| `kitti_untransformed` | See above, but without transformations. |
 
 You can easily create your own exporter by subclassing the abstract [BaseLabelFormat](https://github.com/ch-sa/labelCloud/blob/master/labelCloud/label_formats/base.py#L10).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
