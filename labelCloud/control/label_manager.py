@@ -19,6 +19,13 @@ def get_label_strategy(export_format: str, label_folder: str) -> "BaseLabelForma
         return KittiFormat(
             label_folder, LabelManager.EXPORT_PRECISION, relative_rotation=True
         )
+    elif export_format == "kitti_untransformed":
+        return KittiFormat(
+            label_folder,
+            LabelManager.EXPORT_PRECISION,
+            relative_rotation=True,
+            transformed=False,
+        )
     elif export_format != "centroid_abs":
         print(
             f"Unknown export strategy '{export_format}'. Proceeding with default (centroid_abs)!"
