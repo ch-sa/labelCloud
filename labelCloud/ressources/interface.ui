@@ -675,6 +675,47 @@ QListWidget#label_list::item:selected {
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="button_open_2D">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Open 2D image</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>icons/2d.png</normaloff>icons/2d.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="button_pick_bbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1648,6 +1689,7 @@ QListWidget#label_list::item:selected {
   <tabstop>button_bbox_incr</tabstop>
   <tabstop>button_bbox_decr</tabstop>
   <tabstop>dial_bbox_zrotation</tabstop>
+  <tabstop>button_open_2D</tabstop>
   <tabstop>button_pick_bbox</tabstop>
   <tabstop>button_span_bbox</tabstop>
   <tabstop>button_save_label</tabstop>

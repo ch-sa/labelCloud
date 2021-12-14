@@ -5,7 +5,8 @@ from control.config_manager import config
 from labeling_strategies import PickingStrategy, SpanningStrategy
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtWidgets import QAction, QActionGroup, QCompleter, QFileDialog, QMessageBox
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QAction, QActionGroup, QCompleter, QFileDialog, QMessageBox, QLabel
 
 from .settings_dialog import SettingsDialog
 from .viewer import GLWidget
@@ -118,6 +119,9 @@ class GUI(QtWidgets.QMainWindow):
         self.dial_zrotation = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")
         self.button_decr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")
         self.button_incr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")
+        
+        #2d image viewer
+        self.button_2D = self.findChild(QtWidgets.QPushButton, "button_open_2D")
 
         # label mode selection
         self.button_activate_picking = self.findChild(
@@ -187,6 +191,22 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.controller.loop_gui)
         self.timer.start()
 
+    #open 2D(png) image
+    def open_2D_img(self):
+        tmp_cur_file = str(self.controller.pcd_manager.get_current_name().split(".")[0])
+        filename = r'C:/Users/user/Desktop/code_cloud/2d_button_cloud/pointclouds/' + tmp_cur_file + '.png'
+
+        if os.path.isfile(filename):
+            image = QtGui.QImage(QtGui.QImageReader(filename).read())
+            self.imageLabel = QLabel()
+            self.imageLabel.setWindowTitle("2D image")
+            self.imageLabel.setPixmap(QPixmap.fromImage(image))
+            self.imageLabel.show()
+
+        else:
+            QMessageBox.information(self, 'No 2d image File', "There's no " + tmp_cur_file + 
+            ".png\nCheck your path or the existence of 2d file", QMessageBox.Ok)
+
     # Event connectors
     def connect_events(self) -> None:
         # POINTCLOUD CONTROL
@@ -237,6 +257,11 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.label_list.currentRowChanged.connect(
             self.controller.bbox_controller.set_active_bbox
+        )
+
+        #open_2D_img
+        self.button_2D.pressed.connect(
+            lambda: self.open_2D_img()
         )
 
         # LABEL CONTROL
