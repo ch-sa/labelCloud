@@ -690,7 +690,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/2d.png</normaloff>icons/2d.png</iconset>
+          <normaloff>icons/panorama.svg</normaloff>icons/panorama.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -699,7 +699,7 @@ QListWidget#label_list::item:selected {
          </size>
         </property>
         <property name="checkable">
-         <bool>true</bool>
+         <bool>False</bool>
         </property>
         <property name="checked">
          <bool>false</bool>

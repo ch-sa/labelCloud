@@ -193,19 +193,22 @@ class GUI(QtWidgets.QMainWindow):
 
     #open 2D(png) image
     def open_2D_img(self):
-        tmp_cur_file = str(self.controller.pcd_manager.get_current_name().split(".")[0])
-        filename = r'C:/Users/user/Desktop/code_cloud/2d_button_cloud/pointclouds/' + tmp_cur_file + '.png'
+        image_path = os.path.join(
+            config.get("FILE", "image_folder"),
+            os.path.splitext(self.controller.pcd_manager.get_current_name())[0]
+            + ".png",
+        )
 
-        if os.path.isfile(filename):
-            image = QtGui.QImage(QtGui.QImageReader(filename).read())
+        if os.path.isfile(image_path):
+            image = QtGui.QImage(QtGui.QImageReader(image_path).read())
             self.imageLabel = QLabel()
             self.imageLabel.setWindowTitle("2D image")
             self.imageLabel.setPixmap(QPixmap.fromImage(image))
             self.imageLabel.show()
 
         else:
-            QMessageBox.information(self, 'No 2d image File', "There's no " + tmp_cur_file + 
-            ".png\nCheck your path or the existence of 2d file", QMessageBox.Ok)
+            QMessageBox.information(self, 'No 2d image File', "There's no " + image_path + 
+            "\nCheck your path or the existence of 2d file", QMessageBox.Ok)
 
     # Event connectors
     def connect_events(self) -> None:
