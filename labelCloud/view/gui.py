@@ -6,7 +6,14 @@ from labeling_strategies import PickingStrategy, SpanningStrategy
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QAction, QActionGroup, QCompleter, QFileDialog, QMessageBox, QLabel
+from PyQt5.QtWidgets import (
+    QAction,
+    QActionGroup,
+    QCompleter,
+    QFileDialog,
+    QMessageBox,
+    QLabel,
+)
 
 from .settings_dialog import SettingsDialog
 from .viewer import GLWidget
@@ -119,8 +126,8 @@ class GUI(QtWidgets.QMainWindow):
         self.dial_zrotation = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")
         self.button_decr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")
         self.button_incr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")
-        
-        #2d image viewer
+
+        # 2d image viewer
         self.button_2D = self.findChild(QtWidgets.QPushButton, "button_open_2D")
 
         # label mode selection
@@ -191,7 +198,7 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.controller.loop_gui)
         self.timer.start()
 
-    #open 2D(png) image
+    # open 2D(png) image
     def open_2D_img(self):
         image_path = os.path.join(
             config.get("FILE", "image_folder"),
@@ -207,8 +214,14 @@ class GUI(QtWidgets.QMainWindow):
             self.imageLabel.show()
 
         else:
-            QMessageBox.information(self, 'No 2d image File', "There's no " + image_path + 
-            "\nCheck your path or the existence of 2d file", QMessageBox.Ok)
+            QMessageBox.information(
+                self,
+                "No 2d image File",
+                "There's no "
+                + image_path
+                + "\nCheck your path or the existence of 2d file",
+                QMessageBox.Ok,
+            )
 
     # Event connectors
     def connect_events(self) -> None:
@@ -262,10 +275,8 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.set_active_bbox
         )
 
-        #open_2D_img
-        self.button_2D.pressed.connect(
-            lambda: self.open_2D_img()
-        )
+        # open_2D_img
+        self.button_2D.pressed.connect(lambda: self.open_2D_img())
 
         # LABEL CONTROL
         self.button_activate_picking.clicked.connect(
