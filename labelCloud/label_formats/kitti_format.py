@@ -2,8 +2,7 @@ import math
 import os
 from typing import List
 
-from model import BBox
-
+from ..model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
 

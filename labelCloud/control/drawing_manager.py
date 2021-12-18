@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, Union
 
-from labeling_strategies import BaseLabelingStrategy
-
+from ..labeling_strategies import BaseLabelingStrategy
 from .bbox_controller import BoundingBoxController
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
 
 
 class DrawingManager(object):

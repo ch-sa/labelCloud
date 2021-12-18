@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from control.label_manager import LabelManager
+from labelCloud.control.label_manager import LabelManager
 
 
 @pytest.fixture

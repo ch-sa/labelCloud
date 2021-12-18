@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING, List
 
 import numpy as np
-import utils.oglhelper as ogl
-from control.config_manager import config
-from model import BBox
 
+from ..control.config_manager import config
+from ..model import BBox
+from ..utils import oglhelper as ogl
 from . import BaseLabelingStrategy
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
 
 
 class PickingStrategy(BaseLabelingStrategy):

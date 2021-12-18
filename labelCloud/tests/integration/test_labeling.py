@@ -1,9 +1,8 @@
 import pytest
+from labelCloud.control.config_manager import config
+from labelCloud.model.bbox import BBox
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
-
-from control.config_manager import config
-from model.bbox import BBox
 
 
 def test_picking_mode(qtbot, startup_pyqt):

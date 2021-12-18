@@ -1,10 +1,10 @@
 # Testing the correct processing of labels for the export in different formats
 import json
 import os
-import pytest
 
-from model.bbox import BBox
-from control.label_manager import LabelManager
+import pytest
+from labelCloud.control.label_manager import LabelManager
+from labelCloud.model.bbox import BBox
 
 
 @pytest.fixture

@@ -1,8 +1,8 @@
 import os
+
+from labelCloud.control.config_manager import config
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAbstractSlider
-
-from control.config_manager import config
 
 
 def test_gui(qtbot, startup_pyqt):

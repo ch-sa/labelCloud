@@ -2,9 +2,8 @@ import ntpath
 import os
 from typing import List
 
-from label_formats import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
-from model.bbox import BBox
-
+from ..label_formats import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
+from ..model.bbox import BBox
 from .config_manager import config
 
 

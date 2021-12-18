@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>labelCloud.ico</normaloff>labelCloud.ico</iconset>
+    <normaloff>../icons/labelCloud.ico</normaloff>../icons/labelCloud.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">* {
@@ -66,7 +66,7 @@ QListWidget#label_list::item:selected {
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>labelCloud_icon.png</pixmap>
+         <pixmap>../icons/labelCloud_icon.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -272,7 +272,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/upload.svg</normaloff>icons/upload.svg</iconset>
+             <normaloff>../icons/upload.svg</normaloff>../icons/upload.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -319,7 +319,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/download.svg</normaloff>icons/download.svg</iconset>
+             <normaloff>../icons/download.svg</normaloff>../icons/download.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -366,7 +366,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/arrow-right-bold.svg</normaloff>icons/arrow-right-bold.svg</iconset>
+             <normaloff>../icons/arrow-right-bold.svg</normaloff>../icons/arrow-right-bold.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -413,7 +413,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/arrow-left-bold.svg</normaloff>icons/arrow-left-bold.svg</iconset>
+             <normaloff>../icons/arrow-left-bold.svg</normaloff>../icons/arrow-left-bold.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -457,7 +457,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/arrow-up-bold.svg</normaloff>icons/arrow-up-bold.svg</iconset>
+             <normaloff>../icons/arrow-up-bold.svg</normaloff>../icons/arrow-up-bold.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -504,7 +504,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/arrow-down-bold.svg</normaloff>icons/arrow-down-bold.svg</iconset>
+             <normaloff>../icons/arrow-down-bold.svg</normaloff>../icons/arrow-down-bold.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -599,7 +599,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/plus-box-multiple-outline.svg</normaloff>icons/plus-box-multiple-outline.svg</iconset>
+             <normaloff>../icons/plus-box-multiple-outline.svg</normaloff>../icons/plus-box-multiple-outline.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -642,7 +642,7 @@ QListWidget#label_list::item:selected {
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>icons/minus-box-multiple-outline.svg</normaloff>icons/minus-box-multiple-outline.svg</iconset>
+             <normaloff>../icons/minus-box-multiple-outline.svg</normaloff>../icons/minus-box-multiple-outline.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -690,7 +690,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/panorama.svg</normaloff>icons/panorama.svg</iconset>
+          <normaloff>../icons/panorama.svg</normaloff>../icons/panorama.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -731,7 +731,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/cursor-default-click.svg</normaloff>icons/cursor-default-click.svg</iconset>
+          <normaloff>../icons/cursor-default-click.svg</normaloff>../icons/cursor-default-click.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -763,7 +763,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/resize.svg</normaloff>icons/resize.svg</iconset>
+          <normaloff>../icons/resize.svg</normaloff>../icons/resize.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -783,7 +783,7 @@ QListWidget#label_list::item:selected {
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>icons/content-save-outline.svg</normaloff>icons/content-save-outline.svg</iconset>
+          <normaloff>../icons/content-save-outline.svg</normaloff>../icons/content-save-outline.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1420,7 +1420,7 @@ QListWidget#label_list::item:selected {
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>icons/select-off.svg</normaloff>icons/select-off.svg</iconset>
+            <normaloff>../icons/select-off.svg</normaloff>../icons/select-off.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1440,7 +1440,7 @@ QListWidget#label_list::item:selected {
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>icons/delete-outline.svg</normaloff>icons/delete-outline.svg</iconset>
+            <normaloff>../icons/delete-outline.svg</normaloff>../icons/delete-outline.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -1674,7 +1674,7 @@ QListWidget#label_list::item:selected {
   <customwidget>
    <class>GLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>view.viewer</header>
+   <header>labelCloud.view.viewer</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -10,14 +10,15 @@ from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import numpy as np
 import open3d as o3d
-from model.bbox import BBox
-from model.point_cloud import PointCloud
 
+from ..model import BBox, PointCloud
 from .config_manager import config
 from .label_manager import LabelManager
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
+
+import pkg_resources
 
 
 @dataclass
@@ -27,7 +28,9 @@ class Perspective(object):
 
 
 def color_pointcloud(points, z_min, z_max) -> np.ndarray:
-    palette = np.loadtxt("labelCloud/ressources/rocket-palette.txt")
+    palette = np.loadtxt(
+        pkg_resources.resource_filename("labelCloud.ressources", "rocket-palette.txt")
+    )
     palette_len = len(palette) - 1
 
     colors = np.zeros(points.shape)
@@ -81,7 +84,9 @@ class PointCloudManger(object):
                 "Please set the point cloud folder to a location that contains point cloud files."
             )
             self.pointcloud = self.load_pointcloud(
-                "labelCloud/ressources/labelCloud_icon.pcd"
+                pkg_resources.resource_filename(
+                    "labelCloud.ressources", "labelCloud_icon.pcd"
+                )
             )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 

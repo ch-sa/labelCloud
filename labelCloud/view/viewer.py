@@ -2,14 +2,15 @@ from typing import Tuple, Union
 
 import numpy as np
 import OpenGL.GL as GL
-from control.alignmode import AlignMode
-from control.bbox_controller import BoundingBoxController
-from control.config_manager import config
-from control.drawing_manager import DrawingManager
-from control.pcd_manager import PointCloudManger
 from OpenGL import GLU
 from PyQt5 import QtGui, QtOpenGL
-from utils import oglhelper
+
+from ..control.alignmode import AlignMode
+from ..control.bbox_controller import BoundingBoxController
+from ..control.config_manager import config
+from ..control.drawing_manager import DrawingManager
+from ..control.pcd_manager import PointCloudManger
+from ..utils import oglhelper
 
 
 # Main widget for presenting the point cloud

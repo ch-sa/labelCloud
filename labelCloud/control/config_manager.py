@@ -3,6 +3,8 @@ import configparser
 import os
 from typing import List
 
+import pkg_resources
+
 
 class ExtendedConfigParser(configparser.ConfigParser):
     """Extends the ConfigParser with the ability to read and parse lists.
@@ -22,8 +24,10 @@ class ExtendedConfigParser(configparser.ConfigParser):
 
 
 class ConfigManager(object):
-    PATH_TO_CONFIG = "config.ini"
-    PATH_TO_DEFAULT_CONFIG = "ressources/default_config.ini"
+    PATH_TO_CONFIG = "config.ini"  # TODO: Handle!
+    PATH_TO_DEFAULT_CONFIG = pkg_resources.resource_filename(
+        "labelCloud.ressources", "default_config.ini"
+    )
 
     def __init__(self) -> None:
         self.config = ExtendedConfigParser(comment_prefixes="/", allow_no_value=True)

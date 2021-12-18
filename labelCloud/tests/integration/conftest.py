@@ -1,24 +1,18 @@
 import os
-import sys
 
 import pytest
+from labelCloud.control.controller import Controller
+from labelCloud.model.bbox import BBox
+from labelCloud.view.gui import GUI
 
 
 def pytest_configure(config):
     os.chdir("../labelCloud")
     print(f"Set working directory to {os.getcwd()}.")
 
-    sys.path.insert(0, "labelCloud")
-    print("Added labelCloud to Python path.")
-
-    # preventing circular import
-    import app  # noqa: E401
-
 
 @pytest.fixture
 def startup_pyqt(qtbot, qapp):
-    from control.controller import Controller
-    from view.gui import GUI
 
     # Setup Model-View-Control structure
     control = Controller()
@@ -36,6 +30,5 @@ def startup_pyqt(qtbot, qapp):
 
 @pytest.fixture
 def bbox():
-    from model.bbox import BBox
 
     return BBox(cx=0, cy=0, cz=0, length=3, width=2, height=1)

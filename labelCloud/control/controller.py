@@ -1,10 +1,10 @@
 from typing import Union
 
 from PyQt5 import QtCore, QtGui
-from utils import oglhelper
-from model.bbox import BBox
-from view.gui import GUI
 
+from ..definitions import BBOX_SIDES
+from ..utils import oglhelper
+from ..view.gui import GUI
 from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
 from .drawing_manager import DrawingManager
@@ -117,7 +117,7 @@ class Controller:
             self.view.glWidget.crosshair_col = [1, 0, 0]
             side_vertices = self.bbox_controller.get_active_bbox().get_vertices()
             self.view.glWidget.selected_side_vertices = side_vertices[
-                BBox.BBOX_SIDES[self.selected_side]
+                BBOX_SIDES[self.selected_side]
             ]
         else:
             self.view.glWidget.selected_side_vertices = []

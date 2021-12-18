@@ -3,9 +3,9 @@ import os
 from typing import List
 
 import numpy as np
-from model import BBox
-from utils import math3d
 
+from ..model import BBox
+from ..utils import math3d
 from . import BaseLabelFormat
 
 

@@ -1,14 +1,21 @@
-from control.config_manager import config, config_manager
-from control.label_manager import LabelManager
+import pkg_resources
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
+
+from ..control.config_manager import config, config_manager
+from ..control.label_manager import LabelManager
 
 
 class SettingsDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.parent_gui = parent
-        uic.loadUi("labelCloud/ressources/settings_interface.ui", self)
+        uic.loadUi(
+            pkg_resources.resource_filename(
+                "labelcloud.ressources.interfaces", "settings_interface.ui"
+            ),
+            self,
+        )
         self.fill_with_current_settings()
 
         self.buttonBox.accepted.connect(self.save)
