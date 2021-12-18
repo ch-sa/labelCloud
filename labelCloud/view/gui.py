@@ -1,4 +1,5 @@
 import os
+import re
 from typing import TYPE_CHECKING, List, Set
 
 from control.config_manager import config
@@ -11,8 +12,8 @@ from PyQt5.QtWidgets import (
     QActionGroup,
     QCompleter,
     QFileDialog,
-    QMessageBox,
     QLabel,
+    QMessageBox,
 )
 
 from .settings_dialog import SettingsDialog
@@ -198,31 +199,6 @@ class GUI(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.controller.loop_gui)
         self.timer.start()
 
-    # open 2D(png) image
-    def open_2D_img(self):
-        image_path = os.path.join(
-            config.get("FILE", "image_folder"),
-            os.path.splitext(self.controller.pcd_manager.get_current_name())[0]
-            + ".png",
-        )
-
-        if os.path.isfile(image_path):
-            image = QtGui.QImage(QtGui.QImageReader(image_path).read())
-            self.imageLabel = QLabel()
-            self.imageLabel.setWindowTitle("2D image")
-            self.imageLabel.setPixmap(QPixmap.fromImage(image))
-            self.imageLabel.show()
-
-        else:
-            QMessageBox.information(
-                self,
-                "No 2d image File",
-                "There's no "
-                + image_path
-                + "\nCheck your path or the existence of 2d file",
-                QMessageBox.Ok,
-            )
-
     # Event connectors
     def connect_events(self) -> None:
         # POINTCLOUD CONTROL
@@ -276,7 +252,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # open_2D_img
-        self.button_2D.pressed.connect(lambda: self.open_2D_img())
+        self.button_2D.pressed.connect(lambda: self.show_2d_image())
 
         # LABEL CONTROL
         self.button_activate_picking.clicked.connect(
@@ -399,6 +375,36 @@ class GUI(QtWidgets.QMainWindow):
     def show_settings_dialog(self) -> None:
         dialog = SettingsDialog(self)
         dialog.exec()
+
+    def show_2d_image(self):
+        """Searches for a 2D image with the point cloud name and displays it in a new window."""
+
+        image_folder = os.path.join(config.get("FILE", "image_folder"))
+
+        # Look for image files with the name of the point cloud
+        files_in_image_folder = os.listdir(image_folder)
+        pcd_name = os.path.splitext(self.controller.pcd_manager.get_current_name())[0]
+        image_file_pattern = re.compile(f"{pcd_name}+(\.(?i:(jpe?g|png|gif|bmp|tiff)))")
+
+        try:
+            image_name = next(filter(image_file_pattern.search, files_in_image_folder))
+        except StopIteration:
+            QMessageBox.information(
+                self,
+                "No 2d image File",
+                (
+                    f"Could not find a related image in the image folder ({image_folder}).\n"
+                    "Check your path to the folder or if an image for this point cloud exists."
+                ),
+                QMessageBox.Ok,
+            )
+        else:
+            image_path = os.path.join(image_folder, image_name)
+            image = QtGui.QImage(QtGui.QImageReader(image_path).read())
+            self.imageLabel = QLabel()
+            self.imageLabel.setWindowTitle(f"2D Image ({image_name})")
+            self.imageLabel.setPixmap(QPixmap.fromImage(image))
+            self.imageLabel.show()
 
     def show_no_pointcloud_dialog(
         self, pcd_folder: str, pcd_extensions: List[str]
