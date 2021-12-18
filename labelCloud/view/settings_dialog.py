@@ -90,6 +90,9 @@ class SettingsDialog(QDialog):
         self.lineEdit_backgroundcolor.setText(
             config.get("USER_INTERFACE", "background_color")
         )
+        self.checkBox_show2dimage.setChecked(
+            config.getboolean("USER_INTERFACE", "show_2d_image")
+        )
 
     def save(self) -> None:
         # File
@@ -142,7 +145,10 @@ class SettingsDialog(QDialog):
             self.checkBox_showfloor.isChecked()
         )
         config["USER_INTERFACE"]["show_orientation"] = str(
-            self.checkBox_keepperspective.isChecked()
+            self.checkBox_showbboxorientation.isChecked()
+        )
+        config["USER_INTERFACE"]["show_2d_image"] = str(
+            self.checkBox_show2dimage.isChecked()
         )
         config["USER_INTERFACE"]["keep_perspective"] = str(
             self.checkBox_keepperspective.isChecked()
