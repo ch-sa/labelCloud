@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 import numpy as np
 import OpenGL.GL as GL
-from control.config_manager import config
+
+from ..control.config_manager import config
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)

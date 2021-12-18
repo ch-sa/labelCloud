@@ -1,12 +1,14 @@
-from typing import List, Tuple, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 
 import numpy as np
 import OpenGL.GL as GL
-from model.bbox import BBox
-from model.point_cloud import PointCloud
 from OpenGL import GLU
 
-from utils import math3d
+from ..definitions import BBOX_SIDES
+from . import math3d
+
+if TYPE_CHECKING:
+    from ..model import BBox, PointCloud
 
 Color4f = Tuple[float, float, float, float]  # type alias for type hinting
 PointList = List[List[float]]
@@ -65,7 +67,7 @@ def draw_cuboid(
 ) -> None:
     # flatten side vertices
     side_vertices = [
-        index for side_indices in BBox.BBOX_SIDES.values() for index in side_indices
+        index for side_indices in BBOX_SIDES.values() for index in side_indices
     ]
     rectangle_vertices = np.array(vertices)[side_vertices]
     draw_rectangles(rectangle_vertices, color=color)
@@ -87,7 +89,7 @@ def draw_crosshair(
     GL.glEnd()
 
 
-def draw_xy_plane(pcd: PointCloud) -> None:
+def draw_xy_plane(pcd: "PointCloud") -> None:
     mins, maxs = pcd.get_mins_maxs()
     x_min, y_min = np.floor(mins[:2]).astype(int)
     x_max, y_max = np.ceil(maxs[:2]).astype(int)
@@ -129,7 +131,7 @@ def get_pick_ray(
 
 
 def get_intersected_bboxes(
-    x: float, y: float, bboxes: List[BBox], modelview, projection
+    x: float, y: float, bboxes: List["BBox"], modelview, projection
 ) -> Union[int, None]:
     """Checks if the picking ray intersects any bounding box from bboxes.
 
@@ -158,7 +160,7 @@ def get_intersected_bboxes(
 
 
 def get_intersected_sides(
-    x: float, y: float, bbox: BBox, modelview, projection
+    x: float, y: float, bbox: "BBox", modelview, projection
 ) -> Union[Tuple[List[int], str], Tuple[None, None]]:
     """Checks if and with which side of the given bounding box the picking ray intersects.
 
@@ -173,7 +175,7 @@ def get_intersected_sides(
     vertices = bbox.get_vertices()
 
     intersections = list()  # (intersection_point, bounding box side)
-    for side, indices in BBox.BBOX_SIDES.items():
+    for side, indices in BBOX_SIDES.items():
         # Calculate plane equation
         pl1 = vertices[indices[0]]  # point in plane
         v1 = np.subtract(vertices[indices[1]], pl1)

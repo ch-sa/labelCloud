@@ -2,8 +2,7 @@ import os
 import re
 from typing import TYPE_CHECKING, List, Set
 
-from control.config_manager import config
-from labeling_strategies import PickingStrategy, SpanningStrategy
+import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QPixmap
@@ -16,11 +15,13 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
+from ..control.config_manager import config
+from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog
 from .viewer import GLWidget
 
 if TYPE_CHECKING:
-    from control.controller import Controller
+    from ..control.controller import Controller
 
 
 def string_is_float(string: str, recect_negative: bool = False) -> bool:
@@ -51,7 +52,12 @@ class GUI(QtWidgets.QMainWindow):
     def __init__(self, control: "Controller") -> None:
         super(GUI, self).__init__()
         print(os.getcwd())
-        uic.loadUi("labelCloud/ressources/interface.ui", self)
+        uic.loadUi(
+            pkg_resources.resource_filename(
+                "labelCloud.ressources.interfaces", "interface.ui"
+            ),
+            self,
+        )
         self.resize(1500, 900)
         self.setWindowTitle("labelCloud")
 

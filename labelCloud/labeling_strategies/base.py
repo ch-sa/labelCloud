@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
 
-from model.bbox import BBox
-
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..model import BBox
+    from ..view.gui import GUI
 
 
 class BaseLabelingStrategy(ABC):
@@ -30,7 +29,7 @@ class BaseLabelingStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_bbox(self) -> BBox:
+    def get_bbox(self) -> "BBox":
         raise NotImplementedError
 
     def draw_preview(self) -> None:

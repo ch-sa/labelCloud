@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING, List
 
 import numpy as np
-import utils.math3d as math3d
-import utils.oglhelper as ogl
-from control.config_manager import config
-from model import BBox
 
+from ..control.config_manager import config
+from ..model import BBox
+from ..utils import math3d as math3d
+from ..utils import oglhelper as ogl
 from . import BaseLabelingStrategy
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
 
 import numpy as np
 

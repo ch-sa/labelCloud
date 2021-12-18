@@ -6,12 +6,12 @@ saved up and the aligned current will overwrite the old.
 from typing import TYPE_CHECKING, Union
 
 import numpy as np
-import utils.oglhelper as ogl
 
+from ..utils import oglhelper as ogl
 from .pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
 
 
 class AlignMode(object):

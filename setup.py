@@ -1,9 +1,8 @@
 from setuptools import setup
 
-
 setup(
     name="labelCloud",
-    version="0.6.0",
+    version="0.6.1",
     description="A lightweight tool for labeling 3D bounding boxes in point clouds.",
     long_description=open("README.md").read(),
     author="Christoph Sager",
@@ -14,6 +13,7 @@ setup(
         "labelCloud",
         "labelCloud.ressources",
         "labelCloud.ressources.icons",
+        "labelCloud.ressources.interfaces",
         "labelCloud.tests",
         "labelCloud.control",
         "labelCloud.label_formats",

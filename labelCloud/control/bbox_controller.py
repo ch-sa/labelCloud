@@ -4,16 +4,16 @@ settings in one place.
 Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
-from model.bbox import BBox
-from utils import oglhelper
 
+from ..model.bbox import BBox
+from ..utils import oglhelper
 from .config_manager import config
 
 if TYPE_CHECKING:
-    from view.gui import GUI
+    from ..view.gui import GUI
 
 
 # DECORATORS
