@@ -130,6 +130,7 @@ class GUI(QtWidgets.QMainWindow):
 
         # 2d image viewer
         self.button_2D = self.findChild(QtWidgets.QPushButton, "button_open_2D")
+        self.button_2D.setVisible(config.getboolean("USER_INTERFACE", "show_2d_image"))
 
         # label mode selection
         self.button_activate_picking = self.findChild(

@@ -22,6 +22,103 @@
      <property name="rightMargin">
       <number>0</number>
      </property>
+     <item row="13" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_keepperspective">
+       <property name="toolTip">
+        <string>Applies the last perspective of the previous point cloud to the current point cloud when loading.</string>
+       </property>
+       <property name="text">
+        <string>Keep last Perspective between Point Clouds</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="label_pointcolor">
+       <property name="toolTip">
+        <string>Point color for colorless point clouds (r,g,b).</string>
+       </property>
+       <property name="text">
+        <string>Point Color
+(for colorless point clouds)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_labelfolder">
+       <property name="toolTip">
+        <string>Path to the folder where the label files will be saved.</string>
+       </property>
+       <property name="text">
+        <string>Label Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="title_userinterface">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">margin-top: 10px</string>
+       </property>
+       <property name="text">
+        <string>User Interface</string>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="1" colspan="2">
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="text">
+        <string>Note: Some settings might require a restart to take effect!</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="label_standardtranslation">
+       <property name="toolTip">
+        <string>Standard step for point cloud translation.</string>
+       </property>
+       <property name="text">
+        <string>Standard Translation</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QLineEdit" name="lineEdit_pointcolor">
+       <property name="toolTip">
+        <string>Point color for colorless point clouds (r,g,b).</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="2">
+      <widget class="QLineEdit" name="lineEdit_backgroundcolor">
+       <property name="toolTip">
+        <string>Background color of the point cloud viewer (rgb).</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="lineEdit_pointcloudfolder">
+       <property name="toolTip">
+        <string>Path to the folder that contains the point cloud files.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="lineEdit_labelfolder">
+       <property name="toolTip">
+        <string>Path to the folder where the label files will be saved.</string>
+       </property>
+      </widget>
+     </item>
      <item row="12" column="1" colspan="2">
       <widget class="QCheckBox" name="checkBox_showbboxorientation">
        <property name="toolTip">
@@ -29,17 +126,6 @@
        </property>
        <property name="text">
         <string>Show Bounding Box Orientation</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="1">
-      <widget class="QLabel" name="label_viewingprecision">
-       <property name="toolTip">
-        <string>number of decimal places shown for the parameters of the active bounding box.</string>
-       </property>
-       <property name="text">
-        <string>Viewing Precision of
-Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
@@ -53,10 +139,43 @@ Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QLineEdit" name="lineEdit_labelfolder">
+     <item row="8" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_colorizecolorless">
        <property name="toolTip">
-        <string>Path to the folder where the label files will be saved.</string>
+        <string>Colerize colorless point clouds by height value.</string>
+       </property>
+       <property name="text">
+        <string>Colorize colorless point clouds by height</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_pointsize">
+       <property name="toolTip">
+        <string>Rasterized diameter of each point from the point cloud.</string>
+       </property>
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="maximum">
+        <double>500.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="label_pointsize">
+       <property name="toolTip">
+        <string>Rasterized diameter of each point from the point cloud.</string>
+       </property>
+       <property name="text">
+        <string>Point Size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="2">
+      <widget class="QSpinBox" name="spinBox_viewingprecision">
+       <property name="toolTip">
+        <string>number of decimal places shown for the parameters of the active bounding box.</string>
        </property>
       </widget>
      </item>
@@ -73,13 +192,16 @@ Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_labelfolder">
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_standardtranslation">
        <property name="toolTip">
-        <string>Path to the folder where the label files will be saved.</string>
+        <string>Standard step for point cloud translation.</string>
        </property>
-       <property name="text">
-        <string>Label Folder</string>
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
        </property>
       </widget>
      </item>
@@ -93,25 +215,58 @@ Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
-      <widget class="QLineEdit" name="lineEdit_pointcolor">
+     <item row="15" column="1">
+      <widget class="QLabel" name="label_viewingprecision">
        <property name="toolTip">
-        <string>Point color for colorless point clouds (r,g,b).</string>
+        <string>number of decimal places shown for the parameters of the active bounding box.</string>
+       </property>
+       <property name="text">
+        <string>Viewing Precision of
+Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_pointsize">
+     <item row="10" column="1">
+      <widget class="QLabel" name="label_backgroundcolor">
        <property name="toolTip">
-        <string>Rasterized diameter of each point from the point cloud.</string>
+        <string>Background color of the point cloud viewer (rgb).</string>
        </property>
-       <property name="decimals">
-        <number>2</number>
-       </property>
-       <property name="maximum">
-        <double>500.000000000000000</double>
+       <property name="text">
+        <string>Background Color</string>
        </property>
       </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="title_filesettings">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>File Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="1">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item row="3" column="1" colspan="2">
       <widget class="QLabel" name="title_pointcloudsettings">
@@ -135,95 +290,6 @@ Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEdit_pointcloudfolder">
-       <property name="toolTip">
-        <string>Path to the folder that contains the point cloud files.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="2">
-      <widget class="QLineEdit" name="lineEdit_backgroundcolor">
-       <property name="toolTip">
-        <string>Background color of the point cloud viewer (rgb).</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="2">
-      <widget class="QSpinBox" name="spinBox_viewingprecision">
-       <property name="toolTip">
-        <string>number of decimal places shown for the parameters of the active bounding box.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="title_filesettings">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>File Settings</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_standardtranslation">
-       <property name="toolTip">
-        <string>Standard step for point cloud translation.</string>
-       </property>
-       <property name="decimals">
-        <number>4</number>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1" colspan="2">
-      <widget class="QCheckBox" name="checkBox_colorizecolorless">
-       <property name="toolTip">
-        <string>Colerize colorless point clouds by height value.</string>
-       </property>
-       <property name="text">
-        <string>Colorize colorless point clouds by height</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QLabel" name="label_backgroundcolor">
-       <property name="toolTip">
-        <string>Background color of the point cloud viewer (rgb).</string>
-       </property>
-       <property name="text">
-        <string>Background Color</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1">
-      <widget class="QLabel" name="title_userinterface">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">margin-top: 10px</string>
-       </property>
-       <property name="text">
-        <string>User Interface</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QLabel" name="label_pointcloudfolder">
        <property name="toolTip">
@@ -234,69 +300,10 @@ Bounding Box Parameter</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="label_pointsize">
-       <property name="toolTip">
-        <string>Rasterized diameter of each point from the point cloud.</string>
-       </property>
+     <item row="14" column="1" colspan="2">
+      <widget class="QCheckBox" name="checkBox_show2dimage">
        <property name="text">
-        <string>Point Size</string>
-       </property>
-      </widget>
-     </item>
-     <item row="15" column="1">
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="16" column="1" colspan="2">
-      <widget class="QLabel" name="label">
-       <property name="font">
-        <font>
-         <italic>true</italic>
-        </font>
-       </property>
-       <property name="text">
-        <string>Note: Some settings might require a restart to take effect!</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLabel" name="label_standardtranslation">
-       <property name="toolTip">
-        <string>Standard step for point cloud translation.</string>
-       </property>
-       <property name="text">
-        <string>Standard Translation</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLabel" name="label_pointcolor">
-       <property name="toolTip">
-        <string>Point color for colorless point clouds (r,g,b).</string>
-       </property>
-       <property name="text">
-        <string>Point Color
-(for colorless point clouds)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="1" colspan="2">
-      <widget class="QCheckBox" name="checkBox_keepperspective">
-       <property name="toolTip">
-        <string>Applies the last perspective of the previous point cloud to the current point cloud when loading.</string>
-       </property>
-       <property name="text">
-        <string>Keep last Perspective between Point Clouds</string>
+        <string>Show related 2D Images in new Window</string>
        </property>
       </widget>
      </item>
