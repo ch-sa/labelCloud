@@ -11,10 +11,21 @@
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
 ![Overview of the Labeling Tool](docs/io_overview.png)
+
+:new: *labelCloud is now [part of the PyPI](https://pypi.org/project/labelCloud/) and can be installed via pip!*
+
 :new: *We are currently evaluating labelCloud and invite you to fill this questionaire https://forms.gle/moEyjGSa1Eiiq7VT8 (~5 min)!*
 
 ## Setup
-:information_source: *Currently labelCloud supports Python 3.6 to 3.8; Python 3.9 will be supported as soon as Open3D supports it!*
+:information_source: *Currently labelCloud supports Python 3.6 to 3.9.*
+
+### via pip (PyPI)
+```bash
+pip install labelCloud
+labelCloud  # by default looks for a `pointcloud` folder in the same directory
+```
+
+### via git (manually)
 
 ```bash
 git clone https://github.com/ch-sa/labelCloud.git  # 1. Clone repository
@@ -56,42 +67,42 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 
 **Supported Import Formats**
 
-| Type | File Formats |
-| --- | --- |
-| Colored | `*.pcd`, `*.ply`, `*.pts`, `*.xyzrgb` |
-| Colorless | `*.xyz`, `*.xyzn`, `*.bin` (KITTI)  |
+| Type      | File Formats                          |
+| --------- | ------------------------------------- |
+| Colored   | `*.pcd`, `*.ply`, `*.pts`, `*.xyzrgb` |
+| Colorless | `*.xyz`, `*.xyzn`, `*.bin` (KITTI)    |
 
 **Supported Export Formats**
 
-| Label Format | Description |
-| --- | --- |
-| `centroid_rel` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
-| `centroid_abs` | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]` |
-| `vertices` | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order) |
-| `kitti` | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
-| `kitti_untransformed` | See above, but without transformations. |
+| Label Format          | Description                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
+| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`  |
+| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order)                                 |
+| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| `kitti_untransformed` | See above, but without transformations.                                                                                                        |
 
 You can easily create your own exporter by subclassing the abstract [BaseLabelFormat](https://github.com/ch-sa/labelCloud/blob/master/labelCloud/label_formats/base.py#L10).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
 
 ## Shortcuts
 
-| Shortcut | Description |
-| :---: | --- |
-| *Navigation* | |
-| Left Mouse Button | Rotates the Point Cloud |
-| Right Mouse Button | Translates the Point Cloud |
-| Mouse Wheel | Zooms into the Point Cloud |
-| *Correction* | |
-| `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button | Translates the Bounding Box back, left, front, right |
-| `Q`, `E` | Lifts the Bounding Box up, down |
-| `X`, `Y` | Rotates the Boundign Box around z-Axis |
-| Scrolling with the Cursor above a Bounding Box Side ("Side Pulling") | Changes the Dimension of the Bounding Box |
-|`C` & `V`, `B` & `N` | Rotates the Bounding Box around y-Axis, x-Axis |
-| *General* | |
-| `Del` | Deletes Current Bounding Box |
-| `R` | Resets Perspective |
-| `Esc` | Cancels Selected Points |
+|                               Shortcut                               | Description                                          |
+| :------------------------------------------------------------------: | ---------------------------------------------------- |
+|                             *Navigation*                             |                                                      |
+|                          Left Mouse Button                           | Rotates the Point Cloud                              |
+|                          Right Mouse Button                          | Translates the Point Cloud                           |
+|                             Mouse Wheel                              | Zooms into the Point Cloud                           |
+|                             *Correction*                             |                                                      |
+|         `W`, `A`, `S`, `D` <br> `Ctrl` + Right Mouse Button          | Translates the Bounding Box back, left, front, right |
+|                               `Q`, `E`                               | Lifts the Bounding Box up, down                      |
+|                               `X`, `Y`                               | Rotates the Boundign Box around z-Axis               |
+| Scrolling with the Cursor above a Bounding Box Side ("Side Pulling") | Changes the Dimension of the Bounding Box            |
+|                         `C` & `V`, `B` & `N`                         | Rotates the Bounding Box around y-Axis, x-Axis       |
+|                              *General*                               |                                                      |
+|                                `Del`                                 | Deletes Current Bounding Box                         |
+|                                 `R`                                  | Resets Perspective                                   |
+|                                `Esc`                                 | Cancels Selected Points                              |
 
 
 See [documentation.md](docs/documentation.md) for software conventions.
