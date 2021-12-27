@@ -12,7 +12,7 @@ class SettingsDialog(QDialog):
         self.parent_gui = parent
         uic.loadUi(
             pkg_resources.resource_filename(
-                "labelcloud.ressources.interfaces", "settings_interface.ui"
+                "labelCloud.ressources.interfaces", "settings_interface.ui"
             ),
             self,
         )
