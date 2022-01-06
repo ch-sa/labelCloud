@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://img.shields.io/badge/contributions-welcome!-green" alt="Contributions welcome!"/>
     <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
-    <img src="https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8-blue" />
+    <img src="https://img.shields.io/pypi/pyversions/labelCloud" />
     <img src="https://github.com/ch-sa/labelCloud/workflows/Tests/badge.svg" />
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg" />
 </p>
@@ -10,7 +10,7 @@
 # labelCloud
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
-![Overview of the Labeling Tool](docs/io_overview.png)
+![Overview of the Labeling Tool](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/io_overview.png)
 
 :new: *labelCloud is now [part of the PyPI](https://pypi.org/project/labelCloud/) and can be installed via pip!*
 
@@ -34,12 +34,12 @@ pip install -r requirements.txt  # 2. Install requirements
 python3 labelCloud.py  # 4. Start labelCloud
 ```
 
-Configure the software to your needs by editing the `config.ini` file or settings according to the [docs](docs/documentation.md).
+Configure the software to your needs by editing the `config.ini` file or settings according to the [docs](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md).
 
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
-![Screencast of the Labeling Methods](docs/screencast_small.gif)
+![Screencast of the Labeling Methods](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/screencast_small.gif)
 (See also https://www.youtube.com/watch?v=8GF9n1WeR8A for a short introduction and preview of the tool.)
 
 **Picking Mode**
@@ -63,7 +63,7 @@ Now you will be free to rotate around all three axes.
 
 ## Import & Export Options
 labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
-The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [documentation](docs/documentation.md) for a description of all parameters).
+The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [documentation](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md)) for a description of all parameters).
 
 **Supported Import Formats**
 
@@ -74,13 +74,13 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 
 **Supported Export Formats**
 
-| Label Format          | Description                                                                                                                                    |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
-| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`  |
-| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](docs/documentation.md) for order)                                 |
-| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
-| `kitti_untransformed` | See above, but without transformations.                                                                                                        |
+| Label Format          | Description                                                                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]`                 |
+| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`                  |
+| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md) for order) |
+| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt))                 |
+| `kitti_untransformed` | See above, but without transformations.                                                                                                                        |
 
 You can easily create your own exporter by subclassing the abstract [BaseLabelFormat](https://github.com/ch-sa/labelCloud/blob/master/labelCloud/label_formats/base.py#L10).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
@@ -105,7 +105,7 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 |                                `Esc`                                 | Cancels Selected Points                              |
 
 
-See [documentation.md](docs/documentation.md) for software conventions.
+See [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md) for software conventions.
 
 ## Usage & Attribution
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
