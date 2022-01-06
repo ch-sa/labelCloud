@@ -8,12 +8,12 @@ README = (this_directory / "README.md").read_text()
 
 setup(
     name="labelCloud",
-    version="0.6.4",
+    version="0.6.5",
     description="A lightweight tool for labeling 3D bounding boxes in point clouds.",
     long_description=README,
     long_description_content_type="text/markdown",
-    author="Christoph Sager",
-    author_email="christoph.sager@gmail.com",
+    maintainer="Christoph Sager",
+    maintainer_email="christoph.sager@gmail.com",
     url="https://github.com/ch-sa/labelCloud",
     license="GNU Geneal Public License v3.0",
     packages=[
@@ -37,19 +37,31 @@ setup(
     },
     entry_points={"console_scripts": ["labelCloud=labelCloud.__main__:main"]},
     install_requires=[
-        "numpy~=1.21.4",
-        "open3d~=0.14.1",
-        "PyOpenGL~=3.1.5",
-        "PyQt5~=5.14.1",
+        "numpy",
+        "open3d",
+        "PyOpenGL",
+        "PyQt5 <= 5.14.1;platform_system=='Windows'",  # avoids PyQt5 incompatibility on windows
+        "PyQt5;platform_system!='Windows'",
     ],
     extras_require={
         "tests": [
-            "pytest~=6.2.4",
-            "pytest-qt~=4.0.2",
+            "pytest",
+            "pytest-qt",
         ],
     },
     zip_safe=False,
-    keywords="labelCloud",
+    keywords=[
+        "labelCloud",
+        "machine learning",
+        "computer vision",
+        "annotation tool",
+        "labeling",
+        "point clouds",
+        "bounding boxes",
+        "3d object detection",
+        "6d pose estimation",
+    ],
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Natural Language :: English",
@@ -62,4 +74,9 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Multimedia :: Graphics :: Viewers",
     ],
+    project_urls={
+        "GitHub": "https://github.com/ch-sa/labelCloud",
+        "YouTube Demo": "https://www.youtube.com/watch?v=8GF9n1WeR8A",
+        "Publication": "https://arxiv.org/abs/2103.04970",
+    },
 )
