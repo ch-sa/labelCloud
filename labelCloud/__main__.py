@@ -28,6 +28,8 @@ def setup_example_project() -> None:
     import shutil
     from pathlib import Path
 
+    import pkg_resources
+
     from labelCloud.control.config_manager import config
 
     print(
@@ -43,17 +45,20 @@ def setup_example_project() -> None:
     label_folder.mkdir(exist_ok=True)
 
     # Copy example files
-    ressources_dir = Path(__file__).resolve().parent.joinpath("ressources")
     shutil.copy(
-        str(ressources_dir.joinpath("default_config.ini")),
+        pkg_resources.resource_filename("labelCloud.ressources", "default_config.ini"),
         str(cwdir.joinpath("config.ini")),
     )
     shutil.copy(
-        str(ressources_dir.joinpath("examples").joinpath("exemplary.ply")),
+        pkg_resources.resource_filename(
+            "labelCloud.ressources.examples", "exemplary.ply"
+        ),
         str(pcd_folder.joinpath("exemplary.ply")),
     )
     shutil.copy(
-        str(ressources_dir.joinpath("examples").joinpath("exemplary.json")),
+        pkg_resources.resource_filename(
+            "labelCloud.ressources.examples", "exemplary.json"
+        ),
         str(label_folder.joinpath("exemplary.json")),
     )
     print(
