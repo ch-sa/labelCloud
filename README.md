@@ -22,7 +22,7 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 ### via pip (PyPI)
 ```bash
 pip install labelCloud
-labelCloud  # by default looks for a `pointcloud` folder in the same directory
+labelCloud --example  # start labelCloud with example point cloud
 ```
 
 ### via git (manually)

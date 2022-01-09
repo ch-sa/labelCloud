@@ -1,13 +1,77 @@
-import sys
+import argparse
 
-from PyQt5.QtWidgets import QApplication, QDesktopWidget
-
-
-from labelCloud.view.gui import GUI
-from labelCloud.control.controller import Controller
+from labelCloud import __version__
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Label 3D bounding boxes inside point clouds."
+    )
+    parser.add_argument(
+        "-e",
+        "--example",
+        action="store_true",
+        help="Setup a project with an example point cloud and label.",
+    )
+    parser.add_argument(
+        "-v", "--version", action="version", version="%(prog)s " + __version__
+    )
+    args = parser.parse_args()
+
+    if args.example:
+        setup_example_project()
+
+    start_gui()
+
+
+def setup_example_project() -> None:
+    import shutil
+    from pathlib import Path
+
+    from labelCloud.control.config_manager import config
+
+    print(
+        "Starting labelCloud in example mode.\n"
+        "Setting up project with example point cloud ,label and default config."
+    )
+    cwdir = Path().cwd()
+
+    # Create folders
+    pcd_folder = cwdir.joinpath(config.get("FILE", "pointcloud_folder"))
+    pcd_folder.mkdir(exist_ok=True)
+    label_folder = cwdir.joinpath(config.get("FILE", "label_folder"))
+    label_folder.mkdir(exist_ok=True)
+
+    # Copy example files
+    ressources_dir = Path(__file__).resolve().parent.joinpath("ressources")
+    shutil.copy(
+        str(ressources_dir.joinpath("default_config.ini")),
+        str(cwdir.joinpath("config.ini")),
+    )
+    shutil.copy(
+        str(ressources_dir.joinpath("examples").joinpath("exemplary.ply")),
+        str(pcd_folder.joinpath("exemplary.ply")),
+    )
+    shutil.copy(
+        str(ressources_dir.joinpath("examples").joinpath("exemplary.json")),
+        str(label_folder.joinpath("exemplary.json")),
+    )
+    print(
+        f"Setup example project in {cwdir}:"
+        "\n - config.ini"
+        "\n - pointclouds/exemplary.ply"
+        "\n - labels/exemplary.json"
+    )
+
+
+def start_gui():
+    import sys
+
+    from PyQt5.QtWidgets import QApplication, QDesktopWidget
+
+    from labelCloud.control.controller import Controller
+    from labelCloud.view.gui import GUI
+
     app = QApplication(sys.argv)
 
     # Setup Model-View-Control structure
