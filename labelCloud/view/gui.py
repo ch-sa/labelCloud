@@ -1,4 +1,3 @@
-import os
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Set
@@ -81,7 +80,7 @@ class GUI(QtWidgets.QMainWindow):
         super(GUI, self).__init__()
         uic.loadUi(
             pkg_resources.resource_filename(
-                "labelCloud.ressources.interfaces", "interface.ui"
+                "labelCloud.resources.interfaces", "interface.ui"
             ),
             self,
         )
@@ -92,7 +91,7 @@ class GUI(QtWidgets.QMainWindow):
                 icons_dir=str(
                     Path(__file__)
                     .resolve()
-                    .parent.parent.joinpath("ressources")
+                    .parent.parent.joinpath("resources")
                     .joinpath("icons")
                 )
             )
@@ -422,12 +421,11 @@ class GUI(QtWidgets.QMainWindow):
 
     def show_2d_image(self):
         """Searches for a 2D image with the point cloud name and displays it in a new window."""
-
-        image_folder = os.path.join(config.get("FILE", "image_folder"))
+        image_folder = config.getpath("FILE", "image_folder")
 
         # Look for image files with the name of the point cloud
-        files_in_image_folder = os.listdir(image_folder)
-        pcd_name = os.path.splitext(self.controller.pcd_manager.get_current_name())[0]
+        files_in_image_folder = sorted(image_folder.iterdir())
+        pcd_name = self.controller.pcd_manager.pcd_path.stem
         image_file_pattern = re.compile(f"{pcd_name}+(\.(?i:(jpe?g|png|gif|bmp|tiff)))")
 
         try:
@@ -443,15 +441,15 @@ class GUI(QtWidgets.QMainWindow):
                 QMessageBox.Ok,
             )
         else:
-            image_path = os.path.join(image_folder, image_name)
-            image = QtGui.QImage(QtGui.QImageReader(image_path).read())
+            image_path = image_folder.joinpath(image_name)
+            image = QtGui.QImage(QtGui.QImageReader(str(image_path)).read())
             self.imageLabel = QLabel()
             self.imageLabel.setWindowTitle(f"2D Image ({image_name})")
             self.imageLabel.setPixmap(QPixmap.fromImage(image))
             self.imageLabel.show()
 
     def show_no_pointcloud_dialog(
-        self, pcd_folder: str, pcd_extensions: List[str]
+        self, pcd_folder: Path, pcd_extensions: List[str]
     ) -> None:
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)

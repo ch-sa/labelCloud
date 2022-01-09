@@ -64,7 +64,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         print("Intialized widget.")
 
         # Must be written again, due to buffer clearing
-        self.pcd_manager.get_pointcloud().write_vbo()
+        self.pcd_manager.pointcloud.write_vbo()
 
     def resizeGL(self, width, height) -> None:
         print("Resized widget.")
@@ -81,7 +81,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPushMatrix()  # push the current matrix to the current stack
 
         # Draw point cloud
-        self.pcd_manager.get_pointcloud().draw_pointcloud()
+        self.pcd_manager.pointcloud.draw_pointcloud()
 
         # Get actual matrices for click unprojection
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
@@ -91,7 +91,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDepthMask(GL.GL_FALSE)
 
         if config.getboolean("USER_INTERFACE", "show_floor"):
-            oglhelper.draw_xy_plane(self.pcd_manager.get_pointcloud())
+            oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)
 
         # Draw crosshair/ cursor in 3D world
         if self.crosshair_pos:

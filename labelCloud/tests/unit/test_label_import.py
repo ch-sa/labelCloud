@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 from labelCloud.control.label_manager import LabelManager
@@ -17,14 +18,14 @@ def label_centroid():  # absolute and relative
     "label_format, rotation",
     [("centroid_abs", (0, 0, 1.616616)), ("centroid_rel", (0, 0, 92.6252738933211))],
 )
-def test_centroid_import(label_centroid, tmpdir, label_format, rotation):
+def test_centroid_import(label_centroid, tmppath, label_format, rotation):
     # Write label to file
-    with open(os.path.join(tmpdir, "test.json"), "w") as write_file:
+    with tmppath.joinpath("test.json").open("w") as write_file:
         write_file.write(label_centroid)
 
     # Import label file
-    label_manager = LabelManager(strategy=label_format, path_to_label_folder=tmpdir)
-    bounding_boxes = label_manager.import_labels("test.ply")
+    label_manager = LabelManager(strategy=label_format, path_to_label_folder=tmppath)
+    bounding_boxes = label_manager.import_labels(Path("test.ply"))
     bbox = bounding_boxes[0]
 
     # Check label content
@@ -43,14 +44,14 @@ def label_vertices():
     return label
 
 
-def test_vertices(label_vertices, tmpdir):
+def test_vertices(label_vertices, tmppath):
     # Write label to file
-    with open(os.path.join(tmpdir, "test.json"), "w") as write_file:
+    with tmppath.joinpath("test.json").open("w") as write_file:
         write_file.write(label_vertices)
 
     # Import label file
-    label_manager = LabelManager(strategy="vertices", path_to_label_folder=tmpdir)
-    bounding_boxes = label_manager.import_labels("test.ply")
+    label_manager = LabelManager(strategy="vertices", path_to_label_folder=tmppath)
+    bounding_boxes = label_manager.import_labels(Path("test.ply"))
     bbox = bounding_boxes[0]
 
     # Check label content
@@ -68,16 +69,16 @@ def label_kitti():
     return label
 
 
-def test_kitti(label_kitti, tmpdir):
+def test_kitti(label_kitti, tmppath):
     # Write label to file
-    with open(os.path.join(tmpdir, "test.txt"), "w") as write_file:
+    with open(os.path.join(tmppath, "test.txt"), "w") as write_file:
         write_file.write(label_kitti)
 
     # Import label file
     label_manager = LabelManager(
-        strategy="kitti_untransformed", path_to_label_folder=tmpdir
+        strategy="kitti_untransformed", path_to_label_folder=tmppath
     )
-    bounding_boxes = label_manager.import_labels("test.txt")
+    bounding_boxes = label_manager.import_labels(Path("test.txt"))
     bbox = bounding_boxes[0]
 
     # Check label content
