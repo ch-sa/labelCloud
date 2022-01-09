@@ -1,6 +1,6 @@
 import json
-import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
@@ -11,7 +11,9 @@ from ..model import BBox
 class BaseLabelFormat(ABC):
     FILE_ENDING = ".json"
 
-    def __init__(self, label_folder, export_precision, relative_rotation=False) -> None:
+    def __init__(
+        self, label_folder: Path, export_precision: int, relative_rotation: bool = False
+    ) -> None:
         self.label_folder = label_folder
         print("Set export strategy to %s." % self.__class__.__name__)
         self.export_precision = export_precision
@@ -26,35 +28,34 @@ class BaseLabelFormat(ABC):
         else:
             print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
 
-    def update_label_folder(self, new_label_folder) -> None:
+    def update_label_folder(self, new_label_folder: Path) -> None:
         self.label_folder = new_label_folder
+        print(f"Updated label folder to {new_label_folder}.")
 
     def round_dec(self, x, decimal_places: Optional[int] = None) -> List[float]:
         if not decimal_places:
             decimal_places = self.export_precision
         return np.round(x, decimal_places).tolist()
 
-    def save_label_to_file(self, pcd_name: str, data: Union[dict, str]) -> str:
-        path_to_file = os.path.join(
-            self.label_folder, os.path.splitext(pcd_name)[0] + self.FILE_ENDING
-        )
+    def save_label_to_file(self, pcd_path: Path, data: Union[dict, str]) -> Path:
+        label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
 
-        if os.path.isfile(path_to_file):
-            print("File %s already exists, replacing file ..." % path_to_file)
-        if os.path.splitext(path_to_file)[1] == ".json":
-            with open(path_to_file, "w") as write_file:
+        if label_path.is_file():
+            print("File %s already exists, replacing file ..." % label_path)
+        if label_path.suffix == ".json":
+            with open(label_path, "w") as write_file:
                 json.dump(data, write_file, indent="\t")
         else:
-            with open(path_to_file, "w") as write_file:
+            with open(label_path, "w") as write_file:
                 write_file.write(data)
-        return path_to_file
+        return label_path
 
     @abstractmethod
-    def import_labels(self, pcd_name_stripped) -> List[BBox]:
+    def import_labels(self, pcd_path: Path) -> List[BBox]:
         raise NotImplementedError
 
     @abstractmethod
-    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path) -> None:
+    def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
         raise NotImplementedError
 
 

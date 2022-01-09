@@ -1,4 +1,5 @@
 import ctypes
+from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
@@ -23,7 +24,7 @@ def create_buffer(attributes) -> GL.glGenBuffers:
 
 
 class PointCloud(object):
-    def __init__(self, path) -> None:
+    def __init__(self, path: Path) -> None:
         self.path_to_pointcloud = path
         self.points = None
         self.colors = None

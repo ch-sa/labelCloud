@@ -46,18 +46,18 @@ def setup_example_project() -> None:
 
     # Copy example files
     shutil.copy(
-        pkg_resources.resource_filename("labelCloud.ressources", "default_config.ini"),
+        pkg_resources.resource_filename("labelCloud.resources", "default_config.ini"),
         str(cwdir.joinpath("config.ini")),
     )
     shutil.copy(
         pkg_resources.resource_filename(
-            "labelCloud.ressources.examples", "exemplary.ply"
+            "labelCloud.resources.examples", "exemplary.ply"
         ),
         str(pcd_folder.joinpath("exemplary.ply")),
     )
     shutil.copy(
         pkg_resources.resource_filename(
-            "labelCloud.ressources.examples", "exemplary.json"
+            "labelCloud.resources.examples", "exemplary.json"
         ),
         str(label_folder.joinpath("exemplary.json")),
     )

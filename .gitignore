@@ -10,6 +10,10 @@
 *.qt_for_python
 .idea
 
+!labelCloud/resources/examples/exemplary.ply
+!labelCloud/resources/examples/exemplary.json
+!labelCloud/resources/labelCloud_icon.pcd
+
 # ---------------------------------------------------------------------------- #
 #                                   GENERATED                                  #
 # ---------------------------------------------------------------------------- #

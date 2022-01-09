@@ -2,9 +2,8 @@
 Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
-import ntpath
-import os
 from dataclasses import dataclass
+from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
@@ -29,7 +28,7 @@ class Perspective(object):
 
 def color_pointcloud(points, z_min, z_max) -> np.ndarray:
     palette = np.loadtxt(
-        pkg_resources.resource_filename("labelCloud.ressources", "rocket-palette.txt")
+        pkg_resources.resource_filename("labelCloud.resources", "rocket-palette.txt")
     )
     palette_len = len(palette) - 1
 
@@ -48,8 +47,8 @@ class PointCloudManger(object):
 
     def __init__(self) -> None:
         # Point cloud management
-        self.pcd_folder = config.get("FILE", "pointcloud_folder")
-        self.pcds = []
+        self.pcd_folder = config.getpath("FILE", "pointcloud_folder")
+        self.pcds: List[Path] = []
         self.current_id = -1
 
         self.current_o3d_pcd = None
@@ -61,12 +60,21 @@ class PointCloudManger(object):
         self.collected_object_classes = set()
         self.saved_perspective: Perspective = None
 
+    @property
+    def pcd_path(self) -> Path:
+        return self.pcds[self.current_id]
+
+    @property
+    def pcd_name(self) -> Optional[str]:
+        if self.current_id >= 0:
+            return self.pcd_path.name
+
     def read_pointcloud_folder(self) -> None:
         """Checks point cloud folder and sets self.pcds to all valid point cloud file names."""
-        if os.path.isdir(self.pcd_folder):
+        if self.pcd_folder.is_dir():
             self.pcds = []
-            for file in sorted(os.listdir(self.pcd_folder), key=str.casefold):
-                if file.endswith(tuple(PointCloudManger.PCD_EXTENSIONS)):
+            for file in sorted(self.pcd_folder.iterdir()):
+                if file.suffix in PointCloudManger.PCD_EXTENSIONS:
                     self.pcds.append(file)
         else:
             print(f"Point cloud path {self.pcd_folder} is not a valid directory.")
@@ -85,7 +93,7 @@ class PointCloudManger(object):
             )
             self.pointcloud = self.load_pointcloud(
                 pkg_resources.resource_filename(
-                    "labelCloud.ressources", "labelCloud_icon.pcd"
+                    "labelCloud.resources", "labelCloud_icon.pcd"
                 )
             )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
@@ -101,7 +109,7 @@ class PointCloudManger(object):
         print("Loading next point cloud...")
         if self.pcds_left():
             self.current_id += 1
-            self.pointcloud = self.load_pointcloud(self.get_current_path())
+            self.pointcloud = self.load_pointcloud(self.pcd_path)
             self.update_pcd_infos()
         else:
             print("No point clouds left!")
@@ -110,27 +118,13 @@ class PointCloudManger(object):
         print("Loading previous point cloud...")
         if self.current_id > 0:
             self.current_id -= 1
-            self.pointcloud = self.load_pointcloud(self.get_current_path())
+            self.pointcloud = self.load_pointcloud(self.pcd_path)
             self.update_pcd_infos()
         else:
             raise Exception("No point cloud left for loading!")
 
-    def get_pointcloud(self) -> PointCloud:
-        return self.pointcloud
-
-    def get_current_name(self) -> str:
-        if self.current_id >= 0:
-            return self.pcds[self.current_id]
-
-    def get_current_details(self) -> Tuple[str, int, int]:
-        if self.current_id >= 0:
-            return self.get_current_name(), self.current_id + 1, len(self.pcds)
-
-    def get_current_path(self) -> str:
-        return os.path.join(self.pcd_folder, self.pcds[self.current_id])
-
     def get_labels_from_file(self) -> List[BBox]:
-        bboxes = self.label_manager.import_labels(self.get_current_name())
+        bboxes = self.label_manager.import_labels(self.pcd_path)
         print("Loaded %s bboxes!" % len(bboxes))
         return bboxes
 
@@ -141,7 +135,7 @@ class PointCloudManger(object):
 
     def save_labels_into_file(self, bboxes: List[BBox]) -> None:
         if self.pcds:
-            self.label_manager.export_labels(self.get_current_path(), bboxes)
+            self.label_manager.export_labels(self.pcd_path, bboxes)
             self.collected_object_classes.update(
                 {bbox.get_classname() for bbox in bboxes}
             )
@@ -162,15 +156,13 @@ class PointCloudManger(object):
             print("Reset saved perspective.")
 
     # MANIPULATOR
-    def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
-        print("=" * 20, "Loading", ntpath.basename(path_to_pointcloud), "=" * 20)
+    def load_pointcloud(self, path_to_pointcloud: Path) -> PointCloud:
+        print("=" * 20, "Loading", path_to_pointcloud.name, "=" * 20)
 
         if config.getboolean("USER_INTERFACE", "keep_perspective"):
             self.save_current_perspective()
 
-        if (
-            os.path.splitext(path_to_pointcloud)[1] == ".bin"
-        ):  # Loading binary pcds with numpy
+        if path_to_pointcloud.suffix == ".bin":  # Loading binary pcds with numpy
             bin_pcd = np.fromfile(path_to_pointcloud, dtype=np.float32)
             points = bin_pcd.reshape((-1, 4))[
                 :, 0:3
@@ -178,10 +170,8 @@ class PointCloudManger(object):
             self.current_o3d_pcd = o3d.geometry.PointCloud(
                 o3d.utility.Vector3dVector(points)
             )
-        else:
-            self.current_o3d_pcd = o3d.io.read_point_cloud(
-                path_to_pointcloud
-            )  # Load point cloud with open3d
+        else:  # Load point cloud with open3d
+            self.current_o3d_pcd = o3d.io.read_point_cloud(str(path_to_pointcloud))
 
         tmp_pcd = PointCloud(path_to_pointcloud)
         tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype(
@@ -271,15 +261,13 @@ class PointCloudManger(object):
         self, axis: List[float], angle: float, rotation_point: List[float]
     ) -> None:
         # Save current, original point cloud in ORIGINALS_FOLDER
-        originals_path = os.path.join(
-            self.pcd_folder, PointCloudManger.ORIGINALS_FOLDER
-        )
-        if not os.path.exists(originals_path):
-            os.mkdir(originals_path)
+        originals_path = self.pcd_folder.joinpath(PointCloudManger.ORIGINALS_FOLDER)
+        originals_path.mkdir(parents=True, exist_ok=True)
         copyfile(
-            self.get_current_path(),
-            os.path.join(originals_path, self.get_current_name()),
+            str(self.pcd_path),
+            str(originals_path.joinpath(self.pcd_name)),
         )
+
         # Rotate and translate point cloud
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
             np.multiply(axis, angle)
@@ -298,11 +286,11 @@ class PointCloudManger(object):
                 center=(0, 0, 0),
             )
 
-        save_path = self.get_current_path()
-        if os.path.splitext(save_path)[1] == ".bin":
-            save_path = save_path[:-4] + ".pcd"
+        save_path = self.pcd_path
+        if save_path.suffix == ".bin":  # save .bin point clouds as .pcd
+            save_path = save_path.parent.joinpath(save_path.stem + ".pcd")
 
-        o3d.io.write_point_cloud(save_path, self.current_o3d_pcd)
+        o3d.io.write_point_cloud(str(save_path), self.current_o3d_pcd)
         self.pointcloud = self.load_pointcloud(save_path)
 
     # HELPER
@@ -323,7 +311,7 @@ class PointCloudManger(object):
     # UPDATE GUI
 
     def update_pcd_infos(self, pointcloud_label: str = None) -> None:
-        self.view.set_pcd_label(pointcloud_label or self.get_current_name())
+        self.view.set_pcd_label(pointcloud_label or self.pcd_name)
         self.view.update_progress(self.current_id)
 
         if self.current_id <= 0:

@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 from typing import List
 
 import numpy as np
@@ -12,12 +12,12 @@ from . import BaseLabelFormat
 class VerticesFormat(BaseLabelFormat):
     FILE_ENDING = ".json"
 
-    def import_labels(self, pcd_name_stripped) -> List[BBox]:
+    def import_labels(self, pcd_path: Path) -> List[BBox]:
         labels = []
-        path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".json")
 
-        if os.path.isfile(path_to_label):
-            with open(path_to_label, "r") as read_file:
+        label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
+        if label_path.is_file():
+            with label_path.open("r") as read_file:
                 data = json.load(read_file)
 
             for label in data["objects"]:
@@ -40,15 +40,15 @@ class VerticesFormat(BaseLabelFormat):
                 bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
                 labels.append(bbox)
-            print("Imported %s labels from %s." % (len(data["objects"]), path_to_label))
+            print("Imported %s labels from %s." % (len(data["objects"]), label_path))
         return labels
 
-    def export_labels(self, bboxes, pcd_name, pcd_folder, pcd_path) -> None:
+    def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
         data = dict()
         # Header
-        data["folder"] = pcd_folder
-        data["filename"] = pcd_name
-        data["path"] = pcd_path
+        data["folder"] = pcd_path.parent.name
+        data["filename"] = pcd_path.name
+        data["path"] = str(pcd_path)
 
         # Labels
         data["objects"] = []
@@ -61,8 +61,8 @@ class VerticesFormat(BaseLabelFormat):
             data["objects"].append(label)
 
         # Save to JSON
-        path_to_file = self.save_label_to_file(pcd_name, data)
+        label_path = self.save_label_to_file(pcd_path, data)
         print(
-            f"Exported {len(bboxes)} labels to {path_to_file} "
+            f"Exported {len(bboxes)} labels to {label_path} "
             f"in {self.__class__.__name__} formatting!"
         )

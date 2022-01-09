@@ -1,5 +1,5 @@
 import math
-import os
+from pathlib import Path
 from typing import List
 
 from ..model import BBox
@@ -10,16 +10,21 @@ class KittiFormat(BaseLabelFormat):
     FILE_ENDING = ".txt"
 
     def __init__(
-        self, label_folder, export_precision, relative_rotation=False, transformed=True
+        self,
+        label_folder: Path,
+        export_precision: int,
+        relative_rotation: bool = False,
+        transformed: bool = True,
     ) -> None:
         super().__init__(label_folder, export_precision, relative_rotation)
         self.transformed = transformed
 
-    def import_labels(self, pcd_name_stripped) -> List[BBox]:
+    def import_labels(self, pcd_path: Path) -> List[BBox]:
         labels = []
-        path_to_label = os.path.join(self.label_folder, pcd_name_stripped + ".txt")
-        if os.path.isfile(path_to_label):
-            with open(path_to_label, "r") as read_file:
+
+        label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
+        if label_path.is_file():
+            with label_path.open("r") as read_file:
                 label_lines = read_file.readlines()
 
             for line in label_lines:
@@ -39,12 +44,10 @@ class KittiFormat(BaseLabelFormat):
                     bbox.set_rotations(0, 0, rel2abs_rotation(float(line_elements[14])))
                 bbox.set_classname(line_elements[0])
                 labels.append(bbox)
-            print("Imported %s labels from %s." % (len(label_lines), path_to_label))
+            print("Imported %s labels from %s." % (len(label_lines), label_path))
         return labels
 
-    def export_labels(
-        self, bboxes: List[BBox], pcd_name: str, pcd_folder: str, pcd_path: str
-    ) -> None:
+    def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
         data = str()
 
         # Labels
@@ -74,7 +77,7 @@ class KittiFormat(BaseLabelFormat):
             )
 
         # Save to TXT
-        path_to_file = self.save_label_to_file(pcd_name, data)
+        path_to_file = self.save_label_to_file(pcd_path, data)
         print(
             f"Exported {len(bboxes)} labels to {path_to_file} "
             f"in {self.__class__.__name__} formatting!"

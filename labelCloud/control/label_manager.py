@@ -1,5 +1,4 @@
-import ntpath
-import os
+from pathlib import Path
 from typing import List
 
 from ..label_formats import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
@@ -7,7 +6,7 @@ from ..model.bbox import BBox
 from .config_manager import config
 
 
-def get_label_strategy(export_format: str, label_folder: str) -> "BaseLabelFormat":
+def get_label_strategy(export_format: str, label_folder: Path) -> "BaseLabelFormat":
     if export_format == "vertices":
         return VerticesFormat(label_folder, LabelManager.EXPORT_PRECISION)
     elif export_format == "centroid_rel":
@@ -45,17 +44,19 @@ class LabelManager(object):
     EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
     def __init__(
-        self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: str = None
+        self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: Path = None
     ) -> None:
-        self.label_folder = path_to_label_folder or config.get("FILE", "label_folder")
-        if not os.path.isdir(self.label_folder):
-            os.mkdir(self.label_folder)
+        self.label_folder = path_to_label_folder or config.getpath(
+            "FILE", "label_folder"
+        )
+        if not self.label_folder.is_dir():
+            self.label_folder.mkdir(parents=True)
 
         self.label_strategy = get_label_strategy(strategy, self.label_folder)
 
-    def import_labels(self, pcd_name: str) -> List[BBox]:
+    def import_labels(self, pcd_path: Path) -> List[BBox]:
         try:
-            return self.label_strategy.import_labels(os.path.splitext(pcd_name)[0])
+            return self.label_strategy.import_labels(pcd_path)
         except KeyError as key_error:
             print("Found a key error with %s in the dictionary." % key_error)
             print(
@@ -69,7 +70,5 @@ class LabelManager(object):
             )
             return []
 
-    def export_labels(self, pcd_path: str, bboxes: List[BBox]) -> None:
-        pcd_name = ntpath.basename(pcd_path)
-        pcd_folder = os.path.dirname(pcd_path)
-        self.label_strategy.export_labels(bboxes, pcd_name, pcd_folder, pcd_path)
+    def export_labels(self, pcd_path: Path, bboxes: List[BBox]) -> None:
+        self.label_strategy.export_labels(bboxes, pcd_path)

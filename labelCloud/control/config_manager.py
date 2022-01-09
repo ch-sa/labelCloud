@@ -1,7 +1,7 @@
 """Load configuration from .ini file."""
 import configparser
-import os
-from typing import List
+from pathlib import Path
+from typing import List, Union
 
 import pkg_resources
 
@@ -12,7 +12,9 @@ class ExtendedConfigParser(configparser.ConfigParser):
     Can automatically parse float values besides plain strings.
     """
 
-    def getlist(self, section, option, raw=False, vars=None, fallback=None) -> List:
+    def getlist(
+        self, section, option, raw=False, vars=None, fallback=None
+    ) -> List[Union[str, float]]:
         raw_value = self.get(section, option, raw=raw, vars=vars, fallback=fallback)
         if "," in raw_value:
             values = [x.strip() for x in raw_value.split(",")]
@@ -22,11 +24,15 @@ class ExtendedConfigParser(configparser.ConfigParser):
                 return values
         return raw_value
 
+    def getpath(self, section, option, raw=False, vars=None, fallback=None) -> Path:
+        """Get a path from the configuration file."""
+        return Path(self.get(section, option, raw=raw, vars=vars, fallback=fallback))
+
 
 class ConfigManager(object):
-    PATH_TO_CONFIG = "config.ini"  # TODO: Handle!
-    PATH_TO_DEFAULT_CONFIG = pkg_resources.resource_filename(
-        "labelCloud.ressources", "default_config.ini"
+    PATH_TO_CONFIG = Path.cwd().joinpath("config.ini")
+    PATH_TO_DEFAULT_CONFIG = Path(
+        pkg_resources.resource_filename("labelCloud.resources", "default_config.ini")
     )
 
     def __init__(self) -> None:
@@ -34,13 +40,13 @@ class ConfigManager(object):
         self.read_from_file()
 
     def read_from_file(self) -> None:
-        if os.path.isfile(ConfigManager.PATH_TO_CONFIG):
+        if ConfigManager.PATH_TO_CONFIG.is_file():
             self.config.read(ConfigManager.PATH_TO_CONFIG)
         else:
             self.config.read(ConfigManager.PATH_TO_DEFAULT_CONFIG)
 
     def write_into_file(self) -> None:
-        with open(ConfigManager.PATH_TO_CONFIG, "w") as configfile:
+        with ConfigManager.PATH_TO_CONFIG.open("w") as configfile:
             self.config.write(configfile, space_around_delimiters=True)
 
     def reset_to_default(self) -> None:
