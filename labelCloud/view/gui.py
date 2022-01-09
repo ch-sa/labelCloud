@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, List, Set
 
 import pkg_resources
@@ -48,10 +49,36 @@ def set_zrotation_only(state: bool) -> None:
     config.set("USER_INTERFACE", "z_rotation_only", str(state))
 
 
+# CSS file paths need to be set dynamically
+STYLESHEET = """
+    * {{
+        background-color: #FFF;
+        font-family: "DejaVu Sans", Arial;
+    }}
+
+    QMenu::item:selected {{
+        background-color: #0000DD;
+    }}
+
+    QListWidget#label_list::item {{
+        padding-left: 22px;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        background: url("{icons_dir}/cube-outline.svg") center left no-repeat;
+    }}
+
+    QListWidget#label_list::item:selected {{
+        color: #FFF;
+        border: none;
+        background: rgb(0, 0, 255);
+        background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
+    }}
+"""
+
+
 class GUI(QtWidgets.QMainWindow):
     def __init__(self, control: "Controller") -> None:
         super(GUI, self).__init__()
-        print(os.getcwd())
         uic.loadUi(
             pkg_resources.resource_filename(
                 "labelCloud.ressources.interfaces", "interface.ui"
@@ -60,6 +87,16 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.resize(1500, 900)
         self.setWindowTitle("labelCloud")
+        self.setStyleSheet(
+            STYLESHEET.format(
+                icons_dir=str(
+                    Path(__file__)
+                    .resolve()
+                    .parent.parent.joinpath("ressources")
+                    .joinpath("icons")
+                )
+            )
+        )
 
         # MENU BAR
         # File
@@ -454,7 +491,6 @@ class GUI(QtWidgets.QMainWindow):
         if classnames is None:
             classnames = set()
         classnames.update(config.getlist("LABEL", "object_classes"))
-        print("COMPLETER CLASSNAMES: %s" % str(classnames))
         self.curr_class_edit.setCompleter(QCompleter(classnames))
 
     def update_bbox_stats(self, bbox) -> None:

@@ -17,30 +17,6 @@
    <iconset>
     <normaloff>../icons/labelCloud.ico</normaloff>../icons/labelCloud.ico</iconset>
   </property>
-  <property name="styleSheet">
-   <string notr="true">* {
-	background-color: #FFF;
-	font-family: &quot;DejaVu Sans&quot;, Arial;
-}
-
-QMenu::item:selected { /* when user selects item using mouse or keyboard */
-    background-color: #0000DD;
-}
-
-QListWidget#label_list::item {
-	padding-left: 22px;
-    padding-top: 7px;
-	padding-bottom: 7px;
-	background: url(&quot;../icons/cube-outline.svg&quot;) center left no-repeat;
-}
-
-QListWidget#label_list::item:selected {
-    color: #FFF;
-	border: none;
-    background: rgb(0, 0, 255);
-	background: url(&quot;../icons/cube-outline_white.svg&quot;) center left no-repeat, #0000ff;
-}</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
