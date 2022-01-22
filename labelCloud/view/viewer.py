@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple, Union
 
 import numpy as np
@@ -61,13 +62,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glEnable(GL.GL_DEPTH_TEST)  # for visualization of depth
         GL.glEnable(GL.GL_BLEND)  # enable transparency
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
-        print("Intialized widget.")
+        logging.info("Intialized widget.")
 
         # Must be written again, due to buffer clearing
         self.pcd_manager.pointcloud.write_vbo()
 
     def resizeGL(self, width, height) -> None:
-        print("Resized widget.")
+        logging.info("Resized widget.")
         GL.glViewport(0, 0, width, height)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()

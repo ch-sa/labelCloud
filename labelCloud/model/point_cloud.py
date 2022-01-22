@@ -6,6 +6,7 @@ import numpy as np
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
+from ..utils.logger import print_column
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -159,7 +160,9 @@ class PointCloud(object):
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
 
     def print_details(self) -> None:
-        print("Point Cloud Center:\t\t%s" % np.round(self.center, 2))
-        print("Point Cloud Minimums:\t%s" % np.round(self.pcd_mins, 2))
-        print("Point Cloud Maximums:\t%s" % np.round(self.pcd_maxs, 2))
-        print("Initial Translation:\t%s" % np.round(self.init_translation, 2))
+        print_column(["Point Cloud Center:", np.round(self.center, 2)])
+        print_column(["Point Cloud Minimums:", np.round(self.pcd_mins, 2)])
+        print_column(["Point Cloud Maximums:", np.round(self.pcd_maxs, 2)])
+        print_column(
+            ["Initial Translation:", np.round(self.init_translation, 2)], last=True
+        )

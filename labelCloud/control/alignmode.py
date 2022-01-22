@@ -3,6 +3,7 @@ A module for aligning point clouds with the floor. The user has to span a triang
 three points on the plane that serves as the ground. Then the old point cloud will be
 saved up and the aligned current will overwrite the old.
 """
+import logging
 from typing import TYPE_CHECKING, Union
 
 import numpy as np
@@ -50,7 +51,7 @@ class AlignMode(object):
         self.view.activate_draw_modes(
             not self.is_active
         )  # Prevent bbox drawing while aligning
-        print(f"Alignmode was changed to {self.is_active}!")
+        logging.info(f"Alignmode was changed to {self.is_active}!")
 
     def reset(self, points_only: bool = False) -> None:
         self.plane1, self.plane2, self.plane3 = (None, None, None)
@@ -70,7 +71,7 @@ class AlignMode(object):
             self.plane3 = new_point
             self.calculate_angles()
         else:
-            print("Cannot register point.")
+            logging.warning("Cannot register point.")
 
     def register_tmp_point(self, new_tmp_point) -> None:
         if self.plane1 and (not self.plane2):
@@ -121,7 +122,7 @@ class AlignMode(object):
         rotation_axis = np.cross(pn_normalized, z_axis) / np.linalg.norm(
             np.cross(pn_normalized, z_axis)
         )
-        print(
+        logging.info(
             f"Alignment rotation: {round(rotation_angle, 2)} "
             f"around {np.round(rotation_axis, 2)}"
         )

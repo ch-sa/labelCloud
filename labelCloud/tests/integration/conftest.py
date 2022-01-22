@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pytest
@@ -8,7 +9,7 @@ from labelCloud.view.gui import GUI
 
 def pytest_configure(config):
     os.chdir("../labelCloud")
-    print(f"Set working directory to {os.getcwd()}.")
+    logging.info(f"Set working directory to {os.getcwd()}.")
 
 
 @pytest.fixture

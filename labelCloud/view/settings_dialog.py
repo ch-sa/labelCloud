@@ -1,3 +1,4 @@
+import logging
 import pkg_resources
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
@@ -173,11 +174,11 @@ class SettingsDialog(QDialog):
             strategy=config["LABEL"]["label_format"],
             path_to_label_folder=config["FILE"]["label_folder"],
         )
-        print("Saved and activated new configuration!")
+        logging.info("Saved and activated new configuration!")
 
     def reset(self) -> None:
         config_manager.reset_to_default()
         self.fill_with_current_settings()
 
     def chancel(self) -> None:
-        print("Settings dialog was chanceled!")
+        logging.info("Settings dialog was chanceled!")

@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Union
 
 from ..labeling_strategies import BaseLabelingStrategy
@@ -27,11 +28,11 @@ class DrawingManager(object):
     def set_drawing_strategy(self, strategy: BaseLabelingStrategy) -> None:
         if self.is_active() and self.drawing_strategy == strategy:
             self.reset()
-            print("Deactivated drawing!")
+            logging.info("Deactivated drawing!")
         else:
             if self.is_active():
                 self.reset()
-                print("Resetted previous active drawing mode!")
+                logging.info("Resetted previous active drawing mode!")
 
             self.drawing_strategy = strategy
 

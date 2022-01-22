@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 from typing import List
 
@@ -40,7 +41,9 @@ class VerticesFormat(BaseLabelFormat):
                 bbox.set_rotations(*rotations)
                 bbox.set_classname(label["name"])
                 labels.append(bbox)
-            print("Imported %s labels from %s." % (len(data["objects"]), label_path))
+            logging.info(
+                "Imported %s labels from %s." % (len(data["objects"]), label_path)
+            )
         return labels
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
@@ -62,7 +65,7 @@ class VerticesFormat(BaseLabelFormat):
 
         # Save to JSON
         label_path = self.save_label_to_file(pcd_path, data)
-        print(
+        logging.info(
             f"Exported {len(bboxes)} labels to {label_path} "
             f"in {self.__class__.__name__} formatting!"
         )

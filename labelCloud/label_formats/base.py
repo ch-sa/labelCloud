@@ -1,5 +1,6 @@
 import json
 from abc import ABC, abstractmethod
+import logging
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -15,22 +16,24 @@ class BaseLabelFormat(ABC):
         self, label_folder: Path, export_precision: int, relative_rotation: bool = False
     ) -> None:
         self.label_folder = label_folder
-        print("Set export strategy to %s." % self.__class__.__name__)
+        logging.info("Set export strategy to %s." % self.__class__.__name__)
         self.export_precision = export_precision
         self.relative_rotation = relative_rotation
         self.file_ending = ".json"
         if relative_rotation:
-            print(
+            logging.info(
                 "Saving rotations relatively to positve x-axis in radians (-pi..+pi)."
             )
         elif self.__class__.__name__ == "VerticesFormat":
-            print("Saving rotations implicitly in the vertices coordinates.")
+            logging.info("Saving rotations implicitly in the vertices coordinates.")
         else:
-            print("Saving rotations absolutely to positve x-axis in degrees (0..360°).")
+            logging.info(
+                "Saving rotations absolutely to positve x-axis in degrees (0..360°)."
+            )
 
     def update_label_folder(self, new_label_folder: Path) -> None:
         self.label_folder = new_label_folder
-        print(f"Updated label folder to {new_label_folder}.")
+        logging.info(f"Updated label folder to {new_label_folder}.")
 
     def round_dec(self, x, decimal_places: Optional[int] = None) -> List[float]:
         if not decimal_places:
@@ -41,7 +44,7 @@ class BaseLabelFormat(ABC):
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
 
         if label_path.is_file():
-            print("File %s already exists, replacing file ..." % label_path)
+            logging.info("File %s already exists, replacing file ..." % label_path)
         if label_path.suffix == ".json":
             with open(label_path, "w") as write_file:
                 json.dump(data, write_file, indent="\t")

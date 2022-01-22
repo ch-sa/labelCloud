@@ -2,6 +2,7 @@
 Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copyfile
@@ -11,6 +12,7 @@ import numpy as np
 import open3d as o3d
 
 from ..model import BBox, PointCloud
+from ..utils.logger import end_section, green, print_column, start_section
 from .config_manager import config
 from .label_manager import LabelManager
 
@@ -77,7 +79,9 @@ class PointCloudManger(object):
                 if file.suffix in PointCloudManger.PCD_EXTENSIONS:
                     self.pcds.append(file)
         else:
-            print(f"Point cloud path {self.pcd_folder} is not a valid directory.")
+            logging.warning(
+                f"Point cloud path {self.pcd_folder} is not a valid directory."
+            )
 
         if self.pcds:
             self.view.update_status(
@@ -106,16 +110,16 @@ class PointCloudManger(object):
         return self.current_id + 1 < len(self.pcds)
 
     def get_next_pcd(self) -> None:
-        print("Loading next point cloud...")
+        logging.info("Loading next point cloud...")
         if self.pcds_left():
             self.current_id += 1
             self.pointcloud = self.load_pointcloud(self.pcd_path)
             self.update_pcd_infos()
         else:
-            print("No point clouds left!")
+            logging.warning("No point clouds left!")
 
     def get_prev_pcd(self) -> None:
-        print("Loading previous point cloud...")
+        logging.info("Loading previous point cloud...")
         if self.current_id > 0:
             self.current_id -= 1
             self.pointcloud = self.load_pointcloud(self.pcd_path)
@@ -125,7 +129,7 @@ class PointCloudManger(object):
 
     def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.pcd_path)
-        print("Loaded %s bboxes!" % len(bboxes))
+        logging.info(green("Loaded %s bboxes!" % len(bboxes)))
         return bboxes
 
     # SETTER
@@ -142,7 +146,7 @@ class PointCloudManger(object):
             self.view.update_label_completer(self.collected_object_classes)
             self.view.update_default_object_class_menu(self.collected_object_classes)
         else:
-            print("No point clouds to save labels for!")
+            logging.warning("No point clouds to save labels for!")
 
     def save_current_perspective(self, active: bool = True) -> None:
         if active and self.pointcloud:
@@ -150,14 +154,14 @@ class PointCloudManger(object):
                 zoom=self.pointcloud.trans_z,
                 rotation=tuple(self.pointcloud.get_rotations()),
             )
-            print(f"Saved current perspective ({self.saved_perspective}).")
+            logging.info(f"Saved current perspective ({self.saved_perspective}).")
         else:
             self.saved_perspective = None
-            print("Reset saved perspective.")
+            logging.info("Reset saved perspective.")
 
     # MANIPULATOR
-    def load_pointcloud(self, path_to_pointcloud: Path) -> PointCloud:
-        print("=" * 20, "Loading", path_to_pointcloud.name, "=" * 20)
+    def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
+        start_section(f"Loading {path_to_pointcloud.name}")
 
         if config.getboolean("USER_INTERFACE", "keep_perspective"):
             self.save_current_perspective()
@@ -181,13 +185,13 @@ class PointCloudManger(object):
 
         tmp_pcd.colorless = len(tmp_pcd.colors) == 0
 
-        print("Number of Points: %s" % len(tmp_pcd.points))
+        print_column(["Number of Points:", f"{len(tmp_pcd.points):n}"])
         # Calculate and set initial translation to view full pointcloud
         tmp_pcd.center = self.current_o3d_pcd.get_center()
         tmp_pcd.set_mins_maxs()
 
         if PointCloudManger.COLORIZE and tmp_pcd.colorless:
-            print("Generating colors for colorless point cloud!")
+            logging.info("Generating colors for colorless point cloud!")
             min_height, max_height = tmp_pcd.get_min_max_height()
             tmp_pcd.colors = color_pointcloud(tmp_pcd.points, min_height, max_height)
             tmp_pcd.colorless = False
@@ -211,12 +215,14 @@ class PointCloudManger(object):
         if self.pointcloud is not None:  # Skip first pcd to intialize OpenGL first
             tmp_pcd.write_vbo()
 
-        print("Successfully loaded point cloud from %s!" % path_to_pointcloud)
+        logging.info(
+            green(f"Successfully loaded point cloud from {path_to_pointcloud}!")
+        )
         if tmp_pcd.colorless:
-            print(
+            logging.warning(
                 "Did not find colors for the loaded point cloud, drawing in colorless mode!"
             )
-        print("=" * 65)
+        end_section()
         return tmp_pcd
 
     def rotate_around_x(self, dangle) -> None:
@@ -280,7 +286,7 @@ class PointCloudManger(object):
         pcd_maxs = np.amax(self.current_o3d_pcd.points, axis=0)
 
         if abs(pcd_mins[2]) > pcd_maxs[2]:
-            print("Point cloud is upside down, rotating ...")
+            logging.warning("Point cloud is upside down, rotating ...")
             self.current_o3d_pcd.rotate(
                 o3d.geometry.get_rotation_matrix_from_xyz([np.pi, 0, 0]),
                 center=(0, 0, 0),

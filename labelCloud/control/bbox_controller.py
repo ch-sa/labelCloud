@@ -4,6 +4,7 @@ settings in one place.
 Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
+import logging
 from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
@@ -26,7 +27,7 @@ def has_active_bbox_decorator(func):
         if args[0].has_active_bbox():
             return func(*args, **kwargs)
         else:
-            print("There is currently no active bounding box to manipulate.")
+            logging.warning("There is currently no active bounding box to manipulate.")
 
     return wrapper
 
@@ -40,7 +41,9 @@ def only_zrotation_decorator(func):
         if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
             return func(*args, **kwargs)
         else:
-            print("Rotations around the x- or y-axis are not supported in this mode.")
+            logging.warning(
+                "Rotations around the x- or y-axis are not supported in this mode."
+            )
 
     return wrapper
 
@@ -282,7 +285,7 @@ class BoundingBoxController(object):
         )
         if intersected_bbox_id is not None:
             self.set_active_bbox(intersected_bbox_id)
-            print("Selected bounding box %s." % intersected_bbox_id)
+            logging.info("Selected bounding box %s." % intersected_bbox_id)
 
     # HELPER
 
