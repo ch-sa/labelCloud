@@ -585,12 +585,14 @@ class GUI(QtWidgets.QMainWindow):
         self.mode_status.setText(text)
 
     def change_pointcloud_folder(self) -> None:
-        path_to_folder = QFileDialog.getExistingDirectory(
-            self,
-            "Change Point Cloud Folder",
-            directory=config.get("FILE", "pointcloud_folder"),
+        path_to_folder = Path(
+            QFileDialog.getExistingDirectory(
+                self,
+                "Change Point Cloud Folder",
+                directory=config.get("FILE", "pointcloud_folder"),
+            )
         )
-        if not path_to_folder or path_to_folder.isspace():
+        if not path_to_folder.is_dir():
             logging.warning("Please specify a valid folder path.")
         else:
             self.controller.pcd_manager.pcd_folder = path_to_folder
@@ -599,10 +601,14 @@ class GUI(QtWidgets.QMainWindow):
             logging.info("Changed point cloud folder to %s!" % path_to_folder)
 
     def change_label_folder(self) -> None:
-        path_to_folder = QFileDialog.getExistingDirectory(
-            self, "Change Label Folder", directory=config.get("FILE", "label_folder")
+        path_to_folder = Path(
+            QFileDialog.getExistingDirectory(
+                self,
+                "Change Label Folder",
+                directory=config.get("FILE", "label_folder"),
+            )
         )
-        if not path_to_folder or path_to_folder.isspace():
+        if not path_to_folder.is_dir():
             logging.warning("Please specify a valid folder path.")
         else:
             self.controller.pcd_manager.label_manager.label_folder = path_to_folder

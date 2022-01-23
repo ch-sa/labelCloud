@@ -171,11 +171,14 @@ class PointCloudManger(object):
             points = bin_pcd.reshape((-1, 4))[
                 :, 0:3
             ]  # Reshape and drop reflection values
+            points = points[~np.isnan(points).any(axis=1)]  # drop rows with nan
             self.current_o3d_pcd = o3d.geometry.PointCloud(
                 o3d.utility.Vector3dVector(points)
             )
         else:  # Load point cloud with open3d
-            self.current_o3d_pcd = o3d.io.read_point_cloud(str(path_to_pointcloud))
+            self.current_o3d_pcd = o3d.io.read_point_cloud(
+                str(path_to_pointcloud), remove_nan_points=True
+            )
 
         tmp_pcd = PointCloud(path_to_pointcloud)
         tmp_pcd.points = np.asarray(self.current_o3d_pcd.points).astype(
