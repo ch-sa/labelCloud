@@ -12,9 +12,7 @@ c_handler.setLevel(logging.INFO)  # TODO: Automatic coloring
 f_handler.setLevel(logging.DEBUG)  # TODO: Filter colors
 
 # Create formatters and add it to handlers
-f_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(levelname)-8s: %(message)s [%(name)s]")
-)
+f_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)-8s: %(message)s"))
 
 
 logging.basicConfig(
