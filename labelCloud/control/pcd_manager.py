@@ -96,8 +96,10 @@ class PointCloudManger(object):
                 "Please set the point cloud folder to a location that contains point cloud files."
             )
             self.pointcloud = self.load_pointcloud(
-                pkg_resources.resource_filename(
-                    "labelCloud.resources", "labelCloud_icon.pcd"
+                Path(
+                    pkg_resources.resource_filename(
+                        "labelCloud.resources", "labelCloud_icon.pcd"
+                    )
                 )
             )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
@@ -160,7 +162,7 @@ class PointCloudManger(object):
             logging.info("Reset saved perspective.")
 
     # MANIPULATOR
-    def load_pointcloud(self, path_to_pointcloud: str) -> PointCloud:
+    def load_pointcloud(self, path_to_pointcloud: Path) -> PointCloud:
         start_section(f"Loading {path_to_pointcloud.name}")
 
         if config.getboolean("USER_INTERFACE", "keep_perspective"):
