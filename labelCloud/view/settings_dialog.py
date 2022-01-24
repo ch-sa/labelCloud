@@ -1,4 +1,6 @@
 import logging
+from pathlib import Path
+
 import pkg_resources
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
@@ -169,10 +171,10 @@ class SettingsDialog(QDialog):
         )
 
         config_manager.write_into_file()
-        self.parent_gui.set_checkbox_states()  #
+        self.parent_gui.set_checkbox_states()
         self.parent_gui.controller.pcd_manager.label_manager = LabelManager(
             strategy=config["LABEL"]["label_format"],
-            path_to_label_folder=config["FILE"]["label_folder"],
+            path_to_label_folder=Path(config["FILE"]["label_folder"]),
         )
         logging.info("Saved and activated new configuration!")
 
