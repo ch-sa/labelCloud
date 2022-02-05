@@ -78,4 +78,5 @@ def format(text: str, color: Format):
 red = lambda text: format(text, Format.RED)
 green = lambda text: format(text, Format.OKGREEN)
 yellow = lambda text: format(text, Format.YELLOW)
+blue = lambda text: format(text, Format.BLUE)
 bold = lambda text: format(text, Format.BOLD)

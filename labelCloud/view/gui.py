@@ -454,7 +454,7 @@ class GUI(QtWidgets.QMainWindow):
             self.imageLabel.show()
 
     def show_no_pointcloud_dialog(
-        self, pcd_folder: Path, pcd_extensions: List[str]
+        self, pcd_folder: Path, pcd_extensions: Set[str]
     ) -> None:
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
