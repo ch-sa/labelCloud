@@ -2,7 +2,6 @@
 Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
-from gettext import translation
 import logging
 from pathlib import Path
 from shutil import copyfile
@@ -12,6 +11,7 @@ import pkg_resources
 
 import numpy as np
 import open3d as o3d
+from labelCloud.io.pointclouds.open3d import Open3DHandler
 
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
@@ -35,14 +35,13 @@ class PointCloudManger(object):
         self.pcds: List[Path] = []
         self.current_id = -1
 
-        self.current_o3d_pcd = None
         self.view: Optional[GUI] = None
         self.label_manager = LabelManager()
 
         # Point cloud control
         self.pointcloud = None
         self.collected_object_classes = set()
-        self.saved_perspective: Perspective = None
+        self.saved_perspective: Optional[Perspective] = None
 
     @property
     def pcd_path(self) -> Path:
@@ -138,19 +137,10 @@ class PointCloudManger(object):
         else:
             logging.warning("No point clouds to save labels for!")
 
-    def save_current_perspective(self, active: bool = True) -> None:
-        if not config.getboolean("USER_INTERFACE", "KEEP_PERSPECTIVE") or active:
-            return
-
-        if self.pointcloud and active:
-            self.saved_perspective = Perspective(
-                translation=tuple(self.pointcloud.get_translations()),
-                rotation=tuple(self.pointcloud.get_rotations()),
-            )
+    def save_current_perspective(self) -> None:
+        if config.getboolean("USER_INTERFACE", "KEEP_PERSPECTIVE") and self.pointcloud:
+            self.saved_perspective = Perspective.from_point_cloud(self.pointcloud)
             logging.info(f"Saved current perspective ({self.saved_perspective}).")
-        else:
-            self.saved_perspective = None
-            logging.info("Reset saved perspective.")
 
     # MANIPULATOR
     def rotate_around_x(self, dangle) -> None:
@@ -206,16 +196,14 @@ class PointCloudManger(object):
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
             np.multiply(axis, angle)
         )
-        self.current_o3d_pcd.rotate(rotation_matrix, center=tuple(rotation_point))
-        self.current_o3d_pcd.translate([0, 0, -rotation_point[2]])
+        o3d_pointcloud = Open3DHandler().to_open3d_point_cloud(self.pointcloud)
+        o3d_pointcloud.rotate(rotation_matrix, center=tuple(rotation_point))
+        o3d_pointcloud.translate([0, 0, -rotation_point[2]])
 
         # Check if pointcloud is upside-down
-        pcd_mins = np.amin(self.current_o3d_pcd.points, axis=0)
-        pcd_maxs = np.amax(self.current_o3d_pcd.points, axis=0)
-
-        if abs(pcd_mins[2]) > pcd_maxs[2]:
+        if abs(self.pointcloud.pcd_mins[2]) > self.pointcloud.pcd_maxs[2]:
             logging.warning("Point cloud is upside down, rotating ...")
-            self.current_o3d_pcd.rotate(
+            o3d_pointcloud.rotate(
                 o3d.geometry.get_rotation_matrix_from_xyz([np.pi, 0, 0]),
                 center=(0, 0, 0),
             )
@@ -224,8 +212,10 @@ class PointCloudManger(object):
         # if save_path.suffix == ".bin":  # save .bin point clouds as .pcd
         #     save_path = save_path.parent.joinpath(save_path.stem + ".pcd")
 
-        o3d.io.write_point_cloud(str(save_path), self.current_o3d_pcd)
-        self.pointcloud = PointCloud.from_file(save_path, self.saved_perspective)
+        self.pointcloud = PointCloud(
+            save_path, *Open3DHandler().to_point_cloud(o3d_pointcloud)
+        )
+        self.pointcloud.to_file()
 
     # HELPER
 

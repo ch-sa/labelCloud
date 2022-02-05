@@ -53,6 +53,10 @@ def set_zrotation_only(state: bool) -> None:
     config.set("USER_INTERFACE", "z_rotation_only", str(state))
 
 
+def set_keep_perspective(state: bool) -> None:
+    config.set("USER_INTERFACE", "keep_perspective", str(state))
+
+
 # CSS file paths need to be set dynamically
 STYLESHEET = """
     * {{
@@ -358,9 +362,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
-        self.action_saveperspective.toggled.connect(
-            lambda state: self.controller.pcd_manager.save_current_perspective(state)
-        )
+        self.action_saveperspective.toggled.connect(set_keep_perspective)
         self.action_alignpcd.toggled.connect(
             self.controller.align_mode.change_activation
         )

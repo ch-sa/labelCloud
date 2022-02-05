@@ -16,14 +16,29 @@ class Open3DHandler(BasePointCloudHandler):
     def __init__(self) -> None:
         super().__init__()
 
-    def read_point_cloud(self, path: Path) -> Tuple[np.ndarray, Optional[np.ndarray]]:
-        super().read_point_cloud(path)
-        o3d_pcd = o3d.io.read_point_cloud(str(path), remove_nan_points=True)
+    def to_point_cloud(
+        self, pointcloud: o3d.geometry.PointCloud
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         return (
-            np.asarray(o3d_pcd.points).astype("float32"),
-            np.asarray(o3d_pcd.colors).astype("float32"),
+            np.asarray(pointcloud.points).astype("float32"),
+            np.asarray(pointcloud.colors).astype("float32"),
         )
 
-    def write_point_cloud(self, path: Path, point_cloud: "PointCloud") -> None:
-        # TODO: Implement
-        return super().write_point_cloud(path, point_cloud)
+    def to_open3d_point_cloud(
+        self, pointcloud: "PointCloud"
+    ) -> o3d.geometry.PointCloud:
+        o3d_pointcloud = o3d.geometry.PointCloud(
+            o3d.utility.Vector3dVector(pointcloud.points)
+        )
+        o3d_pointcloud.colors = o3d.utility.Vector3dVector(pointcloud.colors)
+        return o3d_pointcloud
+
+    def read_point_cloud(self, path: Path) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+        super().read_point_cloud(path)
+        return self.to_point_cloud(
+            o3d.io.read_point_cloud(str(path), remove_nan_points=True)
+        )
+
+    def write_point_cloud(self, path: Path, pointcloud: "PointCloud") -> None:
+        super().write_point_cloud(path, pointcloud)
+        o3d.io.write_point_cloud(str(path), self.to_open3d_point_cloud(pointcloud))

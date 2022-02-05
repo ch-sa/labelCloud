@@ -1,7 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pkg_resources
 
@@ -10,7 +10,7 @@ import OpenGL.GL as GL
 
 from . import Perspective
 from ..control.config_manager import config
-from ..io.pointclouds import NumpyHandler, Open3DHandler
+from ..io.pointclouds import BasePointCloudHandler
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 
 # Get size of float (4 bytes) for VBOs
@@ -67,7 +67,7 @@ class PointCloud(object):
         init_rotation: Optional[Tuple[float, float, float]] = None,
     ) -> None:
         start_section(f"Loading {path.name}")
-        self.path_to_pointcloud = path
+        self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
         self.vbo = None
