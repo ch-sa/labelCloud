@@ -12,6 +12,7 @@ import numpy as np
 from ..model.bbox import BBox
 from ..utils import oglhelper
 from .config_manager import config
+from .pcd_manager import PointCloudManger
 
 if TYPE_CHECKING:
     from ..view.gui import GUI
@@ -52,10 +53,10 @@ class BoundingBoxController(object):
     STD_SCALING = config.getfloat("LABEL", "std_scaling")
 
     def __init__(self) -> None:
-        self.view = None
-        self.bboxes = []
+        self.view: Optional[GUI] = None
+        self.bboxes: List[BBox] = []
         self.active_bbox_id = -1  # -1 means zero bboxes
-        self.pcdc = None
+        self.pcd_manager: Optional[PointCloudManger] = None
 
     # GETTERS
     def has_active_bbox(self) -> bool:
@@ -208,7 +209,7 @@ class BoundingBoxController(object):
         self, x_angle: float, y_angle: float
     ) -> None:  # TODO: Make more intuitive
         # Get bbox perspective
-        pcd_z_rotation = self.pcdc.get_pointcloud().rot_z
+        pcd_z_rotation = self.pcd_manager.pointcloud.rot_z
         bbox_z_rotation = self.get_active_bbox().get_z_rotation()
         total_z_rotation = pcd_z_rotation + bbox_z_rotation
 
@@ -224,7 +225,7 @@ class BoundingBoxController(object):
         distance = distance or config.getfloat("LABEL", "std_translation")
         if left:
             distance *= -1
-        cosz, sinz, bu = self.pcdc.get_perspective()
+        cosz, sinz, bu = self.pcd_manager.get_perspective()
         self.get_active_bbox().set_x_translation(
             self.get_active_bbox().center[0] + distance * cosz
         )
@@ -237,7 +238,7 @@ class BoundingBoxController(object):
         distance = distance or config.getfloat("LABEL", "std_translation")
         if forward:
             distance *= -1
-        cosz, sinz, bu = self.pcdc.get_perspective()
+        cosz, sinz, bu = self.pcd_manager.get_perspective()
         self.get_active_bbox().set_x_translation(
             self.get_active_bbox().center[0] + distance * bu * -sinz
         )

@@ -43,7 +43,7 @@ class Controller:
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
         self.view.glWidget.set_bbox_controller(self.bbox_controller)
-        self.bbox_controller.pcdc = self.pcd_manager
+        self.bbox_controller.pcd_manager = self.pcd_manager
 
         # Read labels from folders
         self.pcd_manager.read_pointcloud_folder()
