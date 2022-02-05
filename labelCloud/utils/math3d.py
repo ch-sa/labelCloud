@@ -158,8 +158,8 @@ def get_line_perpendicular(
     b = m * -line_end[0] + line_end[1]
 
     # Calculate line perpendicular parallel to x-y-plane
-    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m ** 2)
-    intersection_y = (m * point[0] + m ** 2 * point[1] + b) / (1 + m ** 2)
+    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m**2)
+    intersection_y = (m * point[0] + m**2 * point[1] + b) / (1 + m**2)
     dir_vector = (
         point[0] - intersection_x,
         point[1] - intersection_y,
