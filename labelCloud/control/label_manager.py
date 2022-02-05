@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-from ..label_formats import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
+from ..io.labels import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
 from ..model.bbox import BBox
 from .config_manager import config
 
