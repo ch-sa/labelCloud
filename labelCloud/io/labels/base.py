@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from ..model import BBox
+from ...model import BBox
 
 
 class BaseLabelFormat(ABC):

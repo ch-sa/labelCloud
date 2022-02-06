@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Set
+from typing import TYPE_CHECKING, Set
 
 import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -51,6 +51,10 @@ def set_orientation_visibility(state: bool) -> None:
 
 def set_zrotation_only(state: bool) -> None:
     config.set("USER_INTERFACE", "z_rotation_only", str(state))
+
+
+def set_keep_perspective(state: bool) -> None:
+    config.set("USER_INTERFACE", "keep_perspective", str(state))
 
 
 # CSS file paths need to be set dynamically
@@ -358,9 +362,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_zrotation.toggled.connect(set_zrotation_only)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
-        self.action_saveperspective.toggled.connect(
-            lambda state: self.controller.pcd_manager.save_current_perspective(state)
-        )
+        self.action_saveperspective.toggled.connect(set_keep_perspective)
         self.action_alignpcd.toggled.connect(
             self.controller.align_mode.change_activation
         )
@@ -454,7 +456,7 @@ class GUI(QtWidgets.QMainWindow):
             self.imageLabel.show()
 
     def show_no_pointcloud_dialog(
-        self, pcd_folder: Path, pcd_extensions: List[str]
+        self, pcd_folder: Path, pcd_extensions: Set[str]
     ) -> None:
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
