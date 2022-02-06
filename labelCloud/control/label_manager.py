@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 from ..io.labels import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
-from ..model.bbox import BBox
+from ..model import BBox
 from .config_manager import config
 
 

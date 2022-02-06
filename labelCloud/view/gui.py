@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Set
+from typing import TYPE_CHECKING, Set
 
 import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic

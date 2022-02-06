@@ -11,11 +11,10 @@ import pkg_resources
 
 import numpy as np
 import open3d as o3d
-from labelCloud.io.pointclouds.open3d import Open3DHandler
 
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
-from ..utils.logger import green
+from ..utils.logger import blue, green, print_column
 from .config_manager import config
 from .label_manager import LabelManager
 
@@ -191,6 +190,7 @@ class PointCloudManger(object):
             str(self.pcd_path),
             str(originals_path.joinpath(self.pcd_name)),
         )
+        logging.info("Copyied the original point cloud to %s.", blue(originals_path))
 
         # Rotate and translate point cloud
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
@@ -199,6 +199,10 @@ class PointCloudManger(object):
         o3d_pointcloud = Open3DHandler().to_open3d_point_cloud(self.pointcloud)
         o3d_pointcloud.rotate(rotation_matrix, center=tuple(rotation_point))
         o3d_pointcloud.translate([0, 0, -rotation_point[2]])
+        logging.info("Rotating point cloud...")
+        print_column(["Angle:", np.round(angle, 3)])
+        print_column(["Axis:", np.round(axis, 3)])
+        print_column(["Point:", np.round(rotation_point, 3)], last=True)
 
         # Check if pointcloud is upside-down
         if abs(self.pointcloud.pcd_mins[2]) > self.pointcloud.pcd_maxs[2]:
@@ -208,12 +212,8 @@ class PointCloudManger(object):
                 center=(0, 0, 0),
             )
 
-        save_path = self.pcd_path
-        # if save_path.suffix == ".bin":  # save .bin point clouds as .pcd
-        #     save_path = save_path.parent.joinpath(save_path.stem + ".pcd")
-
         self.pointcloud = PointCloud(
-            save_path, *Open3DHandler().to_point_cloud(o3d_pointcloud)
+            self.pcd_path, *Open3DHandler().to_point_cloud(o3d_pointcloud)
         )
         self.pointcloud.to_file()
 
