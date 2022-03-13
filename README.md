@@ -111,14 +111,22 @@ See [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/docu
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
 If you are using the tool for a scientific project please consider citing our [pending publication](https://arxiv.org/abs/2103.04970):
 
-    # forthcoming
-    @article{sager_2021,
-      title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds},
-      journal={Computer-Aided Design and Applications},
-      author={Sager, Christoph and Zschech, Patrick and Kühl, Niklas},
-      year={2021}}
+    # CAD Journal
+    @article{Sager_2022,
+        doi = {10.14733/cadaps.2022.1191-1206},
+        url = {http://cad-journal.net/files/vol_19/CAD_19(6)_2022_1191-1206.pdf},
+        year = 2022,
+        month = {mar},
+        publisher = {{CAD} Solutions, {LLC}},
+        volume = {19},
+        number = {6},
+        pages = {1191--1206},
+        author = {Christoph Sager and Patrick Zschech and Niklas Kuhl},
+        title = {{labelCloud}: A Lightweight Labeling Tool for Domain-Agnostic 3D Object Detection in Point Clouds},
+        journal = {Computer-Aided Design and Applications}
+    } 
    
-    # published
+    # CAD Conference
     @misc{sager2021labelcloud,
       title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds}, 
       author={Christoph Sager and Patrick Zschech and Niklas Kühl},
