@@ -7,10 +7,9 @@ from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-import pkg_resources
-
 import numpy as np
 import open3d as o3d
+import pkg_resources
 
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
@@ -97,7 +96,9 @@ class PointCloudManger(object):
             self.current_id += 1
             self.save_current_perspective()
             self.pointcloud = PointCloud.from_file(
-                self.pcd_path, self.saved_perspective
+                self.pcd_path,
+                self.saved_perspective,
+                write_buffer=self.pointcloud is not None,
             )
             self.update_pcd_infos()
         else:

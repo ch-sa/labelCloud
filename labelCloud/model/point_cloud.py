@@ -3,10 +3,9 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-import pkg_resources
-
 import numpy as np
 import OpenGL.GL as GL
+import pkg_resources
 
 from . import Perspective
 from ..control.config_manager import config
@@ -65,6 +64,7 @@ class PointCloud(object):
         colors: Optional[np.ndarray] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
+        write_buffer: bool = True,
     ) -> None:
         start_section(f"Loading {path.name}")
         self.path = path
@@ -89,14 +89,17 @@ class PointCloud(object):
             )
             logging.info("Generated colors for colorless point cloud based on height.")
 
-        self.write_vbo()
+        if write_buffer:
+            self.write_vbo()
 
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
 
     @classmethod
-    def from_file(cls, path: Path, perspective: Optional[Perspective]) -> "PointCloud":
+    def from_file(
+        cls, path: Path, perspective: Optional[Perspective], write_buffer: bool = True
+    ) -> "PointCloud":
         init_translation, init_rotation = (None, None)
         if perspective:
             init_translation = perspective.translation
@@ -105,7 +108,7 @@ class PointCloud(object):
         points, colors = BasePointCloudHandler.get_handler(
             path.suffix
         ).read_point_cloud(path=path)
-        return cls(path, points, colors, init_translation, init_rotation)
+        return cls(path, points, colors, init_translation, init_rotation, write_buffer)
 
     def to_file(self, path: Optional[Path] = None) -> None:
         if not path:
