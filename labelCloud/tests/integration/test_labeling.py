@@ -17,7 +17,7 @@ def test_picking_mode(qtbot, startup_pyqt):
     assert len(control.bbox_controller.bboxes) == 1
     new_bbox = control.bbox_controller.bboxes[0]
     assert new_bbox.center == tuple(
-        pytest.approx(x, 0.01) for x in [0.1654, -0.3938, -0.0485]
+        pytest.approx(x, 0.1) for x in [0.1654, -0.3938, -0.0485]
     )
 
     assert new_bbox.length == config.getfloat("LABEL", "std_boundingbox_length")
@@ -48,10 +48,10 @@ def test_spanning_mode(qtbot, startup_pyqt):
     assert len(control.bbox_controller.bboxes) == 1
     new_bbox: BBox = control.bbox_controller.bboxes[0]
     assert new_bbox.center == tuple(
-        pytest.approx(x, 0.01) for x in [0.1967, -0.4569, 0.0262]
+        pytest.approx(x, 0.1) for x in [0.1967, -0.4569, 0.0262]
     )
     assert new_bbox.get_dimensions() == tuple(
-        pytest.approx(x, 0.01) for x in [0.5385, 0.3908, 0.0466]
+        pytest.approx(x, 0.1) for x in [0.5385, 0.3908, 0.0466]
     )
     assert new_bbox.get_rotations() == tuple(
         pytest.approx(x % 360, 0.5) for x in [0, 0, 55.2205]
