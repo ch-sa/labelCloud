@@ -74,6 +74,12 @@ class Controller:
             self.reset()
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
+    def custom_pcd(self, custom: int) -> None:
+        self.save()
+        self.pcd_manager.get_custom_pcd(custom)
+        self.reset()
+        self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
+
     # CONTROL METHODS
     def save(self) -> None:
         """Saves all bounding boxes in the label file."""

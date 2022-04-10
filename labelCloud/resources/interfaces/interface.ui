@@ -172,6 +172,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="button_pcd_set">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="button_pcd_next">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

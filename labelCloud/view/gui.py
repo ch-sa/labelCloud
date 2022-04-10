@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QLabel,
     QMessageBox,
+    QInputDialog,
 )
 
 from ..control.config_manager import config
@@ -160,6 +161,7 @@ class GUI(QtWidgets.QMainWindow):
         self.label_curr_pcd = self.findChild(QtWidgets.QLabel, "label_pcd_current")
         self.button_prev_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")
         self.button_next_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_next")
+        self.button_set_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_set")
         self.progressbar_pcd = self.findChild(
             QtWidgets.QProgressBar, "progressbar_pcds"
         )
@@ -275,6 +277,7 @@ class GUI(QtWidgets.QMainWindow):
         self.button_forward.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_y(forward=True)
         )
+        self.button_set_pcd.pressed.connect(lambda: self.ask_custom_index())
         self.button_backward.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_y()
         )
@@ -638,3 +641,19 @@ class GUI(QtWidgets.QMainWindow):
     def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())
         logging.info("Changed default object class to %s.", action.text())
+
+    def ask_custom_index(self):
+        input_d = QInputDialog(self)
+        self.input_pcd = input_d
+        input_d.setInputMode(QInputDialog.IntInput)
+        input_d.setWindowTitle("labelCloud")
+        input_d.setLabelText("Insert Point Cloud number: ()")
+        input_d.setIntMaximum(len(self.controller.pcd_manager.pcds) - 1)
+        input_d.intValueChanged.connect(lambda val: self.update_dialog_pcd(val))
+        input_d.intValueSelected.connect(lambda val: self.controller.custom_pcd(val))
+        input_d.open()
+        self.update_dialog_pcd(0)
+
+    def update_dialog_pcd(self, value: int) -> None:
+        pcd_path = self.controller.pcd_manager.pcds[value]
+        self.input_pcd.setLabelText(f"Insert Point Cloud number: {pcd_path.name}")

@@ -83,7 +83,7 @@ class PointCloudManger(object):
             )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 
-        self.view.init_progress(min_value=0, max_value=len(self.pcds))
+        self.view.init_progress(min_value=0, max_value=len(self.pcds) - 1)
         self.current_id = -1
 
     # GETTER
@@ -103,6 +103,20 @@ class PointCloudManger(object):
             self.update_pcd_infos()
         else:
             logging.warning("No point clouds left!")
+
+    def get_custom_pcd(self, pcd_index: int) -> None:
+        logging.info("Loading custom point cloud...")
+        if pcd_index < len(self.pcds):
+            self.current_id = pcd_index
+            self.save_current_perspective()
+            self.pointcloud = PointCloud.from_file(
+                self.pcd_path,
+                self.saved_perspective,
+                write_buffer=self.pointcloud is not None,
+            )
+            self.update_pcd_infos()
+        else:
+            logging.warning("This point cloud does not exists!")
 
     def get_prev_pcd(self) -> None:
         logging.info("Loading previous point cloud...")
