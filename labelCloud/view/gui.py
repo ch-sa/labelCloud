@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Set
@@ -431,16 +432,17 @@ class GUI(QtWidgets.QMainWindow):
         image_folder = config.getpath("FILE", "image_folder")
 
         # Look for image files with the name of the point cloud
-        files_in_image_folder = sorted(image_folder.iterdir())
         pcd_name = self.controller.pcd_manager.pcd_path.stem
         image_file_pattern = re.compile(f"{pcd_name}+(\.(?i:(jpe?g|png|gif|bmp|tiff)))")
 
         try:
-            image_name = next(filter(image_file_pattern.search, files_in_image_folder))
+            image_name = next(
+                filter(image_file_pattern.search, os.listdir(image_folder))
+            )
         except StopIteration:
             QMessageBox.information(
                 self,
-                "No 2d image File",
+                "No 2D Image File",
                 (
                     f"Could not find a related image in the image folder ({image_folder}).\n"
                     "Check your path to the folder or if an image for this point cloud exists."
