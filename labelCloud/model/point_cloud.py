@@ -3,9 +3,10 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import pkg_resources
+
 import numpy as np
 import OpenGL.GL as GL
-import pkg_resources
 
 from . import Perspective
 from ..control.config_manager import config
@@ -44,7 +45,15 @@ def calculate_init_translation(
     return -np.add(center, [0, 0, zoom])
 
 
-def colorize_points(points: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
+def colorize_points(
+    points: np.ndarray, z_min: float, z_max: float
+) -> Optional[np.ndarray]:
+    if z_min == z_max:
+        logging.warning(
+            "All points in the point cloud have the same height. Skipping colorization ..."
+        )
+        return None
+
     palette = np.loadtxt(
         pkg_resources.resource_filename("labelCloud.resources", "rocket-palette.txt")
     )
