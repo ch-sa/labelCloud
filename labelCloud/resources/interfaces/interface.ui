@@ -178,6 +178,13 @@
              </property>
             </widget>
            </item>
+            <item>
+                <widget class="QPushButton" name="color_with_label">
+                    <property name="text">
+                        <string>Swap Color</string>
+                    </property>
+                </widget>
+            </item>
            <item>
             <widget class="QPushButton" name="button_pcd_next">
              <property name="sizePolicy">
@@ -1412,6 +1419,27 @@
            </size>
           </property>
          </widget>
+        </item>
+        <item>
+            <widget class="QPushButton" name="button_point_overwrite">
+                <property name="toolTip">
+                    <string>Assign point labels with the bbox label</string>
+                </property>
+                <property name="text">
+                    <string>Assign</string>
+                </property>
+                <property name="icon">
+                    <iconset>
+                        <normaloff>../icons/copy-point-svgrepo-com.svg</normaloff>../icons/copy-point-svgrepo-com.svg
+                    </iconset>
+                </property>
+                <property name="iconSize">
+                    <size>
+                        <width>15</width>
+                        <height>15</height>
+                    </size>
+                </property>
+            </widget>
         </item>
         <item>
          <widget class="QPushButton" name="button_label_delete">

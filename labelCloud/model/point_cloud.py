@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 import numpy as np
 import OpenGL.GL as GL
 import pkg_resources
+import colorsys
 
 from . import Perspective
 from ..control.config_manager import config
@@ -14,18 +15,6 @@ from ..utils.logger import end_section, green, print_column, red, start_section,
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
-
-
-# Creates an array buffer in a VBO
-def create_buffer(attributes) -> GL.glGenBuffers:
-    bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
-    buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
-
-    vbo = GL.glGenBuffers(1)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glBufferData(GL.GL_ARRAY_BUFFER, buffersize, bufferdata, GL.GL_STATIC_DRAW)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-    return vbo
 
 
 def calculate_init_translation(
@@ -53,7 +42,34 @@ def colorize_points(points: np.ndarray, z_min: float, z_max: float) -> np.ndarra
     colors = np.zeros(points.shape)
     for ind, height in enumerate(points[:, 2]):
         colors[ind] = palette[round((height - z_min) / (z_max - z_min) * palette_len)]
-    return colors
+    return colors.astype(np.float32)
+
+
+def hsv_to_rgb(h, s, v):
+    (r, g, b) = colorsys.hsv_to_rgb(h, s, v)
+    return (int(255 * r), int(255 * g), int(255 * b))
+
+
+def get_distinct_colors(n):
+    hue_partition = 1.0 / (n + 1)
+    return np.vstack(
+        [
+            np.array(
+                hsv_to_rgb(
+                    hue_partition * value,
+                    1.0 - (value % 2) * 0.5,
+                    1.0 - (value % 3) * 0.1,
+                ),
+                dtype=np.float32,
+            )
+            / 255
+            for value in range(0, n)
+        ]
+    )
+
+
+def consecutive(data, stepsize=1):
+    return np.split(data, np.where(np.diff(data) != stepsize)[0] + 1)
 
 
 class PointCloud(object):
@@ -69,8 +85,7 @@ class PointCloud(object):
         start_section(f"Loading {path.name}")
         self.path = path
         self.points = points
-        self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
-        self.vbo = None
+        self.color_with_label_flag = False
         self.center = tuple(np.sum(points[:, i]) / len(points) for i in range(3))
         self.pcd_mins = np.amin(points, axis=0)
         self.pcd_maxs = np.amax(points, axis=0)
@@ -78,6 +93,13 @@ class PointCloud(object):
             self.center, self.pcd_mins, self.pcd_maxs
         )
         self.init_rotation = init_rotation or (0, 0, 0)
+
+        self.colors = colors
+        self.pos_vbo = self.color_vbo = self.label_color_vbo = None
+        self.label_definitions = {"clutter": 0, "wall": 1, "person": 2, "floor": 3}
+        self.labels = np.zeros(self.points.shape[0]).astype(int)
+        self.label_color_map = get_distinct_colors(len(self.label_definitions))
+        self.mix_ratio = 0.5
 
         # Point cloud transformations
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
@@ -95,6 +117,13 @@ class PointCloud(object):
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
+
+    @property
+    def label_colors(self):
+        """color the points with labels"""
+        label_one_hot = np.eye(len(self.label_definitions))[self.labels]
+        colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)
+        return self.colors * (1 - self.mix_ratio) + colors * self.mix_ratio
 
     @classmethod
     def from_file(
@@ -169,18 +198,16 @@ class PointCloud(object):
         self.trans_z = z
 
     # MANIPULATORS
-
-    def transform_data(self) -> np.ndarray:
-        if self.colorless:
-            attributes = self.points
-        else:
-            # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
-
-        return attributes.flatten()  # flatten to single list
-
     def write_vbo(self) -> None:
-        self.vbo = create_buffer(self.transform_data())
+        self.pos_vbo, self.color_vbo, self.label_color_vbo = GL.glGenBuffers(3)
+        for data, vbo in [
+            (self.points, self.pos_vbo),
+            (self.colors, self.color_vbo),
+            (self.label_colors, self.label_color_vbo),
+        ]:
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+            GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW)
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     def draw_pointcloud(self) -> None:
         GL.glTranslate(
@@ -199,28 +226,21 @@ class PointCloud(object):
         GL.glTranslate(*(pcd_center * -1))  # move point cloud to center for rotation
 
         GL.glPointSize(config.getfloat("POINTCLOUD", "POINT_SIZE"))
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.pos_vbo)
 
-        if self.colorless:
-            stride = 3 * SIZE_OF_FLOAT  # (12 bytes) : [x, y, z] * sizeof(float)
-            GL.glPointSize(1)
-            GL.glColor3d(
-                *config.getlist("POINTCLOUD", "COLORLESS_COLOR")
-            )  # IDEA: Color by (height) position
-        else:
-            stride = (
-                6 * SIZE_OF_FLOAT
-            )  # (24 bytes) : [x, y, z, r, g, b] * sizeof(float)
-
+        stride = 3 * SIZE_OF_FLOAT
         GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
         GL.glVertexPointer(3, GL.GL_FLOAT, stride, None)
 
-        if not self.colorless:
-            GL.glEnableClientState(GL.GL_COLOR_ARRAY)
-            offset = (
-                3 * SIZE_OF_FLOAT
-            )  # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z
-            GL.glColorPointer(3, GL.GL_FLOAT, stride, ctypes.c_void_p(offset))
+        if not self.color_with_label_flag:
+            color_vbo = self.color_vbo
+        else:
+            color_vbo = self.label_color_vbo
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, color_vbo)
+        GL.glEnableClientState(GL.GL_COLOR_ARRAY)
+        GL.glColorPointer(3, GL.GL_FLOAT, stride, None)
+        GL.glDrawArrays(GL.GL_POINTS, 0, self.get_no_of_points())
+
         GL.glDrawArrays(GL.GL_POINTS, 0, self.get_no_of_points())  # Draw the points
 
         GL.glDisableClientState(GL.GL_VERTEX_ARRAY)
@@ -257,3 +277,12 @@ class PointCloud(object):
         print_column(
             ["Initial Translation:", np.round(self.init_translation, 2)], last=True
         )
+
+    def update_colors_selected_points(self, points_inside):
+        print(points_inside)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.label_color_vbo)
+        colors = self.label_colors
+        arrays = consecutive(np.where(points_inside)[0])  # find contiguous points
+        for arr in arrays:
+            col = colors[arr]
+            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, arr[0] * 12, col.nbytes, col)

@@ -163,6 +163,9 @@ class GUI(QtWidgets.QMainWindow):
         self.button_prev_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")
         self.button_next_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_next")
         self.button_set_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_set")
+        self.button_color_with_label = self.findChild(
+            QtWidgets.QPushButton, "color_with_label"
+        )
         self.progressbar_pcd = self.findChild(
             QtWidgets.QProgressBar, "progressbar_pcds"
         )
@@ -208,6 +211,9 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.button_delete_label = self.findChild(
             QtWidgets.QPushButton, "button_label_delete"
+        )
+        self.button_point_overwrite = self.findChild(
+            QtWidgets.QPushButton, "button_point_overwrite"
         )
 
         # BOUNDING BOX PARAMETER EDITS
@@ -261,7 +267,9 @@ class GUI(QtWidgets.QMainWindow):
             lambda: self.controller.next_pcd(save=True)
         )
         self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
-
+        self.button_color_with_label.pressed.connect(
+            lambda: self.controller.color_with_label()
+        )
         # BBOX CONTROL
         self.button_up.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_z()
@@ -322,7 +330,9 @@ class GUI(QtWidgets.QMainWindow):
             )
         )
         self.button_save_labels.clicked.connect(self.controller.save)
-
+        self.button_point_overwrite.clicked.connect(
+            self.controller.overwrite_point_label_in_selected_box
+        )
         # BOUNDING BOX PARAMETER
         self.pos_x_edit.editingFinished.connect(
             lambda: self.update_bbox_parameter("pos_x")

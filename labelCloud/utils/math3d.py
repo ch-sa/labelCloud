@@ -3,6 +3,7 @@ import math
 from typing import List, Optional, Tuple
 
 import numpy as np
+import numpy.typing as npt
 
 
 # LENGTH
@@ -196,3 +197,29 @@ def get_line_plane_intersection(
         return np.add(p0, u)
     else:
         return None  # The segment is parallel to plane.
+
+
+def is_inside(vertices, points):
+    p0 = vertices[0]
+    p1 = vertices[3]
+    p2 = vertices[1]
+    p3 = vertices[4]
+
+    # p0 as origin
+    v1 = p1 - p0
+    v2 = p2 - p0
+    v3 = p3 - p0
+
+    u = points - p0
+    u_dot_v1 = u.dot(v1)
+    u_dot_v2 = u.dot(v2)
+    u_dot_v3 = u.dot(v3)
+
+    inside_v1 = np.logical_and(np.sum(v1**2) > u_dot_v1, u_dot_v1 > 0)
+    inside_v2 = np.logical_and(np.sum(v2**2) > u_dot_v2, u_dot_v2 > 0)
+    inside_v3 = np.logical_and(np.sum(v3**2) > u_dot_v3, u_dot_v3 > 0)
+
+    points_inside: npt.NDArray[np.bool_] = np.logical_and(
+        np.logical_and(inside_v1, inside_v2), inside_v3
+    )
+    return points_inside

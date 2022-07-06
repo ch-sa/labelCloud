@@ -1,6 +1,6 @@
 import logging
 from typing import Union
-
+import numpy as np
 from PyQt5 import QtCore, QtGui
 
 from ..definitions import BBOX_SIDES
@@ -10,6 +10,8 @@ from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
 from .drawing_manager import DrawingManager
 from .pcd_manager import PointCloudManger
+from labelCloud.model.bbox import BBox
+from ..utils.math3d import is_inside
 
 
 class Controller:
@@ -73,6 +75,12 @@ class Controller:
             self.pcd_manager.get_prev_pcd()
             self.reset()
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
+
+    def color_with_label(self) -> None:
+        self.save()
+        self.pcd_manager.pointcloud.color_with_label_flag = (
+            not self.pcd_manager.pointcloud.color_with_label_flag
+        )
 
     def custom_pcd(self, custom: int) -> None:
         self.save()
@@ -285,3 +293,21 @@ class Controller:
         """Triggers actions when the user releases a key."""
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
+
+    def _overwrite_point_label(self, box: BBox):
+        vertices = box.get_vertices().copy()
+        points_inside = is_inside(vertices, self.pcd_manager.pointcloud.points)
+
+        # Relabel the points if its inside the box
+        self.pcd_manager.pointcloud.labels[
+            points_inside
+        ] = self.pcd_manager.pointcloud.label_definitions.get(box.classname, 0)
+        return points_inside
+
+    def overwrite_point_label_in_selected_box(self):
+        box_id = self.bbox_controller.view.label_list.currentRow()
+        if box_id != -1:
+            box = self.bbox_controller.bboxes[box_id]
+            points_inside = self._overwrite_point_label(box)
+            # self.bbox_controller.delete_current_bbox()
+            self.pcd_manager.pointcloud.update_colors_selected_points(points_inside)
