@@ -470,7 +470,7 @@ class GUI(QtWidgets.QMainWindow):
             "specified folder.</b>"
         )
         msg.setInformativeText(
-            f"Please copy all your point clouds into <em>{pcd_folder}</em> or change "
+            f"Please copy all your point clouds into <code>{pcd_folder.resolve()}</code> or update "
             "the point cloud folder location. labelCloud supports the following point "
             f"cloud file formats:\n {', '.join(pcd_extensions)}."
         )

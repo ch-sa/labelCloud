@@ -3,9 +3,10 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import pkg_resources
+
 import numpy as np
 import OpenGL.GL as GL
-import pkg_resources
 
 from . import Perspective
 from ..control.config_manager import config
@@ -98,7 +99,10 @@ class PointCloud(object):
 
     @classmethod
     def from_file(
-        cls, path: Path, perspective: Optional[Perspective], write_buffer: bool = True
+        cls,
+        path: Path,
+        perspective: Optional[Perspective] = None,
+        write_buffer: bool = True,
     ) -> "PointCloud":
         init_translation, init_rotation = (None, None)
         if perspective:
