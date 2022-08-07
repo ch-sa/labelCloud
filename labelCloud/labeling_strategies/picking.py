@@ -1,11 +1,13 @@
 import logging
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 
+from labelCloud.definitions.types import Point3D
+
 from . import BaseLabelingStrategy
 from ..control.config_manager import config
-from ..definitions import Mode
+from ..definitions import Mode, Point3D
 from ..model import BBox
 from ..utils import oglhelper as ogl
 
@@ -24,14 +26,14 @@ class PickingStrategy(BaseLabelingStrategy):
             "Please pick the location for the bounding box front center.",
             mode=Mode.DRAWING,
         )
-        self.tmp_p1 = None
-        self.bbox_z_rotation = 0
+        self.tmp_p1: Optional[Point3D] = None
+        self.bbox_z_rotation: float = 0
 
-    def register_point(self, new_point: List[float]) -> None:
+    def register_point(self, new_point: Point3D) -> None:
         self.point_1 = new_point
         self.points_registered += 1
 
-    def register_tmp_point(self, new_tmp_point: List[float]) -> None:
+    def register_tmp_point(self, new_tmp_point: Point3D) -> None:
         self.tmp_p1 = new_tmp_point
 
     def register_scrolling(self, distance: float) -> None:
@@ -56,6 +58,7 @@ class PickingStrategy(BaseLabelingStrategy):
 
     # Draw bbox with fixed dimensions and rotation at x,y in world space
     def get_bbox(self) -> BBox:  # TODO: Refactor
+        assert self.point_1 is not None
         final_bbox = BBox(
             *np.add(
                 self.point_1,

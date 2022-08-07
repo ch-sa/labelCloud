@@ -39,7 +39,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.bbox_controller = None
 
         # Objects to be drawn
-        self.crosshair_pos = None
+        self.crosshair_pos = (0, 0)
         self.crosshair_col = (0, 1, 0, 1)
         self.selected_side_vertices = []
         self.drawing_mode: Union[DrawingManager, None] = None

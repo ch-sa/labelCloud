@@ -111,110 +111,110 @@ class GUI(QtWidgets.QMainWindow):
 
         # MENU BAR
         # File
-        self.action_setpcdfolder = self.findChild(
+        self.action_setpcdfolder: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_setpcdfolder"
-        )
-        self.action_setlabelfolder = self.findChild(
+        )  # type: ignore
+        self.action_setlabelfolder: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_setlabelfolder"
-        )
+        )  # type: ignore
 
         # Labels
-        self.action_deletelabels = self.findChild(
+        self.action_deletelabels: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_deletealllabels"
-        )
-        self.menu_setdefaultclass = self.findChild(
+        )  # type: ignore
+        self.menu_setdefaultclass: QtWidgets.QMenu = self.findChild(
             QtWidgets.QMenu, "menu_setdefaultclass"
-        )
+        )  # type: ignore
         self.actiongroup_defaultclass = QActionGroup(self.menu_setdefaultclass)
 
         # Settings
-        self.action_zrotation = self.findChild(
+        self.action_zrotation: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_zrotationonly"
-        )
-        self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
-        self.action_showorientation = self.findChild(
+        )  # type: ignore
+        self.action_showfloor: QtWidgets.QAction = self.findChild(QtWidgets.QAction, "action_showfloor")  # type: ignore
+        self.action_showorientation: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_showorientation"
-        )
-        self.action_saveperspective = self.findChild(
+        )  # type: ignore
+        self.action_saveperspective: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_saveperspective"
-        )
-        self.action_alignpcd = self.findChild(QtWidgets.QAction, "action_alignpcd")
-        self.action_change_settings = self.findChild(
+        )  # type: ignore
+        self.action_alignpcd: QtWidgets.QAction = self.findChild(QtWidgets.QAction, "action_alignpcd")  # type: ignore
+        self.action_change_settings: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_changesettings"
-        )
+        )  # type: ignore
 
         # STATUS BAR
-        self.status_bar = self.findChild(QtWidgets.QStatusBar, "statusbar")
+        self.status_bar: QtWidgets.QStatusBar = self.findChild(QtWidgets.QStatusBar, "statusbar")  # type: ignore
         self.status_manager = StatusManager(self.status_bar)
 
         # CENTRAL WIDGET
-        self.glWidget: GLWidget = self.findChild(GLWidget, "openGLWidget")
+        self.glWidget: GLWidget = self.findChild(GLWidget, "openGLWidget")  # type: ignore
 
         # LEFT PANEL
         # point cloud management
-        self.label_curr_pcd = self.findChild(QtWidgets.QLabel, "label_pcd_current")
-        self.button_prev_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")
-        self.button_next_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_next")
-        self.button_set_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_set")
-        self.progressbar_pcd = self.findChild(
+        self.label_curr_pcd: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, "label_pcd_current")  # type: ignore
+        self.button_prev_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")  # type: ignore
+        self.button_next_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_next")  # type: ignore
+        self.button_set_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_set")  # type: ignore
+        self.progressbar_pcd: QtWidgets.QProgressBar = self.findChild(
             QtWidgets.QProgressBar, "progressbar_pcds"
-        )
+        )  # type: ignore
 
         # bbox control section
-        self.button_up = self.findChild(QtWidgets.QPushButton, "button_bbox_up")
-        self.button_down = self.findChild(QtWidgets.QPushButton, "button_bbox_down")
-        self.button_left = self.findChild(QtWidgets.QPushButton, "button_bbox_left")
-        self.button_right = self.findChild(QtWidgets.QPushButton, "button_bbox_right")
-        self.button_forward = self.findChild(
+        self.button_up: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_up")  # type: ignore
+        self.button_down: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_down")  # type: ignore
+        self.button_left: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_left")  # type: ignore
+        self.button_right: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_right")  # type: ignore
+        self.button_forward: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_bbox_forward"
-        )
-        self.button_backward = self.findChild(
+        )  # type: ignore
+        self.button_backward: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_bbox_backward"
-        )
-        self.dial_zrotation = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")
-        self.button_decr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")
-        self.button_incr_dim = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")
+        )  # type: ignore
+        self.dial_zrotation: QtWidgets.QDial = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")  # type: ignore
+        self.button_decr_dim: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")  # type: ignore
+        self.button_incr_dim: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")  # type: ignore
 
         # 2d image viewer
-        self.button_2D = self.findChild(QtWidgets.QPushButton, "button_open_2D")
+        self.button_2D: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_open_2D")  # type: ignore
         self.button_2D.setVisible(config.getboolean("USER_INTERFACE", "show_2d_image"))
 
         # label mode selection
-        self.button_activate_picking = self.findChild(
+        self.button_activate_picking: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_pick_bbox"
-        )
-        self.button_activate_spanning = self.findChild(
+        )  # type: ignore
+        self.button_activate_spanning: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_span_bbox"
-        )
-        self.button_save_labels = self.findChild(
+        )  # type: ignore
+        self.button_save_labels: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_save_label"
-        )
+        )  # type: ignore
 
         # RIGHT PANEL
-        self.label_list = self.findChild(QtWidgets.QListWidget, "label_list")
-        self.curr_class_edit = self.findChild(
+        self.label_list: QtWidgets.QListWidget = self.findChild(QtWidgets.QListWidget, "label_list")  # type: ignore
+        self.curr_class_edit: QtWidgets.QLineEdit = self.findChild(
             QtWidgets.QLineEdit, "current_class_lineedit"
-        )
+        )  # type: ignore
         # self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
-        self.button_deselect_label = self.findChild(
+        self.button_deselect_label: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_label_deselect"
-        )
-        self.button_delete_label = self.findChild(
+        )  # type: ignore
+        self.button_delete_label: QtWidgets.QPushButton = self.findChild(
             QtWidgets.QPushButton, "button_label_delete"
-        )
+        )  # type: ignore
 
         # BOUNDING BOX PARAMETER EDITS
-        self.pos_x_edit = self.findChild(QtWidgets.QLineEdit, "pos_x_edit")
-        self.pos_y_edit = self.findChild(QtWidgets.QLineEdit, "pos_y_edit")
-        self.pos_z_edit = self.findChild(QtWidgets.QLineEdit, "pos_z_edit")
+        self.pos_x_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_x_edit")  # type: ignore
+        self.pos_y_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_y_edit")  # type: ignore
+        self.pos_z_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_z_edit")  # type: ignore
 
-        self.length_edit = self.findChild(QtWidgets.QLineEdit, "length_edit")
-        self.width_edit = self.findChild(QtWidgets.QLineEdit, "width_edit")
-        self.height_edit = self.findChild(QtWidgets.QLineEdit, "height_edit")
+        self.length_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "length_edit")  # type: ignore
+        self.width_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "width_edit")  # type: ignore
+        self.height_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "height_edit")  # type: ignore
 
-        self.rot_x_edit = self.findChild(QtWidgets.QLineEdit, "rot_x_edit")
-        self.rot_y_edit = self.findChild(QtWidgets.QLineEdit, "rot_y_edit")
-        self.rot_z_edit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")
+        self.rot_x_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_x_edit")  # type: ignore
+        self.rot_y_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_y_edit")  # type: ignore
+        self.rot_z_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")  # type: ignore
 
         self.all_line_edits = [
             self.curr_class_edit,
@@ -229,7 +229,7 @@ class GUI(QtWidgets.QMainWindow):
             self.rot_z_edit,
         ]
 
-        self.volume_label = self.findChild(QtWidgets.QLabel, "volume_value_label")
+        self.volume_label: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, "volume_value_label")  # type: ignore
 
         # Connect with controller
         self.controller = control
@@ -486,9 +486,9 @@ class GUI(QtWidgets.QMainWindow):
         if force is not None:
             self.curr_class_edit.setText(force)
         else:
-            self.curr_class_edit.setText(
-                self.controller.bbox_controller.get_active_bbox().get_classname()
-            )
+            bbox = self.controller.bbox_controller.get_active_bbox()
+            if bbox:
+                self.curr_class_edit.setText(bbox.get_classname())
 
     def update_label_completer(self, classnames=None) -> None:
         if classnames is None:
@@ -600,7 +600,9 @@ class GUI(QtWidgets.QMainWindow):
             logging.info("Changed label folder to %s!" % path_to_folder)
 
     def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
-        object_classes = set(config.getlist("LABEL", "object_classes"))
+        object_classes = {
+            str(class_name) for class_name in config.getlist("LABEL", "object_classes")
+        }
         object_classes.update(new_classes or [])
         existing_classes = {
             action.text() for action in self.actiongroup_defaultclass.actions()

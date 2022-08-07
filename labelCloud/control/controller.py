@@ -1,9 +1,10 @@
 import logging
-from typing import Union
+from typing import Optional, Union
 
 from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import QPoint
 
-from ..definitions import BBOX_SIDES, Context
+from ..definitions import BBOX_SIDES, Color, Context
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -17,7 +18,7 @@ class Controller:
 
     def __init__(self) -> None:
         """Initializes all controllers and managers."""
-        self.view: Union["GUI", None] = None
+        self.view: "GUI"
         self.pcd_manager = PointCloudManger()
         self.bbox_controller = BoundingBoxController()
 
@@ -26,14 +27,14 @@ class Controller:
         self.align_mode = AlignMode(self.pcd_manager)
 
         # Control states
-        self.curr_cursor_pos = None  # updated by mouse movement
-        self.last_cursor_pos = None  # updated by mouse click
+        self.curr_cursor_pos: Optional[QPoint] = None  # updated by mouse movement
+        self.last_cursor_pos: Optional[QPoint] = None  # updated by mouse click
         self.ctrl_pressed = False
         self.scroll_mode = False  # to enable the side-pulling
 
         # Correction states
         self.side_mode = False
-        self.selected_side = None
+        self.selected_side: Optional[str] = None
 
     def startup(self, view: "GUI") -> None:
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
@@ -95,7 +96,7 @@ class Controller:
     def set_crosshair(self) -> None:
         """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
-            self.view.glWidget.crosshair_col = [0, 1, 0]
+            self.view.glWidget.crosshair_col = Color.GREEN.value
             self.view.glWidget.crosshair_pos = (
                 self.curr_cursor_pos.x(),
                 self.curr_cursor_pos.y(),
@@ -112,7 +113,7 @@ class Controller:
             _, self.selected_side = oglhelper.get_intersected_sides(
                 self.curr_cursor_pos.x(),
                 self.curr_cursor_pos.y(),
-                self.bbox_controller.get_active_bbox(),
+                self.bbox_controller.get_active_bbox(),  # type: ignore
                 self.view.glWidget.modelview,
                 self.view.glWidget.projection,
             )
@@ -121,8 +122,8 @@ class Controller:
             and (not self.ctrl_pressed)
             and self.bbox_controller.has_active_bbox()
         ):
-            self.view.glWidget.crosshair_col = [1, 0, 0]
-            side_vertices = self.bbox_controller.get_active_bbox().get_vertices()
+            self.view.glWidget.crosshair_col = Color.RED.value
+            side_vertices = self.bbox_controller.get_active_bbox().get_vertices()  # type: ignore
             self.view.glWidget.selected_side_vertices = side_vertices[
                 BBOX_SIDES[self.selected_side]
             ]
@@ -212,10 +213,14 @@ class Controller:
         if self.selected_side:
             self.side_mode = True
 
-        if self.drawing_mode.is_active() and (not self.ctrl_pressed):
+        if (
+            self.drawing_mode.is_active()
+            and (not self.ctrl_pressed)
+            and self.drawing_mode.drawing_strategy is not None
+        ):
             self.drawing_mode.drawing_strategy.register_scrolling(a0.angleDelta().y())
         elif self.side_mode and self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().change_side(
+            self.bbox_controller.get_active_bbox().change_side(  # type: ignore
                 self.selected_side, -a0.angleDelta().y() / 4000
             )  # ToDo implement method
         else:

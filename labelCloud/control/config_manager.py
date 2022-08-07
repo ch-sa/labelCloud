@@ -14,7 +14,7 @@ class ExtendedConfigParser(configparser.ConfigParser):
 
     def getlist(
         self, section, option, raw=False, vars=None, fallback=None
-    ) -> List[Union[str, float]]:
+    ) -> Union[List[str], List[float], str]:
         raw_value = self.get(section, option, raw=raw, vars=vars, fallback=fallback)
         if "," in raw_value:
             values = [x.strip() for x in raw_value.split(",")]

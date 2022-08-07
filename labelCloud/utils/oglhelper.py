@@ -4,14 +4,13 @@ import numpy as np
 import OpenGL.GL as GL
 from OpenGL import GLU
 
-from ..definitions import BBOX_SIDES
+from ..definitions import BBOX_SIDES, PointList, Color4f
 from . import math3d
 
 if TYPE_CHECKING:
     from ..model import BBox, PointCloud
 
-Color4f = Tuple[float, float, float, float]  # type alias for type hinting
-PointList = List[List[float]]
+
 
 DEVICE_PIXEL_RATIO = (
     None  # is set once and for every window resize (retina display fix)
