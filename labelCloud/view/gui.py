@@ -6,21 +6,22 @@ from typing import TYPE_CHECKING, Set
 
 import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
     QCompleter,
     QFileDialog,
+    QInputDialog,
     QLabel,
     QMessageBox,
-    QInputDialog,
 )
 
 from ..control.config_manager import config
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog
+from .status_manager import StatusManager
 from .viewer import GLWidget
 
 if TYPE_CHECKING:
@@ -143,16 +144,8 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # STATUS BAR
-        self.status = self.findChild(QtWidgets.QStatusBar, "statusbar")
-        self.mode_status = QtWidgets.QLabel("Navigation Mode")
-        self.mode_status.setStyleSheet(
-            "font-weight: bold; font-size: 14px; min-width: 235px;"
-        )
-        self.mode_status.setAlignment(Qt.AlignCenter)
-        self.status.addWidget(self.mode_status, stretch=0)
-        self.tmp_status = QtWidgets.QLabel()
-        self.tmp_status.setStyleSheet("font-size: 14px;")
-        self.status.addWidget(self.tmp_status, stretch=1)
+        self.status_bar = self.findChild(QtWidgets.QStatusBar, "statusbar")
+        self.status_manager = StatusManager(self.status_bar)
 
         # CENTRAL WIDGET
         self.glWidget: GLWidget = self.findChild(GLWidget, "openGLWidget")
@@ -538,7 +531,7 @@ class GUI(QtWidgets.QMainWindow):
             str_value = self.pos_z_edit.text()
         if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_position(parameter, float(str_value))
-            return True
+            return
 
         if parameter == "length":
             str_value = self.length_edit.text()
@@ -550,7 +543,7 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.update_dimension(
                 parameter, float(str_value)
             )
-            return True
+            return
 
         if parameter == "rot_x":
             str_value = self.rot_x_edit.text()
@@ -560,36 +553,18 @@ class GUI(QtWidgets.QMainWindow):
             str_value = self.rot_z_edit.text()
         if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_rotation(parameter, float(str_value))
-            return True
+            return
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
         self.button_activate_picking.setEnabled(state)
         self.button_activate_spanning.setEnabled(state)
 
-    def update_status(self, message: str, mode: str = None) -> None:
-        self.tmp_status.setText(message)
-        if mode:
-            self.update_mode_status(mode)
-
     def line_edited_activated(self) -> bool:
         for line_edit in self.all_line_edits:
             if line_edit.hasFocus():
                 return True
         return False
-
-    def update_mode_status(self, mode: str) -> None:
-        self.action_alignpcd.setEnabled(True)
-        if mode == "drawing":
-            text = "Drawing Mode"
-            self.action_alignpcd.setEnabled(False)
-        elif mode == "correction":
-            text = "Correction Mode"
-        elif mode == "alignment":
-            text = "Alignment Mode"
-        else:
-            text = "Navigation Mode"
-        self.mode_status.setText(text)
 
     def change_pointcloud_folder(self) -> None:
         path_to_folder = Path(

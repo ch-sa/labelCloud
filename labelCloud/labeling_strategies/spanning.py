@@ -3,16 +3,15 @@ from typing import TYPE_CHECKING, List
 
 import numpy as np
 
+from . import BaseLabelingStrategy
 from ..control.config_manager import config
+from ..definitions import Mode
 from ..model import BBox
 from ..utils import math3d as math3d
 from ..utils import oglhelper as ogl
-from . import BaseLabelingStrategy
 
 if TYPE_CHECKING:
     from ..view.gui import GUI
-
-import numpy as np
 
 
 class SpanningStrategy(BaseLabelingStrategy):
@@ -23,8 +22,8 @@ class SpanningStrategy(BaseLabelingStrategy):
     def __init__(self, view: "GUI") -> None:
         super().__init__(view)
         logging.info("Enabled spanning mode.")
-        self.view.update_status(
-            "Begin by selecting a vertex of the bounding box.", mode="drawing"
+        self.view.status_manager.update_status(
+            "Begin by selecting a vertex of the bounding box.", mode=Mode.DRAWING
         )
         self.preview_color = (1, 1, 0, 1)
         self.point_2 = None  # second edge
@@ -52,17 +51,17 @@ class SpanningStrategy(BaseLabelingStrategy):
     def register_point(self, new_point: List[float]) -> None:
         if self.point_1 is None:
             self.point_1 = new_point
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 "Select a point representing the length of the bounding box."
             )
         elif not self.point_2:
             self.point_2 = new_point
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 "Select any point for the depth of the bounding box."
             )
         elif not self.point_3:
             self.point_3 = new_point
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 "Select any point for the height of the bounding box."
             )
         elif not self.point_4:

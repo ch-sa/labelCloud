@@ -3,7 +3,7 @@ from typing import Union
 
 from PyQt5 import QtCore, QtGui
 
-from ..definitions import BBOX_SIDES
+from ..definitions import BBOX_SIDES, Context
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -126,8 +126,13 @@ class Controller:
             self.view.glWidget.selected_side_vertices = side_vertices[
                 BBOX_SIDES[self.selected_side]
             ]
+            self.view.status_manager.set_message(
+                "Scroll to change the bounding box dimension.",
+                context=Context.SIDE_HOVERED,
+            )
         else:
             self.view.glWidget.selected_side_vertices = []
+            self.view.status_manager.clear_message(Context.SIDE_HOVERED)
 
     # EVENT PROCESSING
     def mouse_clicked(self, a0: QtGui.QMouseEvent) -> None:
@@ -219,9 +224,15 @@ class Controller:
 
     def key_press_event(self, a0: QtGui.QKeyEvent) -> None:
         """Triggers actions when the user presses a key."""
+
         # Reset position to intial value
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = True
+            self.view.status_manager.set_message(
+                "Hold right mouse button to translate or left mouse button to rotate "
+                "the bounding box.",
+                context=Context.CONTROL_PRESSED,
+            )
 
         # Reset point cloud pose to intial rotation and translation
         elif (a0.key() == QtCore.Qt.Key_R) or (a0.key() == QtCore.Qt.Key_Home):
@@ -285,3 +296,4 @@ class Controller:
         """Triggers actions when the user releases a key."""
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
+            self.view.status_manager.clear_message(Context.CONTROL_PRESSED)

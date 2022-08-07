@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+from ..definitions import Mode
 from ..utils import oglhelper as ogl
 from .pcd_manager import PointCloudManger
 
@@ -43,9 +44,9 @@ class AlignMode(object):
             self.is_active = True
 
         if self.is_active:
-            self.view.update_status(
+            self.view.status_manager.update_status(
                 "Select three points on the plane that should be the floor.",
-                "alignment",
+                Mode.ALIGNMENT,
             )
         self.view.action_alignpcd.setChecked(self.is_active)
         self.view.activate_draw_modes(
@@ -64,7 +65,7 @@ class AlignMode(object):
             self.plane1 = new_point
         elif not self.plane2:
             self.plane2 = new_point
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 "The triangle area should be part over and part under the floor points."
             )
         elif not self.plane3:
@@ -130,8 +131,8 @@ class AlignMode(object):
         # Initiate point cloud rotation
         self.pcd_manager.rotate_pointcloud(rotation_axis, rotation_angle, self.plane1)
 
-        self.view.update_status(
-            "Aligned point cloud with the selected floor.", "navigation"
+        self.view.status_manager.update_status(
+            "Aligned point cloud with the selected floor.", Mode.NAVIGATION
         )
         self.change_activation(force=False)
         self.reset()

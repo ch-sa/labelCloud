@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 
+from ..definitions import Mode
 from ..model.bbox import BBox
 from ..utils import oglhelper
 from .config_manager import config
@@ -81,8 +82,8 @@ class BoundingBoxController(object):
         if isinstance(bbox, BBox):
             self.bboxes.append(bbox)
             self.set_active_bbox(self.bboxes.index(bbox))
-            self.view.update_status(
-                "Bounding Box added, it can now be corrected.", mode="correction"
+            self.view.status_manager.update_status(
+                "Bounding Box added, it can now be corrected.", Mode.CORRECTION
             )
 
     def update_bbox(self, bbox_id: int, bbox: BBox) -> None:
@@ -106,8 +107,8 @@ class BoundingBoxController(object):
         if 0 <= bbox_id < len(self.bboxes):
             self.active_bbox_id = bbox_id
             self.update_all()
-            self.view.update_status(
-                "Bounding Box selected, it can now be corrected.", mode="correction"
+            self.view.status_manager.update_status(
+                "Bounding Box selected, it can now be corrected.", mode=Mode.CORRECTION
             )
         else:
             self.deselect_bbox()
@@ -133,7 +134,7 @@ class BoundingBoxController(object):
     def deselect_bbox(self) -> None:
         self.active_bbox_id = -1
         self.update_all()
-        self.view.update_status("", mode="navigation")
+        self.view.status_manager.set_mode(Mode.NAVIGATION)
 
     # MANIPULATORS
     @has_active_bbox_decorator

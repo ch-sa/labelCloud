@@ -5,7 +5,7 @@ Sets the point cloud and original point cloud path. Initiate the writing to the 
 import logging
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 import numpy as np
 import open3d as o3d
@@ -38,7 +38,7 @@ class PointCloudManger(object):
 
         # Point cloud control
         self.pointcloud = None
-        self.collected_object_classes = set()
+        self.collected_object_classes: Set[str] = set()
         self.saved_perspective: Optional[Perspective] = None
 
     @property
@@ -49,6 +49,7 @@ class PointCloudManger(object):
     def pcd_name(self) -> Optional[str]:
         if self.current_id >= 0:
             return self.pcd_path.name
+        return None
 
     def read_pointcloud_folder(self) -> None:
         """Checks point cloud folder and sets self.pcds to all valid point cloud file names."""
@@ -63,7 +64,7 @@ class PointCloudManger(object):
             )
 
         if self.pcds:
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 f"Found {len(self.pcds)} point clouds in the point cloud folder."
             )
             self.update_pcd_infos()
@@ -71,7 +72,7 @@ class PointCloudManger(object):
             self.view.show_no_pointcloud_dialog(
                 self.pcd_folder, PointCloudManger.PCD_EXTENSIONS
             )
-            self.view.update_status(
+            self.view.status_manager.set_message(
                 "Please set the point cloud folder to a location that contains point cloud files."
             )
             self.pointcloud = PointCloud.from_file(
