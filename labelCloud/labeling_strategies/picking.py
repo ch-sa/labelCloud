@@ -3,10 +3,11 @@ from typing import TYPE_CHECKING, List
 
 import numpy as np
 
+from . import BaseLabelingStrategy
 from ..control.config_manager import config
+from ..definitions import Mode
 from ..model import BBox
 from ..utils import oglhelper as ogl
-from . import BaseLabelingStrategy
 
 if TYPE_CHECKING:
     from ..view.gui import GUI
@@ -19,9 +20,9 @@ class PickingStrategy(BaseLabelingStrategy):
     def __init__(self, view: "GUI") -> None:
         super().__init__(view)
         logging.info("Enabled drawing mode.")
-        self.view.update_status(
+        self.view.status_manager.update_status(
             "Please pick the location for the bounding box front center.",
-            mode="drawing",
+            mode=Mode.DRAWING,
         )
         self.tmp_p1 = None
         self.bbox_z_rotation = 0
