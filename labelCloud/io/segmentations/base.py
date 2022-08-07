@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Type
 import numpy.typing as npt
 import numpy as np
 from ...utils.singleton import SingletonABCMeta
@@ -16,6 +16,11 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
     def read_label_definition(self, label_definition_path: Path) -> None:
         with open(label_definition_path, "r") as f:
             self.label_definition: Dict[str, int] = json.loads(f.read())
+            assert len(self.label_definition) > 0
+
+    @property
+    def default_label(self) -> int:
+        return min(list(self.label_definition.values()))
 
     def read_or_create_labels(
         self, label_path: Path, num_points: int
@@ -28,7 +33,7 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
                     f"The segmentation label doesn't match with the point cloud, label file contains {labels.shape[0]} while point cloud contains {num_points}."
                 )
         else:
-            labels = np.zeros(shape=(num_points,), dtype=np.int8)
+            labels = self._create_labels(num_points)
         return self.label_definition, labels
 
     def overwrite_labels(self, label_path: Path, labels: npt.NDArray[np.int8]) -> None:
@@ -39,11 +44,15 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
         raise NotImplementedError
 
     @abstractmethod
+    def _create_labels(self, num_points: int, *args, **kwargs) -> npt.NDArray[np.int8]:
+        raise NotImplementedError
+
+    @abstractmethod
     def _write_labels(self, label_path: Path, labels: npt.NDArray[np.int8]) -> None:
         raise NotImplementedError
 
     @classmethod
-    def get_handler(cls, file_extension: str, **kwargs) -> "BaseSegmentationHandler":
+    def get_handler(cls, file_extension: str) -> Type["BaseSegmentationHandler"]:
         for subclass in cls.__subclasses__():
             if file_extension in subclass.EXTENSIONS:
-                return subclass(**kwargs)
+                return subclass
