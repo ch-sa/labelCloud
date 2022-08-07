@@ -1,11 +1,11 @@
 import logging
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, cast
 
 import numpy as np
 
 from . import BaseLabelingStrategy
 from ..control.config_manager import config
-from ..definitions import Mode
+from ..definitions import Mode, Point3D
 from ..model import BBox
 from ..utils import math3d as math3d
 from ..utils import oglhelper as ogl
@@ -26,15 +26,15 @@ class SpanningStrategy(BaseLabelingStrategy):
             "Begin by selecting a vertex of the bounding box.", mode=Mode.DRAWING
         )
         self.preview_color = (1, 1, 0, 1)
-        self.point_2 = None  # second edge
-        self.point_3 = None  # width
-        self.point_4 = None  # height
-        self.tmp_p2 = None  # tmp points for preview
-        self.tmp_p3 = None
-        self.tmp_p4 = None
-        self.p1_w = None  # p1 + dir_vector
-        self.p2_w = None  # p2 + dir_vector
-        self.dir_vector = None  # p1 + dir_vector
+        self.point_2: Optional[Point3D] = None  # second edge
+        self.point_3: Optional[Point3D] = None  # width
+        self.point_4: Optional[Point3D] = None  # height
+        self.tmp_p2: Optional[Point3D] = None  # tmp points for preview
+        self.tmp_p3: Optional[Point3D] = None
+        self.tmp_p4: Optional[Point3D] = None
+        self.p1_w: Optional[Point3D] = None  # p1 + dir_vector
+        self.p2_w: Optional[Point3D] = None  # p2 + dir_vector
+        self.dir_vector: Optional[Point3D] = None  # p1 + dir_vector
 
     def reset(self) -> None:
         super().reset()
@@ -48,7 +48,7 @@ class SpanningStrategy(BaseLabelingStrategy):
         )
         self.view.button_activate_spanning.setChecked(False)
 
-    def register_point(self, new_point: List[float]) -> None:
+    def register_point(self, new_point: Point3D) -> None:
         if self.point_1 is None:
             self.point_1 = new_point
             self.view.status_manager.set_message(
@@ -70,7 +70,7 @@ class SpanningStrategy(BaseLabelingStrategy):
             logging.warning("Cannot register point.")
         self.points_registered += 1
 
-    def register_tmp_point(self, new_tmp_point: List[float]) -> None:
+    def register_tmp_point(self, new_tmp_point: Point3D) -> None:
         if self.point_1 and (not self.point_2):
             self.tmp_p2 = new_tmp_point
         elif self.point_2 and (not self.point_3):
@@ -79,8 +79,13 @@ class SpanningStrategy(BaseLabelingStrategy):
             self.tmp_p4 = new_tmp_point
 
     def get_bbox(self) -> BBox:
+        assert self.point_1 is not None and self.point_2 is not None
         length = math3d.vector_length(np.subtract(self.point_1, self.point_2))
+
+        assert self.dir_vector is not None
         width = math3d.vector_length(self.dir_vector)
+
+        assert self.point_4 is not None
         height = self.point_4[2] - self.point_1[2]  # can also be negative
 
         line_center = np.add(self.point_1, self.point_2) / 2
@@ -96,7 +101,7 @@ class SpanningStrategy(BaseLabelingStrategy):
             width *= 1.1
             height *= 1.1
 
-        bbox = BBox(*center, length=length, width=width, height=abs(height))
+        bbox = BBox(*center, length=length, width=width, height=abs(height))  # type: ignore
         bbox.set_z_rotation(math3d.radians_to_degrees(z_angle))
 
         if not config.getboolean("USER_INTERFACE", "z_rotation_only"):
@@ -113,19 +118,26 @@ class SpanningStrategy(BaseLabelingStrategy):
             if self.point_1 and (self.point_2 or self.tmp_p2):
                 if self.point_2:
                     self.tmp_p2 = self.point_2
+                assert self.tmp_p2 is not None
                 ogl.draw_points([self.tmp_p2], color=(1, 1, 0, 1))
                 ogl.draw_lines([self.point_1, self.tmp_p2], color=self.preview_color)
 
             if self.point_1 and self.point_2 and (self.tmp_p3 or self.point_3):
                 if self.point_3:
                     self.tmp_p3 = self.point_3
+                assert self.tmp_p3 is not None
                 # Get x-y-aligned vector from line to point with intersection
-                self.dir_vector, intersection = math3d.get_line_perpendicular(
+                self.dir_vector, _ = math3d.get_line_perpendicular(
                     self.point_1, self.point_2, self.tmp_p3
                 )
                 # Calculate projected vertices
-                self.p1_w = np.add(self.point_1, self.dir_vector)
-                self.p2_w = np.add(self.point_2, self.dir_vector)
+                assert (
+                    self.point_1 is not None
+                    and self.point_2 is not None
+                    and self.dir_vector is not None
+                )
+                self.p1_w = cast(Point3D, np.add(self.point_1, self.dir_vector))
+                self.p2_w = cast(Point3D, np.add(self.point_2, self.dir_vector))
                 ogl.draw_points([self.p1_w, self.p2_w], color=self.preview_color)
                 ogl.draw_rectangles(
                     [self.point_1, self.point_2, self.p2_w, self.p1_w],
@@ -139,11 +151,12 @@ class SpanningStrategy(BaseLabelingStrategy):
             and self.tmp_p4
             and (not self.point_4)
         ):
+            assert self.p1_w is not None and self.p2_w is not None
             height1 = self.tmp_p4[2] - self.point_1[2]
-            p1_t = np.add(self.point_1, [0, 0, height1])
-            p2_t = np.add(self.point_2, [0, 0, height1])
-            p1_wt = np.add(self.p1_w, [0, 0, height1])
-            p2_wt = np.add(self.p2_w, [0, 0, height1])
+            p1_t = cast(Point3D, np.add(self.point_1, [0, 0, height1]))
+            p2_t = cast(Point3D, np.add(self.point_2, [0, 0, height1]))
+            p1_wt = cast(Point3D, np.add(self.p1_w, [0, 0, height1]))
+            p2_wt = cast(Point3D, np.add(self.p2_w, [0, 0, height1]))
 
             ogl.draw_cuboid(
                 [

@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from ..model import BBox, PointCloud
 
 
-
 DEVICE_PIXEL_RATIO = (
     None  # is set once and for every window resize (retina display fix)
 )

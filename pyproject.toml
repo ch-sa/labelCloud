@@ -4,3 +4,6 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[mypy]
+plugins = "numpy.typing.mypy_plugin"

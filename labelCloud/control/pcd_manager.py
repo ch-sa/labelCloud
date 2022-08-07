@@ -33,11 +33,11 @@ class PointCloudManger(object):
         self.pcds: List[Path] = []
         self.current_id = -1
 
-        self.view: Optional[GUI] = None
+        self.view: GUI
         self.label_manager = LabelManager()
 
         # Point cloud control
-        self.pointcloud = None
+        self.pointcloud: Optional[PointCloud] = None
         self.collected_object_classes: Set[str] = set()
         self.saved_perspective: Optional[Perspective] = None
 
@@ -159,37 +159,46 @@ class PointCloudManger(object):
 
     # MANIPULATOR
     def rotate_around_x(self, dangle) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_rot_x(self.pointcloud.rot_x - dangle)
 
     def rotate_around_y(self, dangle) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_rot_y(self.pointcloud.rot_y - dangle)
 
     def rotate_around_z(self, dangle) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_rot_z(self.pointcloud.rot_z - dangle)
 
     def translate_along_x(self, distance) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_trans_x(
             self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
     def translate_along_y(self, distance) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_trans_y(
             self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
     def translate_along_z(self, distance) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.set_trans_z(
             self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR
         )
 
     def zoom_into(self, distance) -> None:
+        assert self.pointcloud is not None
         zoom_distance = distance * PointCloudManger.ZOOM_FACTOR
         self.pointcloud.set_trans_z(self.pointcloud.trans_z + zoom_distance)
 
     def reset_translation(self) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.reset_perspective()
 
     def reset_rotation(self) -> None:
+        assert self.pointcloud is not None
         self.pointcloud.rot_x, self.pointcloud.rot_y, self.pointcloud.rot_z = (0, 0, 0)
 
     def reset_transformations(self) -> None:
@@ -199,6 +208,7 @@ class PointCloudManger(object):
     def rotate_pointcloud(
         self, axis: List[float], angle: float, rotation_point: List[float]
     ) -> None:
+        assert self.pointcloud is not None and self.pcd_name is not None
         # Save current, original point cloud in ORIGINALS_FOLDER
         originals_path = self.pcd_folder.joinpath(PointCloudManger.ORIGINALS_FOLDER)
         originals_path.mkdir(parents=True, exist_ok=True)
@@ -236,6 +246,7 @@ class PointCloudManger(object):
     # HELPER
 
     def get_perspective(self) -> Tuple[float, float, float]:
+        assert self.pointcloud is not None
         x_rotation = self.pointcloud.rot_x
         z_rotation = self.pointcloud.rot_z
 
@@ -251,7 +262,7 @@ class PointCloudManger(object):
     # UPDATE GUI
 
     def update_pcd_infos(self, pointcloud_label: str = None) -> None:
-        self.view.set_pcd_label(pointcloud_label or self.pcd_name)
+        self.view.set_pcd_label(pointcloud_label or self.pcd_name or "")
         self.view.update_progress(self.current_id)
 
         if self.current_id <= 0:

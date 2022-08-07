@@ -1,12 +1,15 @@
 import logging
 import math
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
+import numpy.typing as npt
+
+from labelCloud.definitions.types import Point3D
 
 
 # LENGTH
-def vector_length(point: List[float]) -> float:
+def vector_length(point: Union[List[float], npt.ArrayLike]) -> float:
     return np.linalg.norm(point)
 
 
@@ -146,8 +149,8 @@ def vertices2rotations(
 
 
 def get_line_perpendicular(
-    line_start: List[float], line_end: List[float], point: List[float]
-) -> Tuple[tuple, tuple]:
+    line_start: Point3D, line_end: Point3D, point: Point3D
+) -> Tuple[Point3D, tuple]:
     """Get line perpendicular to point parallel to x-y-plane
 
     Returns:
@@ -158,8 +161,8 @@ def get_line_perpendicular(
     b = m * -line_end[0] + line_end[1]
 
     # Calculate line perpendicular parallel to x-y-plane
-    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m**2)
-    intersection_y = (m * point[0] + m**2 * point[1] + b) / (1 + m**2)
+    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m ** 2)
+    intersection_y = (m * point[0] + m ** 2 * point[1] + b) / (1 + m ** 2)
     dir_vector = (
         point[0] - intersection_x,
         point[1] - intersection_y,
