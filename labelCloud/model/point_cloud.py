@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import pkg_resources
+
 import numpy as np
 import OpenGL.GL as GL
 import pkg_resources
@@ -133,7 +135,7 @@ class PointCloud(object):
     def from_file(
         cls,
         path: Path,
-        perspective: Optional[Perspective],
+        perspective: Optional[Perspective] = None,
         label_path: Path = Path("bla.bin"),
         label_definition_path: Path = config.getpath(
             "SEGMENTATION", "label_definition_path"
