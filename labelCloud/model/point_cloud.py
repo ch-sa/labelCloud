@@ -8,6 +8,8 @@ import OpenGL.GL as GL
 import pkg_resources
 import colorsys
 
+from labelCloud.io.segmentations.base import BaseSegmentationHandler
+
 from . import Perspective
 from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
@@ -78,6 +80,8 @@ class PointCloud(object):
         path: Path,
         points: np.ndarray,
         colors: Optional[np.ndarray] = None,
+        labels=None,
+        label_definition=None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
@@ -96,8 +100,8 @@ class PointCloud(object):
 
         self.colors = colors
         self.pos_vbo = self.color_vbo = self.label_color_vbo = None
-        self.label_definitions = {"clutter": 0, "wall": 1, "person": 2, "floor": 3}
-        self.labels = np.zeros(self.points.shape[0]).astype(int)
+        self.label_definitions = label_definition
+        self.labels = labels
         self.label_color_map = get_distinct_colors(len(self.label_definitions))
         self.mix_ratio = 0.5
 
@@ -127,7 +131,14 @@ class PointCloud(object):
 
     @classmethod
     def from_file(
-        cls, path: Path, perspective: Optional[Perspective], write_buffer: bool = True
+        cls,
+        path: Path,
+        perspective: Optional[Perspective],
+        label_path: Path = Path("bla.bin"),
+        label_definition_path: Path = config.getpath(
+            "SEGMENTATION", "label_definition_path"
+        ),
+        write_buffer: bool = True,
     ) -> "PointCloud":
         init_translation, init_rotation = (None, None)
         if perspective:
@@ -137,7 +148,27 @@ class PointCloud(object):
         points, colors = BasePointCloudHandler.get_handler(
             path.suffix
         ).read_point_cloud(path=path)
-        return cls(path, points, colors, init_translation, init_rotation, write_buffer)
+
+        segmentation_handler: BaseSegmentationHandler = (
+            BaseSegmentationHandler.get_handler(
+                file_extension=".bin", label_definition_path=label_definition_path
+            )
+        )
+
+        label_definition, labels = segmentation_handler.read_or_create_labels(
+            label_path=label_path, num_points=points.shape[0]
+        )
+
+        return cls(
+            path,
+            points,
+            colors,
+            labels,
+            label_definition,
+            init_translation,
+            init_rotation,
+            write_buffer,
+        )
 
     def to_file(self, path: Optional[Path] = None) -> None:
         if not path:

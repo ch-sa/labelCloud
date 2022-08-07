@@ -26,6 +26,7 @@ class PointCloudManger(object):
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
+    SEGMENTATION = config.getboolean("MODE", "segmentation")
 
     def __init__(self) -> None:
         # Point cloud management
@@ -79,7 +80,11 @@ class PointCloudManger(object):
                     pkg_resources.resource_filename(
                         "labelCloud.resources", "labelCloud_icon.pcd"
                     )
-                )
+                ),
+                label_path="bla.bin",
+                label_definition_path=config.getpath(
+                    "SEGMENTATION", "label_definition_path"
+                ),
             )
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 
