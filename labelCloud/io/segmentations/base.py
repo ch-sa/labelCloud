@@ -1,9 +1,11 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
 import json
+from abc import abstractmethod
+from pathlib import Path
 from typing import Dict, Tuple, Type
-import numpy.typing as npt
+
 import numpy as np
+import numpy.typing as npt
+
 from ...utils.singleton import SingletonABCMeta
 
 

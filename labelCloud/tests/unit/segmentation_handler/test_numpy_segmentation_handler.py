@@ -1,10 +1,11 @@
 import tempfile
-from labelCloud.io.segmentations import NumpySegmentationHandler
-import pytest
-from pathlib import Path
-import numpy as np
 from contextlib import nullcontext
+from pathlib import Path
 from typing import Dict
+
+import numpy as np
+import pytest
+from labelCloud.io.segmentations import NumpySegmentationHandler
 
 
 @pytest.fixture
