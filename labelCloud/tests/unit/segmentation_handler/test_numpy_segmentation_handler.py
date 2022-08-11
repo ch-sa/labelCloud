@@ -99,9 +99,15 @@ def test_read_or_create_labels_when_exist(
     label_path: Path,
     num_points: int,
     exception: BaseException,
+    expected_label_definition: Dict[str, int],
 ) -> None:
     with exception:
-        handler.read_or_create_labels(label_path=label_path, num_points=num_points)
+        label_definition, labels = handler.read_or_create_labels(
+            label_path=label_path, num_points=num_points
+        )
+        assert label_definition == expected_label_definition
+        assert labels.dtype == np.int8
+        assert labels.shape == (num_points,)
 
 
 def test_read_or_create_labels_when_not_exist(
