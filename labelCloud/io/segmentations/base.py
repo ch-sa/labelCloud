@@ -1,0 +1,60 @@
+import json
+from abc import abstractmethod
+from pathlib import Path
+from typing import Dict, Tuple, Type
+
+import numpy as np
+import numpy.typing as npt
+
+from ...utils.singleton import SingletonABCMeta
+
+
+class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
+    EXTENSIONS = set()  # should be set in subclasses
+
+    def __init__(self, label_definition_path: Path) -> None:
+        self.read_label_definition(label_definition_path)
+
+    def read_label_definition(self, label_definition_path: Path) -> None:
+        with open(label_definition_path, "r") as f:
+            self.label_definition: Dict[str, int] = json.loads(f.read())
+            assert len(self.label_definition) > 0
+
+    @property
+    def default_label(self) -> int:
+        return min(list(self.label_definition.values()))
+
+    def read_or_create_labels(
+        self, label_path: Path, num_points: int
+    ) -> Tuple[Dict[str, int], npt.NDArray[np.int8]]:
+        """Read labels per point and its schema"""
+        if label_path.exists():
+            labels = self._read_labels(label_path)
+            if labels.shape[0] != num_points:
+                raise ValueError(
+                    f"The segmentation label doesn't match with the point cloud, label file contains {labels.shape[0]} while point cloud contains {num_points}."
+                )
+        else:
+            labels = self._create_labels(num_points)
+        return self.label_definition, labels
+
+    def overwrite_labels(self, label_path: Path, labels: npt.NDArray[np.int8]) -> None:
+        return self._write_labels(label_path, labels)
+
+    @abstractmethod
+    def _read_labels(self, label_path: Path) -> npt.NDArray[np.int8]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def _create_labels(self, num_points: int, *args, **kwargs) -> npt.NDArray[np.int8]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def _write_labels(self, label_path: Path, labels: npt.NDArray[np.int8]) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    def get_handler(cls, file_extension: str) -> Type["BaseSegmentationHandler"]:
+        for subclass in cls.__subclasses__():
+            if file_extension in subclass.EXTENSIONS:
+                return subclass
