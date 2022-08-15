@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Set
@@ -11,6 +12,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
+    QColorDialog,
     QFileDialog,
     QInputDialog,
     QLabel,
@@ -18,6 +20,8 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
+from ..definitions.types import Color3f
+from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
 from .status_manager import StatusManager
@@ -187,6 +191,13 @@ class GUI(QtWidgets.QMainWindow):
         self.button_delete_label: QtWidgets.QPushButton
         self.button_assign_label: QtWidgets.QPushButton
 
+        # label list actions
+        # self.act_rename_class = QtWidgets.QAction("Rename class") #TODO: Implement!
+        self.act_change_class_color = QtWidgets.QAction("Change class color")
+        self.act_delete_class = QtWidgets.QAction("Delete label")
+        self.label_list.addActions([self.act_change_class_color, self.act_delete_class])
+        self.label_list.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
         self.edit_pos_y: QtWidgets.QLineEdit
@@ -288,6 +299,11 @@ class GUI(QtWidgets.QMainWindow):
         self.button_assign_label.clicked.connect(
             self.controller.bbox_controller.assign_point_label_in_active_box
         )
+        # context menu
+        self.act_delete_class.triggered.connect(
+            self.controller.bbox_controller.delete_current_bbox
+        )
+        self.act_change_class_color.triggered.connect(self.change_label_color)
 
         # open_2D_img
         self.button_show_image.pressed.connect(lambda: self.show_2d_image())
@@ -579,8 +595,25 @@ class GUI(QtWidgets.QMainWindow):
             )
             logging.info("Changed label folder to %s!" % path_to_folder)
 
+    def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
+        object_classes = set(LabelConfig().get_classes())
+
+        object_classes.update(new_classes or [])
+        existing_classes = {
+            action.text() for action in self.actiongroup_default_class.actions()
+        }
+        for object_class in object_classes.difference(existing_classes):
+            action = self.actiongroup_default_class.addAction(
+                object_class
+            )  # TODO: Add limiter for number of classes
+            action.setCheckable(True)
+            if object_class == LabelConfig().get_default_class_name():
+                action.setChecked(True)
+
+        self.act_set_default_class.addActions(self.actiongroup_default_class.actions())
+
     def change_default_object_class(self, action: QAction) -> None:
-        config.set("LABEL", "std_object_class", action.text())
+        LabelConfig().set_default_class(action.text())
         logging.info("Changed default object class to %s.", action.text())
 
     def ask_custom_index(self):
@@ -598,3 +631,9 @@ class GUI(QtWidgets.QMainWindow):
     def update_dialog_pcd(self, value: int) -> None:
         pcd_path = self.controller.pcd_manager.pcds[value]
         self.input_pcd.setLabelText(f"Insert Point Cloud number: {pcd_path.name}")
+
+    def change_label_color(self):
+        bbox = self.controller.bbox_controller.get_active_bbox()
+        LabelConfig().set_class_color(
+            bbox.classname, Color3f.from_qcolor(QColorDialog.getColor())
+        )
