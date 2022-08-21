@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 from pathlib import Path
 from typing import Dict, Set, Type
@@ -11,8 +12,18 @@ from ...utils.singleton import SingletonABCMeta
 class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
     EXTENSIONS: Set[str] = set()  # should be set in subclasses
 
-    def __init__(self, label_definition: Dict[str, int]) -> None:
-        self.label_definition = label_definition
+    def __init__(self, label_definition_path: Path) -> None:
+        self.read_label_definition(label_definition_path)
+
+    def read_label_definition(self, label_definition_path: Path) -> None:
+        with open(label_definition_path, "r") as f:
+            class_data = json.loads(f.read())
+
+        self.label_definition = {
+            label["name"]: label["id"] for label in class_data["classes"]
+        }
+
+        assert len(self.label_definition) > 0
 
     @property
     def default_label(self) -> int:

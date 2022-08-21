@@ -1,0 +1,36 @@
+{
+    "classes": [
+        {
+            "name": "unassigned",
+            "id": 0,
+            "color": "#d3d3d3",
+            "default": false
+        },
+        {
+            "name": "person",
+            "id": 1,
+            "color": "#ff0000",
+            "default": true
+        },
+        {
+            "name": "car",
+            "id": 2,
+            "color": "#00ff00",
+            "default": false
+        },
+        {
+            "name": "wall",
+            "id": 3,
+            "color": "#0000ff",
+            "default": false
+        },
+        {
+            "name": "floor",
+            "id": 4,
+            "color": "#ffff00",
+            "default": false
+        }
+    ],
+    "type": "segmentation",
+    "format": "binary"
+}
