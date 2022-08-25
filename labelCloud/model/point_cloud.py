@@ -1,17 +1,18 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
-
-import pkg_resources
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
+import pkg_resources
 
-from . import Perspective
 from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
+from ..io.segmentations import BaseSegmentationHandler
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
+from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -58,11 +59,15 @@ def colorize_points(points: np.ndarray, z_min: float, z_max: float) -> np.ndarra
 
 
 class PointCloud(object):
+    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
+
     def __init__(
         self,
         path: Path,
         points: np.ndarray,
         colors: Optional[np.ndarray] = None,
+        labels: Optional[npt.NDArray[np.int8]] = None,
+        label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
@@ -71,6 +76,8 @@ class PointCloud(object):
         self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
+        self.labels = labels
+        self.label_definition = label_definition
         self.vbo = None
         self.center = tuple(np.sum(points[:, i]) / len(points) for i in range(3))
         self.pcd_mins = np.amin(points, axis=0)
@@ -112,7 +119,34 @@ class PointCloud(object):
         points, colors = BasePointCloudHandler.get_handler(
             path.suffix
         ).read_point_cloud(path=path)
-        return cls(path, points, colors, init_translation, init_rotation, write_buffer)
+
+        labels = label_def = None
+        if cls.SEGMENTATION:
+            label_path = config.getpath("MODE", "label_folder") / Path(
+                f"segmentation/{path.stem}.bin"
+            )
+            label_defintion_path = config.getpath("MODE", "label_folder") / Path(
+                f"segmentation/schema/label_definition.json"
+            )
+
+            logging.info(f"Loading segmentation labels from {label_path}.")
+            seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
+                label_definition_path=label_defintion_path
+            )
+            label_def, labels = seg_handler.read_or_create_labels(
+                label_path=label_path, num_points=points.shape[0]
+            )
+
+        return cls(
+            path,
+            points,
+            colors,
+            labels,
+            label_def,
+            init_translation,
+            init_rotation,
+            write_buffer,
+        )
 
     def to_file(self, path: Optional[Path] = None) -> None:
         if not path:

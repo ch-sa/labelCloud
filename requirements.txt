@@ -1,6 +1,7 @@
 numpy~=1.21.4
 open3d~=0.14.1
 PyOpenGL~=3.1.5
-PyQt5~=5.14.1
+PyQt5~=5.15.7
 pytest~=7.1.1
 pytest-qt~=4.0.2
+PyOpenGL-accelerate~=3.1.5
