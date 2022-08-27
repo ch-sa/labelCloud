@@ -42,7 +42,6 @@ def consecutive(data: npt.NDArray[np.int32], stepsize=1) -> List[npt.NDArray[np.
 
 class PointCloud(object):
     SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
-    COLOR_WITH_LABEL = config.getboolean("POINTCLOUD", "color_with_label")
 
     def __init__(
         self,

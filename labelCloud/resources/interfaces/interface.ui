@@ -1601,7 +1601,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Z-Rotation Only Mode</string>
+    <string>Z-Rotation Only Mode1223</string>
+   </property>
+  </action>
+  <action name="action_colorwithlabel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color with labels</string>
    </property>
   </action>
   <action name="action_colorwithlabel">
