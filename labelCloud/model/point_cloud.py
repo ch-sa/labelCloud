@@ -238,7 +238,7 @@ class PointCloud(object):
             attributes = self.points
         else:
             # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.label_colors), axis=1)
+            attributes = np.concatenate((self.points, self.colors), axis=1)
 
         return attributes.flatten()  # flatten to single list
 
