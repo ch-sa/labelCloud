@@ -296,20 +296,6 @@ class PointCloud(object):
         self.trans_y = y
         self.trans_z = z
 
-<<<<<<< HEAD
-=======
-    # MANIPULATORS
-
-    def transform_data(self) -> np.ndarray:
-        if self.colorless:
-            attributes = self.points
-        else:
-            # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
-
-        return attributes.flatten()  # flatten to single list
-
->>>>>>> 58d8f66 (fix colorless logic)
     def set_gl_background(self) -> None:
         GL.glTranslate(
             self.trans_x, self.trans_y, self.trans_z
