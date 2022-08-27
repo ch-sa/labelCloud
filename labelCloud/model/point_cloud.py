@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
-import pkg_resources
 
 from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
@@ -43,6 +42,7 @@ def consecutive(data: npt.NDArray[np.int32], stepsize=1) -> List[npt.NDArray[np.
 
 class PointCloud(object):
     SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
+    COLOR_WITH_LABEL = config.getboolean("POINTCLOUD", "color_with_label")
 
     def __init__(
         self,
@@ -106,6 +106,22 @@ class PointCloud(object):
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
+
+    def create_buffers(self) -> None:
+        """Create 3 different buffers holding points, colors and label colors information"""
+        (
+            self.position_vbo,
+            self.color_vbo,
+            self.label_vbo,
+        ) = GL.glGenBuffers(3)
+        for data, vbo in [
+            (self.points, self.position_vbo),
+            (self.colors, self.color_vbo),
+            (self.label_colors, self.label_vbo),
+        ]:
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+            GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW)
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     @property
     def point_size(self) -> float:
