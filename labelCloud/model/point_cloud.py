@@ -11,6 +11,7 @@ import pkg_resources
 from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
+from ..utils.color import get_distinct_colors
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 from . import Perspective
 
@@ -78,6 +79,9 @@ class PointCloud(object):
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
         self.labels = labels
         self.label_definition = label_definition
+        self.label_color_map = get_distinct_colors(len(label_definition))
+        self.mix_ratio = 0.5
+
         self.vbo = None
         self.center = tuple(np.sum(points[:, i]) / len(points) for i in range(3))
         self.pcd_mins = np.amin(points, axis=0)
@@ -103,6 +107,13 @@ class PointCloud(object):
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
+
+    @property
+    def label_colors(self) -> npt.NDArray[np.float32]:
+        """blend the points with label color map"""
+        label_one_hot = np.eye(len(self.label_definition))[self.labels]
+        colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)
+        return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
 
     @classmethod
     def from_file(
@@ -213,7 +224,7 @@ class PointCloud(object):
             attributes = self.points
         else:
             # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
+            attributes = np.concatenate((self.points, self.label_colors), axis=1)
 
         return attributes.flatten()  # flatten to single list
 
