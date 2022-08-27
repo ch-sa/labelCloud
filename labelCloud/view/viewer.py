@@ -65,7 +65,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         logging.info("Intialized widget.")
 
         # Must be written again, due to buffer clearing
-        self.pcd_manager.pointcloud.write_vbo()
+        self.pcd_manager.pointcloud.create_buffers()
 
     def resizeGL(self, width, height) -> None:
         logging.info("Resized widget.")
