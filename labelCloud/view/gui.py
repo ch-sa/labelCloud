@@ -135,7 +135,7 @@ class GUI(QtWidgets.QMainWindow):
         self.action_zrotation = self.findChild(
             QtWidgets.QAction, "action_zrotationonly"
         )
-        self.action_colorwithlabel = self.findChild(
+        self.action_colorwithlabel: QtWidgets.QAction = self.findChild(
             QtWidgets.QAction, "action_colorwithlabel"
         )
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
@@ -382,6 +382,9 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.action_zrotation.setChecked(
             config.getboolean("USER_INTERFACE", "z_rotation_only")
+        )
+        self.action_colorwithlabel.setChecked(
+            config.getboolean("POINTCLOUD", "color_with_label")
         )
 
     # Collect, filter and forward events to viewer
