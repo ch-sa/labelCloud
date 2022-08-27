@@ -91,6 +91,11 @@ class BoundingBoxController(object):
             self.bboxes[bbox_id] = bbox
             self.update_label_list()
 
+    def delete_all_bboxes(self) -> None:
+        self.bboxes = []
+        self.active_bbox_id = -1
+        self.update_label_list()
+
     def delete_bbox(self, bbox_id: int) -> None:
         if 0 <= bbox_id < len(self.bboxes):
             del self.bboxes[bbox_id]

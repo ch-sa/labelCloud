@@ -2,6 +2,7 @@ import logging
 from typing import List, Tuple
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
@@ -235,3 +236,30 @@ class BBox(object):
         if side == "bottom" and self.height + distance > BBox.MIN_DIMENSION:
             self.height += distance
             self.translate_side(0, 4, distance)
+
+    def is_inside(self, points: npt.NDArray[np.float32]) -> npt.NDArray[np.bool_]:
+
+        vertices = self.get_vertices().copy()
+        p0 = vertices[0]
+        p1 = vertices[3]
+        p2 = vertices[1]
+        p3 = vertices[4]
+
+        # p0 as origin
+        v1 = p1 - p0
+        v2 = p2 - p0
+        v3 = p3 - p0
+
+        u = points - p0
+        u_dot_v1 = u.dot(v1)
+        u_dot_v2 = u.dot(v2)
+        u_dot_v3 = u.dot(v3)
+
+        inside_v1 = np.logical_and(np.sum(v1**2) > u_dot_v1, u_dot_v1 > 0)
+        inside_v2 = np.logical_and(np.sum(v2**2) > u_dot_v2, u_dot_v2 > 0)
+        inside_v3 = np.logical_and(np.sum(v3**2) > u_dot_v3, u_dot_v3 > 0)
+
+        points_inside: npt.NDArray[np.bool_] = np.logical_and(
+            np.logical_and(inside_v1, inside_v2), inside_v3
+        )
+        return points_inside

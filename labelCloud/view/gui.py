@@ -162,6 +162,10 @@ class GUI(QtWidgets.QMainWindow):
         self.label_curr_pcd = self.findChild(QtWidgets.QLabel, "label_pcd_current")
         self.button_prev_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")
         self.button_next_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_next")
+        self.button_assign_label = self.findChild(
+            QtWidgets.QPushButton, "button_assign_label"
+        )
+
         self.button_set_pcd = self.findChild(QtWidgets.QPushButton, "button_pcd_set")
         self.progressbar_pcd = self.findChild(
             QtWidgets.QProgressBar, "progressbar_pcds"
@@ -261,6 +265,10 @@ class GUI(QtWidgets.QMainWindow):
             lambda: self.controller.next_pcd(save=True)
         )
         self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
+
+        self.button_assign_label.clicked.connect(
+            self.controller.overwrite_point_label_in_selected_box
+        )
 
         # BBOX CONTROL
         self.button_up.pressed.connect(
