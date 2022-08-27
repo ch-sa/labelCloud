@@ -73,8 +73,6 @@ class PointCloud(object):
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
         self.rot_x, self.rot_y, self.rot_z = self.init_rotation
 
-        self.point_size = config.getfloat("POINTCLOUD", "point_size")
-
         if self.colorless:
             # if no color in point cloud, either color with height or color with a single color
             if config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE"):
@@ -101,6 +99,10 @@ class PointCloud(object):
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
+
+    @property
+    def point_size(self) -> float:
+        return config.getfloat("POINTCLOUD", "point_size")
 
     def create_buffers(self) -> None:
         """Create 3 different buffers holding points, colors and label colors information"""
@@ -181,8 +183,12 @@ class PointCloud(object):
         )
 
     @property
-    def colorless(self):
+    def colorless(self) -> bool:
         return self.colors is None
+
+    @property
+    def color_with_label(self) -> bool:
+        return config.getboolean("POINTCLOUD", "color_with_label")
 
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:
@@ -269,7 +275,7 @@ class PointCloud(object):
         GL.glVertexPointer(3, GL.GL_FLOAT, stride, None)
 
         # Bind color buffer
-        if config.getboolean("POINTCLOUD", "color_with_label"):
+        if self.color_with_label:
             color_vbo = self.label_vbo
         else:
             color_vbo = self.color_vbo
