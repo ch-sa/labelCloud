@@ -36,7 +36,6 @@ def calculate_init_translation(
 
 class PointCloud(object):
     SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
-    COLOR_WITH_LABEL = config.getboolean("POINTCLOUD", "color_with_label")
 
     def __init__(
         self,
@@ -76,19 +75,25 @@ class PointCloud(object):
 
         self.point_size = config.getfloat("POINTCLOUD", "point_size")
 
-        if self.colorless and config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE"):
-            self.colors = colorize_points_with_height(
-                self.points, self.pcd_mins[2], self.pcd_maxs[2]
-            )
-            logging.info("Generated colors for colorless point cloud based on height.")
-        else:
-            colorless_color = np.array(config.getlist("POINTCLOUD", "COLORLESS_COLOR"))
-            self.colors = (np.ones_like(self.points) * colorless_color).astype(
-                np.float32
-            )
-            logging.info(
-                "Generated colors for colorless point cloud based on `colorless_color`."
-            )
+        if self.colorless:
+            # if no color in point cloud, either color with height or color with a single color
+            if config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE"):
+                self.colors = colorize_points_with_height(
+                    self.points, self.pcd_mins[2], self.pcd_maxs[2]
+                )
+                logging.info(
+                    "Generated colors for colorless point cloud based on height."
+                )
+            else:
+                colorless_color = np.array(
+                    config.getlist("POINTCLOUD", "COLORLESS_COLOR")
+                )
+                self.colors = (np.ones_like(self.points) * colorless_color).astype(
+                    np.float32
+                )
+                logging.info(
+                    "Generated colors for colorless point cloud based on `colorless_color`."
+                )
 
         if write_buffer:
             self.create_buffers()
@@ -264,7 +269,7 @@ class PointCloud(object):
         GL.glVertexPointer(3, GL.GL_FLOAT, stride, None)
 
         # Bind color buffer
-        if self.COLOR_WITH_LABEL:
+        if config.getboolean("POINTCLOUD", "color_with_label"):
             color_vbo = self.label_vbo
         else:
             color_vbo = self.color_vbo
