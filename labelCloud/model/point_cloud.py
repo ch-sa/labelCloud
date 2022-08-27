@@ -190,6 +190,25 @@ class PointCloud(object):
     def color_with_label(self) -> bool:
         return config.getboolean("POINTCLOUD", "color_with_label")
 
+    @property
+    def int2label(self) -> Optional[Dict[int, str]]:
+        if self.label_definition is not None:
+            return {ind: label for label, ind in self.label_definition.items()}
+        return None
+
+    @property
+    def label_counts(self) -> Optional[Dict[int, int]]:
+        if self.labels is not None and self.label_definition:
+
+            counter = {k: 0 for k in self.label_definition}
+            indexes, counts = np.unique(self.labels, return_counts=True)
+            int2label = self.int2label.copy()
+
+            for ind, count in zip(indexes, counts):
+                counter[int2label[ind]] = count
+            return counter
+        return None
+
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:
         return len(self.points)
@@ -236,17 +255,6 @@ class PointCloud(object):
         self.trans_x = x
         self.trans_y = y
         self.trans_z = z
-
-    # MANIPULATORS
-
-    def transform_data(self) -> np.ndarray:
-        if self.colorless:
-            attributes = self.points
-        else:
-            # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
-
-        return attributes.flatten()  # flatten to single list
 
     def set_gl_background(self) -> None:
         GL.glTranslate(
@@ -316,5 +324,11 @@ class PointCloud(object):
         print_column(["Point Cloud Minimums:", np.round(self.pcd_mins, 2)])
         print_column(["Point Cloud Maximums:", np.round(self.pcd_maxs, 2)])
         print_column(
-            ["Initial Translation:", np.round(self.init_translation, 2)], last=True
+            ["Initial Translation:", np.round(self.init_translation, 2)],
         )
+        if self.SEGMENTATION:
+            counter = self.label_counts
+            print_column(["Label defintion:", "Count"])
+            for k, v in counter.items():
+                print_column([f"`{k}`", green(v)])
+        print_column([], last=True)
