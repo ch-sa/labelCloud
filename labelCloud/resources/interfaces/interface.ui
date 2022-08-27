@@ -1576,7 +1576,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Z-Rotation Only Mode1223</string>
+    <string>Z-Rotation Only Mode</string>
    </property>
   </action>
   <action name="action_colorwithlabel">
