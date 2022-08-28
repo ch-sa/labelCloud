@@ -42,7 +42,7 @@ class PointCloud(object):
         path: Path,
         points: np.ndarray,
         colors: Optional[np.ndarray] = None,
-        labels: Optional[npt.NDArray[np.int8]] = None,
+        segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
         label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
@@ -55,7 +55,7 @@ class PointCloud(object):
 
         self.labels = self.label_definition = self.label_color_map = None
         if self.SEGMENTATION:
-            self.labels = labels
+            self.labels = segmentation_labels
             self.label_definition = label_definition
             self.label_color_map = get_distinct_colors(len(label_definition))
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
@@ -324,11 +324,5 @@ class PointCloud(object):
         print_column(["Point Cloud Minimums:", np.round(self.pcd_mins, 2)])
         print_column(["Point Cloud Maximums:", np.round(self.pcd_maxs, 2)])
         print_column(
-            ["Initial Translation:", np.round(self.init_translation, 2)],
+            ["Initial Translation:", np.round(self.init_translation, 2)], last=True
         )
-        if self.SEGMENTATION:
-            counter = self.label_counts
-            print_column(["Label defintion:", "Count"])
-            for k, v in counter.items():
-                print_column([f"`{k}`", green(v)])
-        print_column([], last=True)
