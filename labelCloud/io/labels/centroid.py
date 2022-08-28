@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 from ...model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
@@ -32,7 +32,7 @@ class CentroidFormat(BaseLabelFormat):
         return labels
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
-        data = dict()
+        data: Dict[str, Any] = {}
         # Header
         data["folder"] = pcd_path.parent.name
         data["filename"] = pcd_path.name
@@ -41,7 +41,7 @@ class CentroidFormat(BaseLabelFormat):
         # Labels
         data["objects"] = []
         for bbox in bboxes:
-            label = dict()
+            label: Dict[str, Any] = {}
             label["name"] = bbox.get_classname()
             label["centroid"] = {
                 str(axis): self.round_dec(val)
@@ -55,7 +55,7 @@ class CentroidFormat(BaseLabelFormat):
             }
             conv_rotations = bbox.get_rotations()
             if self.relative_rotation:
-                conv_rotations = map(abs2rel_rotation, conv_rotations)
+                conv_rotations = map(abs2rel_rotation, conv_rotations) # type: ignore
 
             label["rotations"] = {
                 str(axis): self.round_dec(angle)

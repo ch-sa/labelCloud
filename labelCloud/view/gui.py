@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
 
 from ..control.config_manager import config
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
-from .settings_dialog import SettingsDialog
+from .settings_dialog import SettingsDialog  # type: ignore
 from .status_manager import StatusManager
 from .viewer import GLWidget
 

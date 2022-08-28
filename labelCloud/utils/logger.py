@@ -28,7 +28,7 @@ class Format(Enum):
     GREY = "\33[90m"
 
 
-def format(text: str, color: Format):
+def format(text: str, color: Format) -> str:
     return f"{color.value}{text}{Format.ENDC.value}"
 
 
@@ -53,7 +53,7 @@ class ColorFormatter(logging.Formatter):
         + Format.ENDC.value,
     }
 
-    def format(self, record):
+    def format(self, record) -> str:
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
@@ -63,7 +63,7 @@ class UncolorFormatter(logging.Formatter):
     MSG_FORMAT = "%(asctime)s - %(levelname)-8s: %(message)s"
     PATTERN = re.compile("|".join(re.escape(c.value) for c in Format))
 
-    def format(self, record):
+    def format(self, record) -> str:
         record.msg = self.PATTERN.sub("", record.msg)
         formatter = logging.Formatter(self.MSG_FORMAT)
         return formatter.format(record)
@@ -94,14 +94,14 @@ logging.basicConfig(
 TERM_SIZE = shutil.get_terminal_size(fallback=(120, 50))
 
 
-def start_section(text: str):
+def start_section(text: str) -> None:
     left_pad = (TERM_SIZE.columns - len(text)) // 2 - 1
     right_pad = TERM_SIZE.columns - len(text) - left_pad - 2
     logging.info(f"{'=' * left_pad} {text} {'=' * right_pad}")
     pass
 
 
-def end_section():
+def end_section() -> None:
     logging.info("=" * TERM_SIZE.columns)
     pass
 
@@ -109,7 +109,7 @@ def end_section():
 rows = []
 
 
-def print_column(column_values: List[str], last: bool = False):
+def print_column(column_values: List[str], last: bool = False) -> None:
     global rows
     rows.append(column_values)
 

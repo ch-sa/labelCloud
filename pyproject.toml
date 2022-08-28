@@ -7,3 +7,10 @@ build-backend = "setuptools.build_meta"
 
 [mypy]
 plugins = "numpy.typing.mypy_plugin"
+
+[[tool.mypy.overrides]]
+module = [
+    "OpenGL.*",
+    "open3d.*"
+]
+ignore_missing_imports = true

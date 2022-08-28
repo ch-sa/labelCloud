@@ -40,7 +40,7 @@ class DrawingManager(object):
             self.drawing_strategy = strategy
 
     def register_point(
-        self, x, y, correction: bool = False, is_temporary: bool = False
+        self, x: float, y: float, correction: bool = False, is_temporary: bool = False
     ) -> None:
         assert self.drawing_strategy is not None
         world_point = self.view.glWidget.get_world_coords(x, y, correction=correction)

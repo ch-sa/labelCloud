@@ -4,11 +4,11 @@ three points on the plane that serves as the ground. Then the old point cloud wi
 saved up and the aligned current will overwrite the old.
 """
 import logging
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
-from ..definitions import Mode
+from ..definitions import Mode, Point3D
 from ..utils import oglhelper as ogl
 from .pcd_manager import PointCloudManger
 
@@ -23,12 +23,12 @@ class AlignMode(object):
         self.is_active = False
         self.point_color = (1, 1, 0, 1)
         self.area_color = (1, 1, 0, 0.6)
-        self.plane1: Optional[List[float]] = None
-        self.plane2: Optional[List[float]] = None
-        self.plane3: Optional[List[float]] = None
+        self.plane1: Optional[Point3D] = None
+        self.plane2: Optional[Point3D] = None
+        self.plane3: Optional[Point3D] = None
 
-        self.tmp_p2: Optional[List[float]] = None
-        self.tmp_p3: Optional[List[float]] = None
+        self.tmp_p2: Optional[Point3D] = None
+        self.tmp_p3: Optional[Point3D] = None
 
     def set_view(self, view: "GUI") -> None:
         self.view = view

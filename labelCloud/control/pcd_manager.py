@@ -11,6 +11,8 @@ import numpy as np
 import open3d as o3d
 import pkg_resources
 
+from labelCloud.definitions.types import Point3D
+
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
 from ..utils.logger import blue, green, print_column
@@ -206,7 +208,7 @@ class PointCloudManger(object):
         self.reset_rotation()
 
     def rotate_pointcloud(
-        self, axis: List[float], angle: float, rotation_point: List[float]
+        self, axis: List[float], angle: float, rotation_point: Point3D
     ) -> None:
         assert self.pointcloud is not None and self.pcd_name is not None
         # Save current, original point cloud in ORIGINALS_FOLDER

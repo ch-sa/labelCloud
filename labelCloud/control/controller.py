@@ -220,8 +220,8 @@ class Controller:
         ):
             self.drawing_mode.drawing_strategy.register_scrolling(a0.angleDelta().y())
         elif self.side_mode and self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().change_side(  # type: ignore
-                self.selected_side, -a0.angleDelta().y() / 4000
+            self.bbox_controller.get_active_bbox().change_side( # type: ignore
+                self.selected_side, -a0.angleDelta().y() / 4000  # type: ignore
             )  # ToDo implement method
         else:
             self.pcd_manager.zoom_into(a0.angleDelta().y())

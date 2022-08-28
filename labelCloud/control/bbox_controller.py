@@ -8,8 +8,6 @@ import logging
 from functools import wraps
 from typing import TYPE_CHECKING, List, Optional
 
-from matplotlib.transforms import Bbox
-
 import numpy as np
 
 from ..definitions import Mode

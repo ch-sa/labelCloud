@@ -3,7 +3,6 @@ from typing import List, Tuple
 
 Point2D = Tuple[float, float]
 Point3D = Tuple[float, float, float]
-PointList = List[Point3D]
 
 Rotations3D = Tuple[float, float, float]  # euler angles in degrees
 

@@ -1,23 +1,24 @@
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 from OpenGL import GLU
 
-from ..definitions import BBOX_SIDES, PointList, Color4f
 from . import math3d
+from ..definitions import BBOX_SIDES, Color4f, Point3D
 
 if TYPE_CHECKING:
     from ..model import BBox, PointCloud
 
 
-DEVICE_PIXEL_RATIO = (
+DEVICE_PIXEL_RATIO: Optional[float] = (
     None  # is set once and for every window resize (retina display fix)
 )
 
 
 def draw_points(
-    points: PointList, color: Color4f = (0, 1, 1, 1), point_size: int = 10
+    points: Union[List[Point3D], npt.NDArray], color: Color4f = (0, 1, 1, 1), point_size: int = 10
 ) -> None:
     GL.glColor4d(*color)
     GL.glPointSize(point_size)
@@ -28,7 +29,7 @@ def draw_points(
 
 
 def draw_lines(
-    points: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2
+    points: List[Point3D], color: Color4f = (0, 1, 1, 1), line_width: int = 2
 ) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)
@@ -38,7 +39,7 @@ def draw_lines(
     GL.glEnd()
 
 
-def draw_triangles(vertices: PointList, color: Color4f = (0, 1, 1, 1)) -> None:
+def draw_triangles(vertices: List[Point3D], color: Color4f = (0, 1, 1, 1)) -> None:
     GL.glColor4d(*color)
     GL.glBegin(GL.GL_TRIANGLES)
     for vertex in vertices:
@@ -47,7 +48,7 @@ def draw_triangles(vertices: PointList, color: Color4f = (0, 1, 1, 1)) -> None:
 
 
 def draw_rectangles(
-    vertices: PointList, color: Color4f = (0, 1, 1, 1), line_width: int = 2
+    vertices: List[Point3D], color: Color4f = (0, 1, 1, 1), line_width: int = 2
 ) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)
@@ -58,7 +59,7 @@ def draw_rectangles(
 
 
 def draw_cuboid(
-    vertices: PointList,
+    vertices: Union[List[Point3D], npt.NDArray],
     color: Color4f = (1, 1, 0, 0.5),
     draw_vertices: bool = False,
     vertex_color: Color4f = (0, 1, 1, 1),
@@ -106,9 +107,7 @@ def draw_xy_plane(pcd: "PointCloud") -> None:
 # RAY PICKING
 
 
-def get_pick_ray(
-    x: float, y: float, modelview, projection
-) -> Tuple[List[float], List[float]]:
+def get_pick_ray(x: float, y: float, modelview, projection) -> Tuple[Point3D, Point3D]:
     """
     :param x: rightward screen coordinate
     :param y: downward screen coordinate
@@ -116,8 +115,8 @@ def get_pick_ray(
     :param projection: projection matrix
     :return: two points of the pick ray from the closest and furthest frustum
     """
-    x *= DEVICE_PIXEL_RATIO
-    y *= DEVICE_PIXEL_RATIO
+    x *= DEVICE_PIXEL_RATIO  # type: ignore
+    y *= DEVICE_PIXEL_RATIO  # type: ignore
 
     viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
     real_y = viewport[3] - y  # adjust for down-facing y positions
@@ -150,9 +149,9 @@ def get_intersected_bboxes(
     if intersected_bboxes and (
         p0[2] >= p1[2]
     ):  # Calculate which intersected bbox is closer to screen
-        return max(intersected_bboxes, key=intersected_bboxes.get)
+        return max(intersected_bboxes, key=intersected_bboxes.get)  # type: ignore
     elif intersected_bboxes:
-        return min(intersected_bboxes, key=intersected_bboxes.get)
+        return min(intersected_bboxes, key=intersected_bboxes.get)  # type: ignore
     else:
         return None
 
@@ -172,7 +171,9 @@ def get_intersected_sides(
     p0, p1 = get_pick_ray(x, y, modelview, projection)  # Calculate picking ray
     vertices = bbox.get_vertices()
 
-    intersections = list()  # (intersection_point, bounding box side)
+    intersections: List[
+        Tuple[list, str]
+    ] = list()  # (intersection_point, bounding box side)
     for side, indices in BBOX_SIDES.items():
         # Calculate plane equation
         pl1 = vertices[indices[0]]  # point in plane
@@ -180,7 +181,7 @@ def get_intersected_sides(
         v2 = np.subtract(vertices[indices[3]], pl1)
         n = np.cross(v1, v2)  # plane normal
 
-        intersection = math3d.get_line_plane_intersection(p0, p1, pl1, list(n))
+        intersection = math3d.get_line_plane_intersection(p0, p1, pl1, tuple(n))  # type: ignore
 
         # Check if intersection is inside rectangle
         if intersection is not None:
@@ -191,7 +192,7 @@ def get_intersected_sides(
             proj2 = np.dot(v, v2) / height
 
             if (width > proj1 > 0) and (height > proj2 > 0):
-                intersections.append((intersection, side))
+                intersections.append((intersection.tolist(), side))
 
     # Calculate which intersected side is closer
     intersections = sorted(

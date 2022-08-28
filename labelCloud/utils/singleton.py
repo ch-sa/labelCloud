@@ -1,8 +1,9 @@
 from abc import ABCMeta
+from typing import Dict, Type
 
 
 class SingletonABCMeta(ABCMeta):
-    _instances = {}
+    _instances: Dict[Type, object] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:

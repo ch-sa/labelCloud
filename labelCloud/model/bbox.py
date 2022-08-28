@@ -23,7 +23,7 @@ class BBox(object):
         width: float = None,
         height: float = None,
     ) -> None:
-        self.center: Point3D = cx, cy, cz
+        self.center: Point3D = (cx, cy, cz)
         self.length: float = length or config.getfloat(
             "LABEL", "STD_BOUNDINGBOX_LENGTH"
         )

@@ -7,7 +7,6 @@ from .types import (
     Dimensions3D,
     Point2D,
     Point3D,
-    PointList,
     Rotations3D,
     Translation3D,
 )
