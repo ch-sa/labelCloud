@@ -10,7 +10,7 @@ from ..definitions import Point3D, Rotations3D
 
 # LENGTH
 def vector_length(point: Union[Point3D, npt.ArrayLike]) -> float:
-    return np.linalg.norm(point)
+    return float(np.linalg.norm(point))
 
 
 # TRANSLATION

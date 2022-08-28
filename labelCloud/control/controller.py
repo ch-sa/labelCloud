@@ -4,6 +4,8 @@ from typing import Optional, Union
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 
+import numpy as np
+
 from ..definitions import BBOX_SIDES, Color, Context
 from ..utils import oglhelper
 from ..view.gui import GUI
@@ -132,7 +134,7 @@ class Controller:
                 context=Context.SIDE_HOVERED,
             )
         else:
-            self.view.glWidget.selected_side_vertices = []
+            self.view.glWidget.selected_side_vertices = np.array([])
             self.view.status_manager.clear_message(Context.SIDE_HOVERED)
 
     # EVENT PROCESSING
@@ -220,7 +222,7 @@ class Controller:
         ):
             self.drawing_mode.drawing_strategy.register_scrolling(a0.angleDelta().y())
         elif self.side_mode and self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().change_side( # type: ignore
+            self.bbox_controller.get_active_bbox().change_side(  # type: ignore
                 self.selected_side, -a0.angleDelta().y() / 4000  # type: ignore
             )  # ToDo implement method
         else:

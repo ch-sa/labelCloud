@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 from PyQt5 import QtGui, QtOpenGL
 
@@ -38,12 +38,12 @@ class GLWidget(QtOpenGL.QGLWidget):
         )  # set for helper functions
 
         self.pcd_manager: Optional[PointCloudManger] = None
-        self.bbox_controller: Optional[BoundingBoxController]= None
+        self.bbox_controller: Optional[BoundingBoxController] = None
 
         # Objects to be drawn
         self.crosshair_pos: Point2D = (0, 0)
         self.crosshair_col: Color4f = (0, 1, 0, 1)
-        self.selected_side_vertices: List[Point3D] = []
+        self.selected_side_vertices: npt.NDArray = np.array([])
         self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
@@ -118,10 +118,10 @@ class GLWidget(QtOpenGL.QGLWidget):
         if self.bbox_controller.has_active_bbox():  # type: ignore
             self.bbox_controller.get_active_bbox().draw_bbox(highlighted=True)  # type: ignore
             if config.getboolean("USER_INTERFACE", "show_orientation"):
-                self.bbox_controller.get_active_bbox().draw_orientation()   # type: ignore
+                self.bbox_controller.get_active_bbox().draw_orientation()  # type: ignore
 
         # Draw labeled bboxes
-        for bbox in self.bbox_controller.bboxes:    # type: ignore
+        for bbox in self.bbox_controller.bboxes:  # type: ignore
             bbox.draw_bbox()
 
         GL.glPopMatrix()  # restore the previous modelview matrix

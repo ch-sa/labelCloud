@@ -55,7 +55,7 @@ class CentroidFormat(BaseLabelFormat):
             }
             conv_rotations = bbox.get_rotations()
             if self.relative_rotation:
-                conv_rotations = map(abs2rel_rotation, conv_rotations) # type: ignore
+                conv_rotations = map(abs2rel_rotation, conv_rotations)  # type: ignore
 
             label["rotations"] = {
                 str(axis): self.round_dec(angle)

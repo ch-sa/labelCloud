@@ -1,17 +1,17 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import pkg_resources
 
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
-from labelCloud.definitions.types import Point3D, Rotations3D, Translation3D
 
 from . import Perspective
 from ..control.config_manager import config
+from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 
@@ -40,7 +40,7 @@ def calculate_init_translation(
     - the point cloud extents
     - the far plane setting (caps zoom)
     """
-    zoom = min(
+    zoom = min(  # type: ignore
         np.linalg.norm(maxs - mins),
         config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
     )
@@ -183,7 +183,7 @@ class PointCloud(object):
             attributes = self.points
         else:
             # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
+            attributes = np.concatenate((self.points, self.colors), axis=1)  # type: ignore
 
         return attributes.flatten()  # flatten to single list
 
@@ -259,9 +259,9 @@ class PointCloud(object):
                 else red(len(self.colors)),  # type: ignore
             ]
         )
-        print_column(["Point Cloud Center:", np.round(self.center, 2)])
-        print_column(["Point Cloud Minimums:", np.round(self.pcd_mins, 2)])
-        print_column(["Point Cloud Maximums:", np.round(self.pcd_maxs, 2)])
+        print_column(["Point Cloud Center:", str(np.round(self.center, 2))])
+        print_column(["Point Cloud Minimums:", str(np.round(self.pcd_mins, 2))])
+        print_column(["Point Cloud Maximums:", str(np.round(self.pcd_maxs, 2))])
         print_column(
-            ["Initial Translation:", np.round(self.init_translation, 2)], last=True
+            ["Initial Translation:", str(np.round(self.init_translation, 2))], last=True
         )

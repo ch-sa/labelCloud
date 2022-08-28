@@ -5,8 +5,11 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[mypy]
+[tool.mypy]
 plugins = "numpy.typing.mypy_plugin"
+exclude = [
+    'tests',
+]
 
 [[tool.mypy.overrides]]
 module = [

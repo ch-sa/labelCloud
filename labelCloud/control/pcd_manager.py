@@ -7,12 +7,12 @@ from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
-import numpy as np
-import open3d as o3d
 import pkg_resources
 
-from labelCloud.definitions.types import Point3D
+import numpy as np
+import open3d as o3d
 
+from ..definitions.types import Point3D
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
 from ..utils.logger import blue, green, print_column
@@ -228,9 +228,9 @@ class PointCloudManger(object):
         o3d_pointcloud.rotate(rotation_matrix, center=tuple(rotation_point))
         o3d_pointcloud.translate([0, 0, -rotation_point[2]])
         logging.info("Rotating point cloud...")
-        print_column(["Angle:", np.round(angle, 3)])
-        print_column(["Axis:", np.round(axis, 3)])
-        print_column(["Point:", np.round(rotation_point, 3)], last=True)
+        print_column(["Angle:", str(np.round(angle, 3))])
+        print_column(["Axis:", str(np.round(axis, 3))])
+        print_column(["Point:", str(np.round(rotation_point, 3))], last=True)
 
         # Check if pointcloud is upside-down
         if abs(self.pointcloud.pcd_mins[2]) > self.pointcloud.pcd_maxs[2]:

@@ -12,13 +12,15 @@ if TYPE_CHECKING:
     from ..model import BBox, PointCloud
 
 
-DEVICE_PIXEL_RATIO: Optional[float] = (
-    None  # is set once and for every window resize (retina display fix)
-)
+DEVICE_PIXEL_RATIO: Optional[
+    float
+] = None  # is set once and for every window resize (retina display fix)
 
 
 def draw_points(
-    points: Union[List[Point3D], npt.NDArray], color: Color4f = (0, 1, 1, 1), point_size: int = 10
+    points: Union[List[Point3D], npt.NDArray],
+    color: Color4f = (0, 1, 1, 1),
+    point_size: int = 10,
 ) -> None:
     GL.glColor4d(*color)
     GL.glPointSize(point_size)
@@ -48,7 +50,9 @@ def draw_triangles(vertices: List[Point3D], color: Color4f = (0, 1, 1, 1)) -> No
 
 
 def draw_rectangles(
-    vertices: List[Point3D], color: Color4f = (0, 1, 1, 1), line_width: int = 2
+    vertices: Union[List[Point3D], npt.NDArray],
+    color: Color4f = (0, 1, 1, 1),
+    line_width: int = 2,
 ) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)

@@ -1,13 +1,12 @@
 import logging
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
-
-from labelCloud.definitions.types import Point3D
 
 from . import BaseLabelingStrategy
 from ..control.config_manager import config
 from ..definitions import Mode, Point3D
+from ..definitions.types import Point3D
 from ..model import BBox
 from ..utils import oglhelper as ogl
 
