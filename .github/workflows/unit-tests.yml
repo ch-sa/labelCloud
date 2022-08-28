@@ -28,6 +28,7 @@ jobs:
       uses: psf/black@stable
 
     - name: Lint with mypy
+      if: ${{ matrix.python-version == "3.9" }}
       run: |
         pip install mypy PyQt5-stubs types-pkg-resources types-setuptools
         mypy labelCloud/.
