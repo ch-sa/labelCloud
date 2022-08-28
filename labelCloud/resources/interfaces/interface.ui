@@ -1540,12 +1540,13 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="act_z_rotation_only"/>
-    <addaction name="act_show_floor"/>
-    <addaction name="act_show_orientation"/>
-    <addaction name="act_save_perspective"/>
-    <addaction name="act_align_pcd"/>
-    <addaction name="act_change_settings"/>
+    <addaction name="action_zrotationonly"/>
+    <addaction name="action_showfloor"/>
+    <addaction name="action_showorientation"/>
+    <addaction name="action_saveperspective"/>
+    <addaction name="action_alignpcd"/>
+    <addaction name="action_colorwithlabel"/>
+    <addaction name="action_changesettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabels"/>
@@ -1578,7 +1579,15 @@
     <string>Z-Rotation Only Mode</string>
    </property>
   </action>
-  <action name="act_delete_all_labels">
+  <action name="action_colorwithlabel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color with labels</string>
+   </property>
+  </action>
+  <action name="action_deletealllabels">
    <property name="text">
     <string>Delete All Current Labels</string>
    </property>

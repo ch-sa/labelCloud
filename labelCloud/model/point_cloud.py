@@ -1,7 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import pkg_resources
 
@@ -9,26 +9,16 @@ import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
 
-from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
+from ..io.segmentations import BaseSegmentationHandler
+from ..utils.color import colorize_points_with_height, get_distinct_colors
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
+from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
-
-
-# Creates an array buffer in a VBO
-def create_buffer(attributes) -> GL.glGenBuffers:
-    bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
-    buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
-
-    vbo = GL.glGenBuffers(1)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glBufferData(GL.GL_ARRAY_BUFFER, buffersize, bufferdata, GL.GL_STATIC_DRAW)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-    return vbo
 
 
 def calculate_init_translation(
@@ -47,34 +37,32 @@ def calculate_init_translation(
     return tuple(-np.add(center, [0, 0, zoom]))  # type: ignore
 
 
-def colorize_points(points: npt.NDArray, z_min: float, z_max: float) -> npt.NDArray:
-    palette = np.loadtxt(
-        pkg_resources.resource_filename("labelCloud.resources", "rocket-palette.txt")
-    )
-    palette_len = len(palette) - 1
-
-    colors = np.zeros(points.shape)
-    for ind, height in enumerate(points[:, 2]):
-        colors[ind] = palette[round((height - z_min) / (z_max - z_min) * palette_len)]
-    return colors
-
-
 class PointCloud(object):
+    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
+
     def __init__(
         self,
         path: Path,
-        points: npt.NDArray[np.float32],
-        colors: Optional[npt.NDArray[np.float32]] = None,
+        points: np.ndarray,
+        colors: Optional[np.ndarray] = None,
+        segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
+        label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
     ) -> None:
         start_section(f"Loading {path.name}")
-        self.path: Path = path
-        self.points: npt.NDArray = points
-        self.colors: Optional[npt.NDArray] = (
-            colors if type(colors) == np.ndarray and len(colors) > 0 else None
-        )
+        self.path = path
+        self.points = points
+        self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
+
+        self.labels = self.label_definition = self.label_color_map = None
+        if self.SEGMENTATION:
+            self.labels = segmentation_labels
+            self.label_definition = label_definition
+            self.label_color_map = get_distinct_colors(len(label_definition))
+            self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
+
         self.vbo = None
         self.center: Point3D = tuple(np.sum(points[:, i]) / len(points) for i in range(3))  # type: ignore
         self.pcd_mins: npt.NDArray[np.float32] = np.amin(points, axis=0)
@@ -88,18 +76,62 @@ class PointCloud(object):
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
         self.rot_x, self.rot_y, self.rot_z = self.init_rotation
 
-        if self.colorless and config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE"):
-            self.colors = colorize_points(
-                self.points, self.pcd_mins[2], self.pcd_maxs[2]
-            )
-            logging.info("Generated colors for colorless point cloud based on height.")
+        if self.colorless:
+            # if no color in point cloud, either color with height or color with a single color
+            if config.getboolean("POINTCLOUD", "COLORLESS_COLORIZE"):
+                self.colors = colorize_points_with_height(
+                    self.points, self.pcd_mins[2], self.pcd_maxs[2]
+                )
+                logging.info(
+                    "Generated colors for colorless point cloud based on height."
+                )
+            else:
+                colorless_color = np.array(
+                    config.getlist("POINTCLOUD", "COLORLESS_COLOR")
+                )
+                self.colors = (np.ones_like(self.points) * colorless_color).astype(
+                    np.float32
+                )
+                logging.info(
+                    "Generated colors for colorless point cloud based on `colorless_color`."
+                )
 
         if write_buffer:
-            self.write_vbo()
+            self.create_buffers()
 
         logging.info(green(f"Successfully loaded point cloud from {path}!"))
         self.print_details()
         end_section()
+
+    @property
+    def point_size(self) -> float:
+        return config.getfloat("POINTCLOUD", "point_size")
+
+    def create_buffers(self) -> None:
+        """Create 3 different buffers holding points, colors and label colors information"""
+        (
+            self.position_vbo,
+            self.color_vbo,
+            self.label_vbo,
+        ) = GL.glGenBuffers(3)
+        for data, vbo in [
+            (self.points, self.position_vbo),
+            (self.colors, self.color_vbo),
+            (self.label_colors, self.label_vbo),
+        ]:
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+            GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW)
+            GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+
+    @property
+    def label_colors(self) -> npt.NDArray[np.float32]:
+        """blend the points with label color map"""
+        if self.labels is not None:
+            label_one_hot = np.eye(len(self.label_definition))[self.labels]
+            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)
+            return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
+        else:
+            return self.colors
 
     @classmethod
     def from_file(
@@ -116,7 +148,35 @@ class PointCloud(object):
         points, colors = BasePointCloudHandler.get_handler(
             path.suffix
         ).read_point_cloud(path=path)
-        return cls(path, points, colors, init_translation, init_rotation, write_buffer)
+
+        labels = label_def = None
+        if cls.SEGMENTATION:
+
+            label_path = config.getpath("FILE", "label_folder") / Path(
+                f"segmentation/{path.stem}.bin"
+            )
+            label_defintion_path = config.getpath("FILE", "label_folder") / Path(
+                f"segmentation/schema/label_definition.json"
+            )
+
+            logging.info(f"Loading segmentation labels from {label_path}.")
+            seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
+                label_definition_path=label_defintion_path
+            )
+            label_def, labels = seg_handler.read_or_create_labels(
+                label_path=label_path, num_points=points.shape[0]
+            )
+
+        return cls(
+            path,
+            points,
+            colors,
+            labels,
+            label_def,
+            init_translation,
+            init_rotation,
+            write_buffer,
+        )
 
     def to_file(self, path: Optional[Path] = None) -> None:
         if not path:
@@ -126,8 +186,31 @@ class PointCloud(object):
         )
 
     @property
-    def colorless(self):
+    def colorless(self) -> bool:
         return self.colors is None
+
+    @property
+    def color_with_label(self) -> bool:
+        return config.getboolean("POINTCLOUD", "color_with_label")
+
+    @property
+    def int2label(self) -> Optional[Dict[int, str]]:
+        if self.label_definition is not None:
+            return {ind: label for label, ind in self.label_definition.items()}
+        return None
+
+    @property
+    def label_counts(self) -> Optional[Dict[int, int]]:
+        if self.labels is not None and self.label_definition:
+
+            counter = {k: 0 for k in self.label_definition}
+            indexes, counts = np.unique(self.labels, return_counts=True)
+            int2label = self.int2label.copy()
+
+            for ind, count in zip(indexes, counts):
+                counter[int2label[ind]] = count
+            return counter
+        return None
 
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:
@@ -176,21 +259,7 @@ class PointCloud(object):
         self.trans_y = y
         self.trans_z = z
 
-    # MANIPULATORS
-
-    def transform_data(self) -> npt.NDArray:
-        if self.colorless:
-            attributes = self.points
-        else:
-            # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)  # type: ignore
-
-        return attributes.flatten()  # flatten to single list
-
-    def write_vbo(self) -> None:
-        self.vbo = create_buffer(self.transform_data())
-
-    def draw_pointcloud(self) -> None:
+    def set_gl_background(self) -> None:
         GL.glTranslate(
             self.trans_x, self.trans_y, self.trans_z
         )  # third, pcd translation
@@ -205,35 +274,30 @@ class PointCloud(object):
         GL.glRotate(self.rot_z, 0.0, 0.0, 1.0)
 
         GL.glTranslate(*(pcd_center * -1))  # move point cloud to center for rotation
+        GL.glPointSize(self.point_size)
 
-        GL.glPointSize(config.getfloat("POINTCLOUD", "POINT_SIZE"))
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+    def draw_pointcloud(self) -> None:
+        self.set_gl_background()
+        stride = 3 * SIZE_OF_FLOAT
 
-        if self.colorless:
-            stride = 3 * SIZE_OF_FLOAT  # (12 bytes) : [x, y, z] * sizeof(float)
-            GL.glPointSize(1)
-            GL.glColor3d(
-                *config.getlist("POINTCLOUD", "COLORLESS_COLOR")
-            )  # IDEA: Color by (height) position
-        else:
-            stride = (
-                6 * SIZE_OF_FLOAT
-            )  # (24 bytes) : [x, y, z, r, g, b] * sizeof(float)
-
+        # Bind position buffer
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.position_vbo)
         GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
         GL.glVertexPointer(3, GL.GL_FLOAT, stride, None)
 
-        if not self.colorless:
-            GL.glEnableClientState(GL.GL_COLOR_ARRAY)
-            offset = (
-                3 * SIZE_OF_FLOAT
-            )  # (12 bytes) : the rgb color starts after the 3 coordinates x, y, z
-            GL.glColorPointer(3, GL.GL_FLOAT, stride, ctypes.c_void_p(offset))
+        # Bind color buffer
+        if self.color_with_label:
+            color_vbo = self.label_vbo
+        else:
+            color_vbo = self.color_vbo
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, color_vbo)
+        GL.glEnableClientState(GL.GL_COLOR_ARRAY)
+        GL.glColorPointer(3, GL.GL_FLOAT, stride, None)
         GL.glDrawArrays(GL.GL_POINTS, 0, self.get_no_of_points())  # Draw the points
 
         GL.glDisableClientState(GL.GL_VERTEX_ARRAY)
-        if not self.colorless:
-            GL.glDisableClientState(GL.GL_COLOR_ARRAY)
+        GL.glDisableClientState(GL.GL_COLOR_ARRAY)
+        # Release the buffer binding
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     def reset_perspective(self) -> None:
