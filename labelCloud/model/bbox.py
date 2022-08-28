@@ -2,6 +2,7 @@ import logging
 from typing import List, Tuple
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
@@ -56,7 +57,7 @@ class BBox(object):
     def get_classname(self) -> str:
         return self.classname
 
-    def get_vertices(self) -> np.array:
+    def get_vertices(self) -> npt.NDArray:
         rotated_vertices = math3d.rotate_bbox_around_center(
             self.get_axis_aligned_vertices(),
             list(self.center),

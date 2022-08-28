@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 import numpy.typing as npt
 
-from labelCloud.definitions.types import Point3D
+from ..definitions import Point3D
 
 
 # LENGTH
@@ -107,7 +107,7 @@ def rotate_bbox_around_center(
 
 
 def vertices2rotations(
-    vertices: List[List[float]], centroid: List[float]
+    vertices: List[List[float]], centroid: Point3D
 ) -> Tuple[float, float, float]:
     x_rotation, y_rotation, z_rotation = (0.0, 0.0, 0.0)
 
@@ -161,8 +161,8 @@ def get_line_perpendicular(
     b = m * -line_end[0] + line_end[1]
 
     # Calculate line perpendicular parallel to x-y-plane
-    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m ** 2)
-    intersection_y = (m * point[0] + m ** 2 * point[1] + b) / (1 + m ** 2)
+    intersection_x = (point[0] + m * (point[1] - b)) / (1 + m**2)
+    intersection_y = (m * point[0] + m**2 * point[1] + b) / (1 + m**2)
     dir_vector = (
         point[0] - intersection_x,
         point[1] - intersection_y,

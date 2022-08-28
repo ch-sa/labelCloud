@@ -1,13 +1,14 @@
 import json
 import logging
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 import numpy as np
 
+from . import BaseLabelFormat
+from ...definitions import Point3D
 from ...model import BBox
 from ...utils import math3d
-from . import BaseLabelFormat
 
 
 class VerticesFormat(BaseLabelFormat):
@@ -25,8 +26,8 @@ class VerticesFormat(BaseLabelFormat):
                 vertices = label["vertices"]
 
                 # Calculate centroid
-                centroid = np.add(
-                    np.subtract(vertices[4], vertices[2]) / 2, vertices[2]
+                centroid: Point3D = tuple(  # type: ignore
+                    np.add(np.subtract(vertices[4], vertices[2]) / 2, vertices[2])
                 )
 
                 # Calculate dimensions
@@ -47,7 +48,7 @@ class VerticesFormat(BaseLabelFormat):
         return labels
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
-        data = dict()
+        data: Dict[str, Any] = dict()
         # Header
         data["folder"] = pcd_path.parent.name
         data["filename"] = pcd_path.name
@@ -56,11 +57,11 @@ class VerticesFormat(BaseLabelFormat):
         # Labels
         data["objects"] = []
         for bbox in bboxes:
-            label = dict()
+            label: Dict[str, Any] = dict()
             label["name"] = bbox.get_classname()
             label["vertices"] = self.round_dec(
                 bbox.get_vertices().tolist()
-            )  # ToDo: Add option for axis-aligned vertices
+            )  # TODO: Add option for axis-aligned vertices
             data["objects"].append(label)
 
         # Save to JSON
