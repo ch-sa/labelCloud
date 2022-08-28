@@ -17,6 +17,11 @@
    <iconset>
     <normaloff>../icons/labelCloud.ico</normaloff>../icons/labelCloud.ico</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">* {
+	color: #000000;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
@@ -30,7 +35,7 @@
       <property name="rightMargin">
        <number>0</number>
       </property>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="icon_label">
         <property name="maximumSize">
          <size>
@@ -55,7 +60,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QFrame" name="frame_pcd">
         <property name="minimumSize">
          <size>
@@ -682,7 +687,7 @@
          </size>
         </property>
         <property name="checkable">
-         <bool>False</bool>
+         <bool>false</bool>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -1511,7 +1516,7 @@
      <x>0</x>
      <y>0</y>
      <width>1278</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
