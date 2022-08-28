@@ -28,7 +28,7 @@ jobs:
       uses: psf/black@stable
 
     - name: Lint with mypy
-      if: ${{ matrix.python-version == "3.9" }}
+      if: ${{ matrix.python-version == "3.9" }}  # only lint last Python version
       run: |
         pip install mypy PyQt5-stubs types-pkg-resources types-setuptools
         mypy labelCloud/.
