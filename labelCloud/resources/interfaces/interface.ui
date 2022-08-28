@@ -1545,6 +1545,7 @@
     <addaction name="act_show_orientation"/>
     <addaction name="act_save_perspective"/>
     <addaction name="act_align_pcd"/>
+    <addaction name="act_color_with_label"/>
     <addaction name="act_change_settings"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1578,22 +1579,30 @@
     <string>Z-Rotation Only Mode</string>
    </property>
   </action>
+  <action name="act_color_with_label">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color with labels</string>
+   </property>
+  </action>
   <action name="act_delete_all_labels">
    <property name="text">
     <string>Delete All Current Labels</string>
    </property>
   </action>
-  <action name="action_setstddimensions">
+  <action name="act_set_std_dimensions">
    <property name="text">
     <string>Set Default Bounding Box Dimensions ...</string>
    </property>
   </action>
-  <action name="action_setstdtransformations">
+  <action name="act_set_std_transformations">
    <property name="text">
     <string>Set Default Transformation Steps …</string>
    </property>
   </action>
-  <action name="action_pointsize">
+  <action name="act_point_size">
    <property name="text">
     <string>Point Size</string>
    </property>
