@@ -56,6 +56,10 @@ def set_zrotation_only(state: bool) -> None:
     config.set("USER_INTERFACE", "z_rotation_only", str(state))
 
 
+def set_color_with_label(state: bool) -> None:
+    config.set("POINTCLOUD", "color_with_label", str(state))
+
+
 def set_keep_perspective(state: bool) -> None:
     config.set("USER_INTERFACE", "keep_perspective", str(state))
 
@@ -130,6 +134,9 @@ class GUI(QtWidgets.QMainWindow):
         # Settings
         self.action_zrotation = self.findChild(
             QtWidgets.QAction, "action_zrotationonly"
+        )
+        self.action_colorwithlabel: QtWidgets.QAction = self.findChild(
+            QtWidgets.QAction, "action_colorwithlabel"
         )
         self.action_showfloor = self.findChild(QtWidgets.QAction, "action_showfloor")
         self.action_showorientation = self.findChild(
@@ -357,6 +364,7 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.reset
         )
         self.action_zrotation.toggled.connect(set_zrotation_only)
+        self.action_colorwithlabel.toggled.connect(set_color_with_label)
         self.action_showfloor.toggled.connect(set_floor_visibility)
         self.action_showorientation.toggled.connect(set_orientation_visibility)
         self.action_saveperspective.toggled.connect(set_keep_perspective)
@@ -374,6 +382,9 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.action_zrotation.setChecked(
             config.getboolean("USER_INTERFACE", "z_rotation_only")
+        )
+        self.action_colorwithlabel.setChecked(
+            config.getboolean("POINTCLOUD", "color_with_label")
         )
 
     # Collect, filter and forward events to viewer

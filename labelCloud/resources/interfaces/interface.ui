@@ -1545,6 +1545,7 @@
     <addaction name="action_showorientation"/>
     <addaction name="action_saveperspective"/>
     <addaction name="action_alignpcd"/>
+    <addaction name="action_colorwithlabel"/>
     <addaction name="action_changesettings"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1576,6 +1577,14 @@
    </property>
    <property name="text">
     <string>Z-Rotation Only Mode</string>
+   </property>
+  </action>
+  <action name="action_colorwithlabel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color with labels</string>
    </property>
   </action>
   <action name="action_deletealllabels">

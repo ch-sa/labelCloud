@@ -26,6 +26,7 @@ class PointCloudManger(object):
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
+    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
 
     def __init__(self) -> None:
         # Point cloud management
