@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from gettext import translation
 from typing import TYPE_CHECKING, Tuple
 
 if TYPE_CHECKING:
@@ -14,6 +13,6 @@ class Perspective(object):
     @classmethod
     def from_point_cloud(cls, pointcloud: "PointCloud") -> "Perspective":
         return cls(
-            translation=tuple(pointcloud.get_translations()),
-            rotation=tuple(pointcloud.get_rotations()),
+            translation=pointcloud.get_translation(),
+            rotation=pointcloud.get_rotations(),
         )

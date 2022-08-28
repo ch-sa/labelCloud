@@ -72,7 +72,13 @@ class KittiFormat(BaseLabelFormat):
 
             data += (
                 " ".join(
-                    [obj_type, "0 0 0 0 0 0 0", dimensions_str, location, str(rotation_y)]
+                    [
+                        obj_type,
+                        "0 0 0 0 0 0 0",
+                        dimensions_str,
+                        location,
+                        str(rotation_y),
+                    ]
                 )
                 + "\n"
             )

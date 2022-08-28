@@ -164,7 +164,7 @@ def circular_mask(arr_length, center, radius) -> np.ndarray:
     dx = np.arange(arr_length)
     return (dx[np.newaxis, :] - center) ** 2 + (
         dx[:, np.newaxis] - center
-    ) ** 2 < radius ** 2
+    ) ** 2 < radius**2
 
 
 # Returns the minimum (closest) depth for a specified radius around the center
