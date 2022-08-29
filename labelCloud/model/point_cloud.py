@@ -13,7 +13,8 @@ from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
-from ..utils.logger import end_section, green, print_column, red, start_section, yellow
+from ..utils.logger import (end_section, green, print_column, red,
+                            start_section, yellow)
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -63,8 +64,8 @@ class PointCloud(object):
     def __init__(
         self,
         path: Path,
-        points: npt.NDArray,
-        colors: Optional[npt.NDArray] = None,
+        points: npt.NDArray[np.float32],
+        colors: Optional[npt.NDArray[np.float32]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
@@ -77,8 +78,8 @@ class PointCloud(object):
         )
         self.vbo = None
         self.center: Point3D = tuple(np.sum(points[:, i]) / len(points) for i in range(3))  # type: ignore
-        self.pcd_mins: npt.NDArray = np.amin(points, axis=0)
-        self.pcd_maxs: npt.NDArray = np.amax(points, axis=0)
+        self.pcd_mins: npt.NDArray[np.float32] = np.amin(points, axis=0)
+        self.pcd_maxs: npt.NDArray[np.float32] = np.amax(points, axis=0)
         self.init_translation: Point3D = init_translation or calculate_init_translation(
             self.center, self.pcd_mins, self.pcd_maxs
         )
