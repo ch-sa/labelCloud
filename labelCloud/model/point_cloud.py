@@ -11,8 +11,7 @@ from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
-from ..utils.logger import (end_section, green, print_column, red,
-                            start_section, yellow)
+from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
