@@ -41,7 +41,7 @@ def expected_label_definition() -> Dict[str, int]:
     return {
         "unassigned": 0,
         "person": 1,
-        "car": 2,
+        "cart": 2,
         "wall": 3,
         "floor": 4,
     }
