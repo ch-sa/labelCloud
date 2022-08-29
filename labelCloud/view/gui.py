@@ -88,6 +88,12 @@ STYLESHEET = """
         background: rgb(0, 0, 255);
         background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
     }}
+
+    QComboBox#current_class_dropdown::item::selected{{
+        border: 1px solid black;
+        color: red;
+        background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
+    }}
 """
 
 
@@ -203,8 +209,8 @@ class GUI(QtWidgets.QMainWindow):
 
         # RIGHT PANEL
         self.label_list = self.findChild(QtWidgets.QListWidget, "label_list")
-        self.curr_class_edit = self.findChild(
-            QtWidgets.QLineEdit, "current_class_lineedit"
+        self.current_class_dropdown = self.findChild(
+            QtWidgets.QComboBox, "current_class_dropdown"
         )
         # self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
         self.button_deselect_label = self.findChild(
@@ -228,7 +234,6 @@ class GUI(QtWidgets.QMainWindow):
         self.rot_z_edit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")
 
         self.all_line_edits = [
-            self.curr_class_edit,
             self.pos_x_edit,
             self.pos_y_edit,
             self.pos_z_edit,
@@ -249,7 +254,8 @@ class GUI(QtWidgets.QMainWindow):
         # Connect all events to functions
         self.connect_events()
         self.set_checkbox_states()  # tick in menu
-        self.update_label_completer()  # initialize label completer with classes in config
+        # self.update_label_completer()  # initialize label completer with classes in config
+        self.controller.bbox_controller.update_label_list() # populate the dropdown list with label definition
         self.update_default_object_class_menu()
 
         # Start event cycle
@@ -302,7 +308,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # LABELING CONTROL
-        self.curr_class_edit.textChanged.connect(
+        self.current_class_dropdown.currentTextChanged.connect(
             self.controller.bbox_controller.set_classname
         )
         self.button_deselect_label.clicked.connect(
@@ -426,9 +432,9 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.mouse_clicked(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif (event.type() == QEvent.MouseButtonPress) and (
-            event_object != self.curr_class_edit
+            event_object != self.current_class_dropdown
         ):
-            self.curr_class_edit.clearFocus()
+            self.current_class_dropdown.clearFocus()
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
 
@@ -501,19 +507,15 @@ class GUI(QtWidgets.QMainWindow):
     def update_progress(self, value) -> None:
         self.progressbar_pcd.setValue(value)
 
-    def update_curr_class_edit(self, force: str = None) -> None:
-        if force is not None:
-            self.curr_class_edit.setText(force)
-        else:
-            self.curr_class_edit.setText(
-                self.controller.bbox_controller.get_active_bbox().get_classname()
-            )
+    def update_curr_class_dropdown(self) -> None:
+        self.controller.pcd_manager.update_curr_class_dropdown()
 
-    def update_label_completer(self, classnames=None) -> None:
-        if classnames is None:
-            classnames = set()
-        classnames.update(config.getlist("LABEL", "object_classes"))
-        self.curr_class_edit.setCompleter(QCompleter(classnames))
+    # def update_label_completer(self, classnames=None) -> None:
+        # if classnames is None:
+        #     classnames = set()
+        # classnames.update(config.getlist("LABEL", "object_classes"))
+        # self.curr_class_edit.setCompleter(QCompleter(classnames))
+
 
     def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")

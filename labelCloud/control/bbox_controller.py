@@ -310,9 +310,9 @@ class BoundingBoxController(object):
 
     def update_curr_class(self) -> None:
         if self.has_active_bbox():
-            self.view.update_curr_class_edit()
+            self.view.current_class_dropdown.setCurrentText(self.get_active_bbox().classname)
         else:
-            self.view.update_curr_class_edit(force="")
+            self.view.controller.pcd_manager.update_curr_class_dropdown()
 
     def update_label_list(self) -> None:
         """Updates the list of drawn labels and highlights the active label.

@@ -893,16 +893,16 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLineEdit" name="current_class_lineedit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
+          <item>
+              <widget class="QComboBox" name="current_class_dropdown">
+                  <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                      </sizepolicy>
+                  </property>
+              </widget>
+          </item>
          <item>
           <widget class="QLabel" name="current_bbox_title">
            <property name="sizePolicy">
@@ -1710,7 +1710,7 @@
   <tabstop>button_pick_bbox</tabstop>
   <tabstop>button_span_bbox</tabstop>
   <tabstop>button_save_label</tabstop>
-  <tabstop>current_class_lineedit</tabstop>
+  <tabstop>current_class_dropdown</tabstop>
   <tabstop>pos_x_edit</tabstop>
   <tabstop>pos_y_edit</tabstop>
   <tabstop>pos_z_edit</tabstop>

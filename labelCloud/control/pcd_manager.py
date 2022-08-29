@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 import numpy as np
 import open3d as o3d
 import pkg_resources
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QListWidgetItem
 
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
@@ -137,6 +139,15 @@ class PointCloudManger(object):
         logging.info(green("Loaded %s bboxes!" % len(bboxes)))
         return bboxes
 
+    def update_curr_class_dropdown(self):
+        # Add point label list
+        self.view.current_class_dropdown.clear()
+        for key in (
+            self.pointcloud.label_definition
+        ):  # The order in the dropdown should stay the same
+            self.view.current_class_dropdown.addItem(key)
+
+
     # SETTER
     def set_view(self, view: "GUI") -> None:
         self.view = view
@@ -148,7 +159,7 @@ class PointCloudManger(object):
             self.collected_object_classes.update(
                 {bbox.get_classname() for bbox in bboxes}
             )
-            self.view.update_label_completer(self.collected_object_classes)
+            # self.view.update_label_completer(self.collected_object_classes)
             self.view.update_default_object_class_menu(self.collected_object_classes)
         else:
             logging.warning("No point clouds to save labels for!")
