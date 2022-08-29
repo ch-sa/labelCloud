@@ -283,8 +283,8 @@ class BoundingBoxController(object):
             x,
             y,
             self.bboxes,
-            self.view.glWidget.modelview,
-            self.view.glWidget.projection,
+            self.view.gl_widget.modelview,
+            self.view.gl_widget.projection,
         )
         if intersected_bbox_id is not None:
             self.set_active_bbox(intersected_bbox_id)
@@ -300,9 +300,9 @@ class BoundingBoxController(object):
 
     @has_active_bbox_decorator
     def update_z_dial(self) -> None:
-        self.view.dial_zrotation.blockSignals(True)  # To brake signal loop
-        self.view.dial_zrotation.setValue(int(self.get_active_bbox().get_z_rotation()))  # type: ignore
-        self.view.dial_zrotation.blockSignals(False)
+        self.view.dial_bbox_z_rotation.blockSignals(True)  # To brake signal loop
+        self.view.dial_bbox_z_rotation.setValue(int(self.get_active_bbox().get_z_rotation()))  # type: ignore
+        self.view.dial_bbox_z_rotation.blockSignals(False)
 
     def update_curr_class(self) -> None:
         if self.has_active_bbox():

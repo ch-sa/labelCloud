@@ -46,7 +46,7 @@ class SpanningStrategy(BaseLabelingStrategy):
             None,
             None,
         )
-        self.view.button_activate_spanning.setChecked(False)
+        self.view.button_span_bbox.setChecked(False)
 
     def register_point(self, new_point: Point3D) -> None:
         if self.point_1 is None:

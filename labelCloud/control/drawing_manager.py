@@ -16,7 +16,7 @@ class DrawingManager(object):
 
     def set_view(self, view: "GUI") -> None:
         self.view = view
-        self.view.glWidget.drawing_mode = self
+        self.view.gl_widget.drawing_mode = self
 
     def is_active(self) -> bool:
         return self.drawing_strategy is not None and isinstance(
@@ -43,7 +43,7 @@ class DrawingManager(object):
         self, x: float, y: float, correction: bool = False, is_temporary: bool = False
     ) -> None:
         assert self.drawing_strategy is not None
-        world_point = self.view.glWidget.get_world_coords(x, y, correction=correction)
+        world_point = self.view.gl_widget.get_world_coords(x, y, correction=correction)
 
         if is_temporary:
             self.drawing_strategy.register_tmp_point(world_point)

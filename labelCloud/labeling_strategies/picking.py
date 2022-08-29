@@ -74,4 +74,4 @@ class PickingStrategy(BaseLabelingStrategy):
     def reset(self) -> None:
         super().reset()
         self.tmp_p1 = None
-        self.view.button_activate_picking.setChecked(False)
+        self.view.button_pick_bbox.setChecked(False)

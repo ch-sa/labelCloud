@@ -30,7 +30,7 @@
       <property name="rightMargin">
        <number>0</number>
       </property>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="icon_label">
         <property name="maximumSize">
          <size>
@@ -95,7 +95,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_pcd_current">
+          <widget class="QLabel" name="label_current_pcd">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>210</horstretch>
@@ -162,7 +162,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QPushButton" name="button_pcd_prev">
+            <widget class="QPushButton" name="button_prev_pcd">
              <property name="toolTip">
               <string>Save current labels and load previous point cloud.</string>
              </property>
@@ -172,14 +172,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="button_pcd_set">
+            <widget class="QPushButton" name="button_set_pcd">
              <property name="text">
               <string>Set</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="button_pcd_next">
+            <widget class="QPushButton" name="button_next_pcd">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -507,7 +507,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QDial" name="dial_bbox_zrotation">
+          <widget class="QDial" name="dial_bbox_z_rotation">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
              <horstretch>0</horstretch>
@@ -553,7 +553,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QPushButton" name="button_bbox_incr">
+          <widget class="QPushButton" name="button_bbox_increase_dimension">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -596,7 +596,7 @@
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QPushButton" name="button_bbox_decr">
+          <widget class="QPushButton" name="button_bbox_decrease_dimension">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -658,7 +658,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="button_open_2D">
+       <widget class="QPushButton" name="button_show_image">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -682,7 +682,7 @@
          </size>
         </property>
         <property name="checkable">
-         <bool>False</bool>
+         <bool>false</bool>
         </property>
         <property name="checked">
          <bool>false</bool>
@@ -803,7 +803,7 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="GLWidget" name="openGLWidget">
+       <widget class="GLWidget" name="gl_widget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -894,7 +894,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="current_class_lineedit">
+          <widget class="QLineEdit" name="edit_current_class">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -935,7 +935,7 @@
             <number>6</number>
            </property>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="rot_x_edit">
+            <widget class="QLineEdit" name="edit_rot_x">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -981,7 +981,7 @@
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QLineEdit" name="width_edit">
+            <widget class="QLineEdit" name="edit_width">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1021,7 +1021,7 @@
             </widget>
            </item>
            <item row="2" column="3">
-            <widget class="QLineEdit" name="rot_z_edit">
+            <widget class="QLineEdit" name="edit_rot_z">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1087,7 +1087,7 @@
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLineEdit" name="rot_y_edit">
+            <widget class="QLineEdit" name="edit_rot_y">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1130,7 +1130,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QLineEdit" name="height_edit">
+            <widget class="QLineEdit" name="edit_height">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1170,7 +1170,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="length_edit">
+            <widget class="QLineEdit" name="edit_length">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1210,7 +1210,7 @@
             </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QLineEdit" name="pos_z_edit">
+            <widget class="QLineEdit" name="edit_pos_z">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1263,7 +1263,7 @@
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QLineEdit" name="pos_y_edit">
+            <widget class="QLineEdit" name="edit_pos_y">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1303,7 +1303,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="pos_x_edit">
+            <widget class="QLineEdit" name="edit_pos_x">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1343,7 +1343,7 @@
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="volume_label">
+            <widget class="QLabel" name="label_volume">
              <property name="text">
               <string>Volume</string>
              </property>
@@ -1394,7 +1394,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QPushButton" name="button_label_deselect">
+         <widget class="QPushButton" name="button_deselect_label">
           <property name="toolTip">
            <string>Deselect current bounding box.</string>
           </property>
@@ -1414,7 +1414,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="button_label_delete">
+         <widget class="QPushButton" name="button_delete_label">
           <property name="toolTip">
            <string>Delete current bounding box. [DEL]</string>
           </property>
@@ -1511,7 +1511,7 @@
      <x>0</x>
      <y>0</y>
      <width>1278</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1521,43 +1521,43 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_setpcdfolder"/>
-    <addaction name="action_setlabelfolder"/>
+    <addaction name="act_set_pcd_folder"/>
+    <addaction name="act_set_label_folder"/>
    </widget>
    <widget class="QMenu" name="menuLabels">
     <property name="title">
      <string>Labels</string>
     </property>
-    <widget class="QMenu" name="menu_setdefaultclass">
+    <widget class="QMenu" name="act_set_default_class">
      <property name="title">
       <string>Set Default Object Class …</string>
      </property>
     </widget>
-    <addaction name="menu_setdefaultclass"/>
-    <addaction name="action_deletealllabels"/>
+    <addaction name="act_set_default_class"/>
+    <addaction name="act_delete_all_labels"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="action_zrotationonly"/>
-    <addaction name="action_showfloor"/>
-    <addaction name="action_showorientation"/>
-    <addaction name="action_saveperspective"/>
-    <addaction name="action_alignpcd"/>
-    <addaction name="action_changesettings"/>
+    <addaction name="act_z_rotation_only"/>
+    <addaction name="act_show_floor"/>
+    <addaction name="act_show_orientation"/>
+    <addaction name="act_save_perspective"/>
+    <addaction name="act_align_pcd"/>
+    <addaction name="act_change_settings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuLabels"/>
    <addaction name="menuSettings"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_setpcdfolder">
+  <widget class="QStatusBar" name="status_bar"/>
+  <action name="act_set_pcd_folder">
    <property name="text">
     <string>Set Point Cloud Folder…</string>
    </property>
   </action>
-  <action name="action_setlabelfolder">
+  <action name="act_set_label_folder">
    <property name="text">
     <string>Set Label Folder…</string>
    </property>
@@ -1567,7 +1567,7 @@
     <string>Load Single Point Cloud…</string>
    </property>
   </action>
-  <action name="action_zrotationonly">
+  <action name="act_z_rotation_only">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1578,7 +1578,7 @@
     <string>Z-Rotation Only Mode</string>
    </property>
   </action>
-  <action name="action_deletealllabels">
+  <action name="act_delete_all_labels">
    <property name="text">
     <string>Delete All Current Labels</string>
    </property>
@@ -1598,7 +1598,7 @@
     <string>Point Size</string>
    </property>
   </action>
-  <action name="action_showfloor">
+  <action name="act_show_floor">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1609,7 +1609,7 @@
     <string>Show Floor</string>
    </property>
   </action>
-  <action name="action_showorientation">
+  <action name="act_show_orientation">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1620,7 +1620,7 @@
     <string>Show Orientation</string>
    </property>
   </action>
-  <action name="action_saveperspective">
+  <action name="act_save_perspective">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1631,7 +1631,7 @@
     <string>Keep Perspective</string>
    </property>
   </action>
-  <action name="action_alignpcd">
+  <action name="act_align_pcd">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1642,7 +1642,7 @@
     <string>Align Point Cloud</string>
    </property>
   </action>
-  <action name="action_changesettings">
+  <action name="act_change_settings">
    <property name="text">
     <string>Change Settings ...</string>
    </property>
@@ -1661,33 +1661,33 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>button_pcd_prev</tabstop>
-  <tabstop>button_pcd_next</tabstop>
+  <tabstop>button_prev_pcd</tabstop>
+  <tabstop>button_next_pcd</tabstop>
   <tabstop>button_bbox_left</tabstop>
   <tabstop>button_bbox_right</tabstop>
   <tabstop>button_bbox_backward</tabstop>
   <tabstop>button_bbox_forward</tabstop>
   <tabstop>button_bbox_up</tabstop>
   <tabstop>button_bbox_down</tabstop>
-  <tabstop>button_bbox_incr</tabstop>
-  <tabstop>button_bbox_decr</tabstop>
-  <tabstop>dial_bbox_zrotation</tabstop>
-  <tabstop>button_open_2D</tabstop>
+  <tabstop>button_bbox_increase_dimension</tabstop>
+  <tabstop>button_bbox_decrease_dimension</tabstop>
+  <tabstop>dial_bbox_z_rotation</tabstop>
+  <tabstop>button_show_image</tabstop>
   <tabstop>button_pick_bbox</tabstop>
   <tabstop>button_span_bbox</tabstop>
   <tabstop>button_save_label</tabstop>
-  <tabstop>current_class_lineedit</tabstop>
-  <tabstop>pos_x_edit</tabstop>
-  <tabstop>pos_y_edit</tabstop>
-  <tabstop>pos_z_edit</tabstop>
-  <tabstop>length_edit</tabstop>
-  <tabstop>width_edit</tabstop>
-  <tabstop>height_edit</tabstop>
-  <tabstop>rot_x_edit</tabstop>
-  <tabstop>rot_y_edit</tabstop>
-  <tabstop>rot_z_edit</tabstop>
-  <tabstop>button_label_deselect</tabstop>
-  <tabstop>button_label_delete</tabstop>
+  <tabstop>edit_current_class</tabstop>
+  <tabstop>edit_pos_x</tabstop>
+  <tabstop>edit_pos_y</tabstop>
+  <tabstop>edit_pos_z</tabstop>
+  <tabstop>edit_length</tabstop>
+  <tabstop>edit_width</tabstop>
+  <tabstop>edit_height</tabstop>
+  <tabstop>edit_rot_x</tabstop>
+  <tabstop>edit_rot_y</tabstop>
+  <tabstop>edit_rot_z</tabstop>
+  <tabstop>button_deselect_label</tabstop>
+  <tabstop>button_delete_label</tabstop>
   <tabstop>label_list</tabstop>
  </tabstops>
  <resources/>

@@ -32,7 +32,7 @@ class AlignMode(object):
 
     def set_view(self, view: "GUI") -> None:
         self.view = view
-        self.view.glWidget.align_mode = self
+        self.view.gl_widget.align_mode = self
 
     def change_activation(self, force=None) -> None:
         if force is not None:
@@ -48,7 +48,7 @@ class AlignMode(object):
                 "Select three points on the plane that should be the floor.",
                 Mode.ALIGNMENT,
             )
-        self.view.action_alignpcd.setChecked(self.is_active)
+        self.view.act_align_pcd.setChecked(self.is_active)
         self.view.activate_draw_modes(
             not self.is_active
         )  # Prevent bbox drawing while aligning

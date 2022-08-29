@@ -141,7 +141,7 @@ class PointCloudManger(object):
     # SETTER
     def set_view(self, view: "GUI") -> None:
         self.view = view
-        self.view.glWidget.set_pointcloud_controller(self)
+        self.view.gl_widget.set_pointcloud_controller(self)
 
     def save_labels_into_file(self, bboxes: List[BBox]) -> None:
         if self.pcds:

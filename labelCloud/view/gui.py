@@ -111,125 +111,90 @@ class GUI(QtWidgets.QMainWindow):
 
         # MENU BAR
         # File
-        self.action_setpcdfolder: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_setpcdfolder"
-        )  # type: ignore
-        self.action_setlabelfolder: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_setlabelfolder"
-        )  # type: ignore
+        self.act_set_pcd_folder: QtWidgets.QAction
+        self.act_set_label_folder: QtWidgets.QAction
 
         # Labels
-        self.action_deletelabels: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_deletealllabels"
-        )  # type: ignore
-        self.menu_setdefaultclass: QtWidgets.QMenu = self.findChild(
-            QtWidgets.QMenu, "menu_setdefaultclass"
-        )  # type: ignore
-        self.actiongroup_defaultclass = QActionGroup(self.menu_setdefaultclass)
+        self.act_delete_all_labels: QtWidgets.QAction
+        self.act_set_default_class: QtWidgets.QMenu
+        self.actiongroup_default_class = QActionGroup(self.act_set_default_class)
 
         # Settings
-        self.action_zrotation: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_zrotationonly"
-        )  # type: ignore
-        self.action_showfloor: QtWidgets.QAction = self.findChild(QtWidgets.QAction, "action_showfloor")  # type: ignore
-        self.action_showorientation: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_showorientation"
-        )  # type: ignore
-        self.action_saveperspective: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_saveperspective"
-        )  # type: ignore
-        self.action_alignpcd: QtWidgets.QAction = self.findChild(QtWidgets.QAction, "action_alignpcd")  # type: ignore
-        self.action_change_settings: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_changesettings"
-        )  # type: ignore
+        self.act_z_rotation_only: QtWidgets.QAction
+        self.act_show_floor: QtWidgets.QAction
+        self.act_show_orientation: QtWidgets.QAction
+        self.act_save_perspective: QtWidgets.QAction
+        self.act_align_pcd: QtWidgets.QAction
+        self.act_change_settings: QtWidgets.QAction
 
         # STATUS BAR
-        self.status_bar: QtWidgets.QStatusBar = self.findChild(QtWidgets.QStatusBar, "statusbar")  # type: ignore
+        self.status_bar: QtWidgets.QStatusBar
         self.status_manager = StatusManager(self.status_bar)
 
         # CENTRAL WIDGET
-        self.glWidget: GLWidget = self.findChild(GLWidget, "openGLWidget")  # type: ignore
+        self.gl_widget: GLWidget
 
         # LEFT PANEL
         # point cloud management
-        self.label_curr_pcd: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, "label_pcd_current")  # type: ignore
-        self.button_prev_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_prev")  # type: ignore
-        self.button_next_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_next")  # type: ignore
-        self.button_set_pcd: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_pcd_set")  # type: ignore
-        self.progressbar_pcd: QtWidgets.QProgressBar = self.findChild(
-            QtWidgets.QProgressBar, "progressbar_pcds"
-        )  # type: ignore
+        self.label_current_pcd: QtWidgets.QLabel
+        self.button_prev_pcd: QtWidgets.QPushButton
+        self.button_next_pcd: QtWidgets.QPushButton
+        self.button_set_pcd: QtWidgets.QPushButton
+        self.progressbar_pcds: QtWidgets.QProgressBar
 
         # bbox control section
-        self.button_up: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_up")  # type: ignore
-        self.button_down: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_down")  # type: ignore
-        self.button_left: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_left")  # type: ignore
-        self.button_right: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_right")  # type: ignore
-        self.button_forward: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_bbox_forward"
-        )  # type: ignore
-        self.button_backward: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_bbox_backward"
-        )  # type: ignore
-        self.dial_zrotation: QtWidgets.QDial = self.findChild(QtWidgets.QDial, "dial_bbox_zrotation")  # type: ignore
-        self.button_decr_dim: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_decr")  # type: ignore
-        self.button_incr_dim: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_bbox_incr")  # type: ignore
+        self.button_bbox_up: QtWidgets.QPushButton
+        self.button_bbox_down: QtWidgets.QPushButton
+        self.button_bbox_left: QtWidgets.QPushButton
+        self.button_bbox_right: QtWidgets.QPushButton
+        self.button_bbox_forward: QtWidgets.QPushButton
+        self.button_bbox_backward: QtWidgets.QPushButton
+        self.dial_bbox_z_rotation: QtWidgets.QDial
+        self.button_bbox_decrease_dimension: QtWidgets.QPushButton
+        self.button_bbox_increase_dimension: QtWidgets.QPushButton
 
         # 2d image viewer
-        self.button_2D: QtWidgets.QPushButton = self.findChild(QtWidgets.QPushButton, "button_open_2D")  # type: ignore
-        self.button_2D.setVisible(config.getboolean("USER_INTERFACE", "show_2d_image"))
+        self.button_show_image: QtWidgets.QPushButton
+        self.button_show_image.setVisible(config.getboolean("USER_INTERFACE", "show_2d_image"))
 
         # label mode selection
-        self.button_activate_picking: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_pick_bbox"
-        )  # type: ignore
-        self.button_activate_spanning: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_span_bbox"
-        )  # type: ignore
-        self.button_save_labels: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_save_label"
-        )  # type: ignore
+        self.button_pick_bbox: QtWidgets.QPushButton
+        self.button_span_bbox: QtWidgets.QPushButton
+        self.button_save_label: QtWidgets.QPushButton
 
         # RIGHT PANEL
-        self.label_list: QtWidgets.QListWidget = self.findChild(QtWidgets.QListWidget, "label_list")  # type: ignore
-        self.curr_class_edit: QtWidgets.QLineEdit = self.findChild(
-            QtWidgets.QLineEdit, "current_class_lineedit"
-        )  # type: ignore
-        # self.curr_bbox_stats = self.findChild(QtWidgets.QLabel, "current_bbox_stats")
-        self.button_deselect_label: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_label_deselect"
-        )  # type: ignore
-        self.button_delete_label: QtWidgets.QPushButton = self.findChild(
-            QtWidgets.QPushButton, "button_label_delete"
-        )  # type: ignore
+        self.label_list: QtWidgets.QListWidget
+        self.edit_current_class: QtWidgets.QLineEdit
+        self.button_deselect_label: QtWidgets.QPushButton
+        self.button_delete_label: QtWidgets.QPushButton
 
         # BOUNDING BOX PARAMETER EDITS
-        self.pos_x_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_x_edit")  # type: ignore
-        self.pos_y_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_y_edit")  # type: ignore
-        self.pos_z_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "pos_z_edit")  # type: ignore
+        self.edit_pos_x: QtWidgets.QLineEdit
+        self.edit_pos_y: QtWidgets.QLineEdit
+        self.edit_pos_z: QtWidgets.QLineEdit
 
-        self.length_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "length_edit")  # type: ignore
-        self.width_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "width_edit")  # type: ignore
-        self.height_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "height_edit")  # type: ignore
+        self.edit_length: QtWidgets.QLineEdit
+        self.edit_width: QtWidgets.QLineEdit
+        self.edit_height: QtWidgets.QLineEdit
 
-        self.rot_x_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_x_edit")  # type: ignore
-        self.rot_y_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_y_edit")  # type: ignore
-        self.rot_z_edit: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit, "rot_z_edit")  # type: ignore
+        self.edit_rot_x: QtWidgets.QLineEdit
+        self.edit_rot_y: QtWidgets.QLineEdit
+        self.edit_rot_z: QtWidgets.QLineEdit
 
         self.all_line_edits = [
-            self.curr_class_edit,
-            self.pos_x_edit,
-            self.pos_y_edit,
-            self.pos_z_edit,
-            self.length_edit,
-            self.width_edit,
-            self.height_edit,
-            self.rot_x_edit,
-            self.rot_y_edit,
-            self.rot_z_edit,
+            self.edit_current_class,
+            self.edit_pos_x,
+            self.edit_pos_y,
+            self.edit_pos_z,
+            self.edit_length,
+            self.edit_width,
+            self.edit_height,
+            self.edit_rot_x,
+            self.edit_rot_y,
+            self.edit_rot_z,
         ]
 
-        self.volume_label: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, "volume_value_label")  # type: ignore
+        self.label_volume: QtWidgets.QLabel
 
         # Connect with controller
         self.controller = control
@@ -256,38 +221,38 @@ class GUI(QtWidgets.QMainWindow):
         self.button_prev_pcd.clicked.connect(self.controller.prev_pcd)
 
         # BBOX CONTROL
-        self.button_up.pressed.connect(
+        self.button_bbox_up.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_z()
         )
-        self.button_down.pressed.connect(
+        self.button_bbox_down.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_z(down=True)
         )
-        self.button_left.pressed.connect(
+        self.button_bbox_left.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_x(left=True)
         )
-        self.button_right.pressed.connect(
+        self.button_bbox_right.pressed.connect(
             self.controller.bbox_controller.translate_along_x
         )
-        self.button_forward.pressed.connect(
+        self.button_bbox_forward.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_y(forward=True)
         )
         self.button_set_pcd.pressed.connect(lambda: self.ask_custom_index())
-        self.button_backward.pressed.connect(
+        self.button_bbox_backward.pressed.connect(
             lambda: self.controller.bbox_controller.translate_along_y()
         )
 
-        self.dial_zrotation.valueChanged.connect(
+        self.dial_bbox_z_rotation.valueChanged.connect(
             lambda x: self.controller.bbox_controller.rotate_around_z(x, absolute=True)
         )
-        self.button_decr_dim.clicked.connect(
+        self.button_bbox_decrease_dimension.clicked.connect(
             lambda: self.controller.bbox_controller.scale(decrease=True)
         )
-        self.button_incr_dim.clicked.connect(
+        self.button_bbox_increase_dimension.clicked.connect(
             lambda: self.controller.bbox_controller.scale()
         )
 
         # LABELING CONTROL
-        self.curr_class_edit.textChanged.connect(
+        self.edit_current_class.textChanged.connect(
             self.controller.bbox_controller.set_classname
         )
         self.button_deselect_label.clicked.connect(
@@ -301,78 +266,78 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # open_2D_img
-        self.button_2D.pressed.connect(lambda: self.show_2d_image())
+        self.button_show_image.pressed.connect(lambda: self.show_2d_image())
 
         # LABEL CONTROL
-        self.button_activate_picking.clicked.connect(
+        self.button_pick_bbox.clicked.connect(
             lambda: self.controller.drawing_mode.set_drawing_strategy(
                 PickingStrategy(self)
             )
         )
-        self.button_activate_spanning.clicked.connect(
+        self.button_span_bbox.clicked.connect(
             lambda: self.controller.drawing_mode.set_drawing_strategy(
                 SpanningStrategy(self)
             )
         )
-        self.button_save_labels.clicked.connect(self.controller.save)
+        self.button_save_label.clicked.connect(self.controller.save)
 
         # BOUNDING BOX PARAMETER
-        self.pos_x_edit.editingFinished.connect(
+        self.edit_pos_x.editingFinished.connect(
             lambda: self.update_bbox_parameter("pos_x")
         )
-        self.pos_y_edit.editingFinished.connect(
+        self.edit_pos_y.editingFinished.connect(
             lambda: self.update_bbox_parameter("pos_y")
         )
-        self.pos_z_edit.editingFinished.connect(
+        self.edit_pos_z.editingFinished.connect(
             lambda: self.update_bbox_parameter("pos_z")
         )
 
-        self.length_edit.editingFinished.connect(
+        self.edit_length.editingFinished.connect(
             lambda: self.update_bbox_parameter("length")
         )
-        self.width_edit.editingFinished.connect(
+        self.edit_width.editingFinished.connect(
             lambda: self.update_bbox_parameter("width")
         )
-        self.height_edit.editingFinished.connect(
+        self.edit_height.editingFinished.connect(
             lambda: self.update_bbox_parameter("height")
         )
 
-        self.rot_x_edit.editingFinished.connect(
+        self.edit_rot_x.editingFinished.connect(
             lambda: self.update_bbox_parameter("rot_x")
         )
-        self.rot_y_edit.editingFinished.connect(
+        self.edit_rot_y.editingFinished.connect(
             lambda: self.update_bbox_parameter("rot_y")
         )
-        self.rot_z_edit.editingFinished.connect(
+        self.edit_rot_z.editingFinished.connect(
             lambda: self.update_bbox_parameter("rot_z")
         )
 
         # MENU BAR
-        self.action_setpcdfolder.triggered.connect(self.change_pointcloud_folder)
-        self.action_setlabelfolder.triggered.connect(self.change_label_folder)
-        self.actiongroup_defaultclass.triggered.connect(
+        self.act_set_pcd_folder.triggered.connect(self.change_pointcloud_folder)
+        self.act_set_label_folder.triggered.connect(self.change_label_folder)
+        self.actiongroup_default_class.triggered.connect(
             self.change_default_object_class
         )
-        self.action_deletelabels.triggered.connect(
+        self.act_delete_all_labels.triggered.connect(
             self.controller.bbox_controller.reset
         )
-        self.action_zrotation.toggled.connect(set_zrotation_only)
-        self.action_showfloor.toggled.connect(set_floor_visibility)
-        self.action_showorientation.toggled.connect(set_orientation_visibility)
-        self.action_saveperspective.toggled.connect(set_keep_perspective)
-        self.action_alignpcd.toggled.connect(
+        self.act_z_rotation_only.toggled.connect(set_zrotation_only)
+        self.act_show_floor.toggled.connect(set_floor_visibility)
+        self.act_show_orientation.toggled.connect(set_orientation_visibility)
+        self.act_save_perspective.toggled.connect(set_keep_perspective)
+        self.act_align_pcd.toggled.connect(
             self.controller.align_mode.change_activation
         )
-        self.action_change_settings.triggered.connect(self.show_settings_dialog)
+        self.act_change_settings.triggered.connect(self.show_settings_dialog)
 
     def set_checkbox_states(self) -> None:
-        self.action_showfloor.setChecked(
+        self.act_show_floor.setChecked(
             config.getboolean("USER_INTERFACE", "show_floor")
         )
-        self.action_showorientation.setChecked(
+        self.act_show_orientation.setChecked(
             config.getboolean("USER_INTERFACE", "show_orientation")
         )
-        self.action_zrotation.setChecked(
+        self.act_z_rotation_only.setChecked(
             config.getboolean("USER_INTERFACE", "z_rotation_only")
         )
 
@@ -390,26 +355,26 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.key_release_event(event)
 
         # Mouse Events
-        elif (event.type() == QEvent.MouseMove) and (event_object == self.glWidget):
+        elif (event.type() == QEvent.MouseMove) and (event_object == self.gl_widget):
             self.controller.mouse_move_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
-        elif (event.type() == QEvent.Wheel) and (event_object == self.glWidget):
+        elif (event.type() == QEvent.Wheel) and (event_object == self.gl_widget):
             self.controller.mouse_scroll_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif event.type() == QEvent.MouseButtonDblClick and (
-            event_object == self.glWidget
+            event_object == self.gl_widget
         ):
             self.controller.mouse_double_clicked(event)
             return True
         elif (event.type() == QEvent.MouseButtonPress) and (
-            event_object == self.glWidget
+            event_object == self.gl_widget
         ):
             self.controller.mouse_clicked(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif (event.type() == QEvent.MouseButtonPress) and (
-            event_object != self.curr_class_edit
+            event_object != self.edit_current_class
         ):
-            self.curr_class_edit.clearFocus()
+            self.edit_current_class.clearFocus()
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
 
@@ -473,72 +438,72 @@ class GUI(QtWidgets.QMainWindow):
     # VISUALIZATION METHODS
 
     def set_pcd_label(self, pcd_name: str) -> None:
-        self.label_curr_pcd.setText("Current: <em>%s</em>" % pcd_name)
+        self.label_current_pcd.setText("Current: <em>%s</em>" % pcd_name)
 
     def init_progress(self, min_value, max_value):
-        self.progressbar_pcd.setMinimum(min_value)
-        self.progressbar_pcd.setMaximum(max_value)
+        self.progressbar_pcds.setMinimum(min_value)
+        self.progressbar_pcds.setMaximum(max_value)
 
     def update_progress(self, value) -> None:
-        self.progressbar_pcd.setValue(value)
+        self.progressbar_pcds.setValue(value)
 
     def update_curr_class_edit(self, force: str = None) -> None:
         if force is not None:
-            self.curr_class_edit.setText(force)
+            self.edit_current_class.setText(force)
         else:
             bbox = self.controller.bbox_controller.get_active_bbox()
             if bbox:
-                self.curr_class_edit.setText(bbox.get_classname())
+                self.edit_current_class.setText(bbox.get_classname())
 
     def update_label_completer(self, classnames=None) -> None:
         if classnames is None:
             classnames = set()
         classnames.update(config.getlist("LABEL", "object_classes"))
-        self.curr_class_edit.setCompleter(QCompleter(classnames))
+        self.edit_current_class.setCompleter(QCompleter(classnames))
 
     def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
         if bbox and not self.line_edited_activated():
-            self.pos_x_edit.setText(str(round(bbox.get_center()[0], viewing_precision)))
-            self.pos_y_edit.setText(str(round(bbox.get_center()[1], viewing_precision)))
-            self.pos_z_edit.setText(str(round(bbox.get_center()[2], viewing_precision)))
+            self.edit_pos_x.setText(str(round(bbox.get_center()[0], viewing_precision)))
+            self.edit_pos_y.setText(str(round(bbox.get_center()[1], viewing_precision)))
+            self.edit_pos_z.setText(str(round(bbox.get_center()[2], viewing_precision)))
 
-            self.length_edit.setText(
+            self.edit_length.setText(
                 str(round(bbox.get_dimensions()[0], viewing_precision))
             )
-            self.width_edit.setText(
+            self.edit_width.setText(
                 str(round(bbox.get_dimensions()[1], viewing_precision))
             )
-            self.height_edit.setText(
+            self.edit_height.setText(
                 str(round(bbox.get_dimensions()[2], viewing_precision))
             )
 
-            self.rot_x_edit.setText(str(round(bbox.get_x_rotation(), 1)))
-            self.rot_y_edit.setText(str(round(bbox.get_y_rotation(), 1)))
-            self.rot_z_edit.setText(str(round(bbox.get_z_rotation(), 1)))
+            self.edit_rot_x.setText(str(round(bbox.get_x_rotation(), 1)))
+            self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
+            self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
 
-            self.volume_label.setText(str(round(bbox.get_volume(), viewing_precision)))
+            self.label_volume.setText(str(round(bbox.get_volume(), viewing_precision)))
 
     def update_bbox_parameter(self, parameter: str) -> None:
         str_value = None
         self.setFocus()  # Changes the focus from QLineEdit to the window
 
         if parameter == "pos_x":
-            str_value = self.pos_x_edit.text()
+            str_value = self.edit_pos_x.text()
         if parameter == "pos_y":
-            str_value = self.pos_y_edit.text()
+            str_value = self.edit_pos_y.text()
         if parameter == "pos_z":
-            str_value = self.pos_z_edit.text()
+            str_value = self.edit_pos_z.text()
         if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_position(parameter, float(str_value))
             return
 
         if parameter == "length":
-            str_value = self.length_edit.text()
+            str_value = self.edit_length.text()
         if parameter == "width":
-            str_value = self.width_edit.text()
+            str_value = self.edit_width.text()
         if parameter == "height":
-            str_value = self.height_edit.text()
+            str_value = self.edit_height.text()
         if str_value and string_is_float(str_value, recect_negative=True):
             self.controller.bbox_controller.update_dimension(
                 parameter, float(str_value)
@@ -546,19 +511,19 @@ class GUI(QtWidgets.QMainWindow):
             return
 
         if parameter == "rot_x":
-            str_value = self.rot_x_edit.text()
+            str_value = self.edit_rot_x.text()
         if parameter == "rot_y":
-            str_value = self.rot_y_edit.text()
+            str_value = self.edit_rot_y.text()
         if parameter == "rot_z":
-            str_value = self.rot_z_edit.text()
+            str_value = self.edit_rot_z.text()
         if str_value and string_is_float(str_value):
             self.controller.bbox_controller.update_rotation(parameter, float(str_value))
             return
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
-        self.button_activate_picking.setEnabled(state)
-        self.button_activate_spanning.setEnabled(state)
+        self.button_pick_bbox.setEnabled(state)
+        self.button_span_bbox.setEnabled(state)
 
     def line_edited_activated(self) -> bool:
         for line_edit in self.all_line_edits:
@@ -605,17 +570,17 @@ class GUI(QtWidgets.QMainWindow):
         }
         object_classes.update(new_classes or [])
         existing_classes = {
-            action.text() for action in self.actiongroup_defaultclass.actions()
+            action.text() for action in self.actiongroup_default_class.actions()
         }
         for object_class in object_classes.difference(existing_classes):
-            action = self.actiongroup_defaultclass.addAction(
+            action = self.actiongroup_default_class.addAction(
                 object_class
             )  # TODO: Add limiter for number of classes
             action.setCheckable(True)
             if object_class == config.get("LABEL", "std_object_class"):
                 action.setChecked(True)
 
-        self.menu_setdefaultclass.addActions(self.actiongroup_defaultclass.actions())
+        self.act_set_default_class.addActions(self.actiongroup_default_class.actions())
 
     def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())

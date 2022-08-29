@@ -45,7 +45,7 @@ class Controller:
         self.pcd_manager.set_view(self.view)
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
-        self.view.glWidget.set_bbox_controller(self.bbox_controller)
+        self.view.gl_widget.set_bbox_controller(self.bbox_controller)
         self.bbox_controller.pcd_manager = self.pcd_manager
 
         # Read labels from folders
@@ -56,7 +56,7 @@ class Controller:
         """Function collection called during each event loop iteration."""
         self.set_crosshair()
         self.set_selected_side()
-        self.view.glWidget.updateGL()
+        self.view.gl_widget.updateGL()
 
     # POINT CLOUD METHODS
     def next_pcd(self, save: bool = True) -> None:
@@ -98,8 +98,8 @@ class Controller:
     def set_crosshair(self) -> None:
         """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
-            self.view.glWidget.crosshair_col = Color.GREEN.value
-            self.view.glWidget.crosshair_pos = (
+            self.view.gl_widget.crosshair_col = Color.GREEN.value
+            self.view.gl_widget.crosshair_pos = (
                 self.curr_cursor_pos.x(),
                 self.curr_cursor_pos.y(),
             )
@@ -116,17 +116,17 @@ class Controller:
                 self.curr_cursor_pos.x(),
                 self.curr_cursor_pos.y(),
                 self.bbox_controller.get_active_bbox(),  # type: ignore
-                self.view.glWidget.modelview,
-                self.view.glWidget.projection,
+                self.view.gl_widget.modelview,
+                self.view.gl_widget.projection,
             )
         if (
             self.selected_side
             and (not self.ctrl_pressed)
             and self.bbox_controller.has_active_bbox()
         ):
-            self.view.glWidget.crosshair_col = Color.RED.value
+            self.view.gl_widget.crosshair_col = Color.RED.value
             side_vertices = self.bbox_controller.get_active_bbox().get_vertices()  # type: ignore
-            self.view.glWidget.selected_side_vertices = side_vertices[
+            self.view.gl_widget.selected_side_vertices = side_vertices[
                 BBOX_SIDES[self.selected_side]
             ]
             self.view.status_manager.set_message(
@@ -134,7 +134,7 @@ class Controller:
                 context=Context.SIDE_HOVERED,
             )
         else:
-            self.view.glWidget.selected_side_vertices = np.array([])
+            self.view.gl_widget.selected_side_vertices = np.array([])
             self.view.status_manager.clear_message(Context.SIDE_HOVERED)
 
     # EVENT PROCESSING
@@ -151,7 +151,7 @@ class Controller:
 
         elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_point(
-                self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
+                self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=False)
             )
 
         elif self.selected_side:
@@ -173,7 +173,7 @@ class Controller:
 
         elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_tmp_point(
-                self.view.glWidget.get_world_coords(a0.x(), a0.y(), correction=False)
+                self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=False)
             )
 
         if self.last_cursor_pos:
@@ -190,7 +190,7 @@ class Controller:
                 if a0.buttons() & QtCore.Qt.LeftButton:  # bbox rotation
                     self.bbox_controller.rotate_with_mouse(-dx, -dy)
                 elif a0.buttons() & QtCore.Qt.RightButton:  # bbox translation
-                    new_center = self.view.glWidget.get_world_coords(
+                    new_center = self.view.gl_widget.get_world_coords(
                         a0.x(), a0.y(), correction=True
                     )
                     self.bbox_controller.set_center(*new_center)  # absolute positioning
