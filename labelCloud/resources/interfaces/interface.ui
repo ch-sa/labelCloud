@@ -762,7 +762,7 @@
       <item>
        <widget class="QPushButton" name="button_save_label">
         <property name="text">
-         <string>Save Label</string>
+         <string>Save Bounding Box Label</string>
         </property>
         <property name="icon">
          <iconset>
