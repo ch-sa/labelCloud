@@ -11,7 +11,8 @@ from ..control.config_manager import config
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
-from ..utils.logger import end_section, green, print_column, red, start_section, yellow
+from ..utils.logger import (end_section, green, print_column, red,
+                            start_section, yellow)
 from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
@@ -47,7 +48,6 @@ class PointCloud(object):
         path: Path,
         points: np.ndarray,
         colors: Optional[np.ndarray] = None,
-        labels: Optional[npt.NDArray[np.int8]] = None,
         segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
         label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
