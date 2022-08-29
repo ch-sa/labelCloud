@@ -1,15 +1,17 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import pkg_resources
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 
 from . import Perspective
 from ..control.config_manager import config
+from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 
@@ -30,22 +32,22 @@ def create_buffer(attributes) -> GL.glGenBuffers:
 
 
 def calculate_init_translation(
-    center: Tuple[float, float, float], mins: np.ndarray, maxs: np.ndarray
-) -> np.ndarray:
+    center: Tuple[float, float, float], mins: npt.NDArray, maxs: npt.NDArray
+) -> Point3D:
     """Calculates the initial translation (x, y, z) of the point cloud. Considers ...
 
     - the point cloud center
     - the point cloud extents
     - the far plane setting (caps zoom)
     """
-    zoom = min(
+    zoom = min(  # type: ignore
         np.linalg.norm(maxs - mins),
         config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
     )
-    return -np.add(center, [0, 0, zoom])
+    return tuple(-np.add(center, [0, 0, zoom]))  # type: ignore
 
 
-def colorize_points(points: np.ndarray, z_min: float, z_max: float) -> np.ndarray:
+def colorize_points(points: npt.NDArray, z_min: float, z_max: float) -> npt.NDArray:
     palette = np.loadtxt(
         pkg_resources.resource_filename("labelCloud.resources", "rocket-palette.txt")
     )
@@ -61,24 +63,26 @@ class PointCloud(object):
     def __init__(
         self,
         path: Path,
-        points: np.ndarray,
-        colors: Optional[np.ndarray] = None,
+        points: npt.NDArray[np.float32],
+        colors: Optional[npt.NDArray[np.float32]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
     ) -> None:
         start_section(f"Loading {path.name}")
-        self.path = path
-        self.points = points
-        self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
+        self.path: Path = path
+        self.points: npt.NDArray = points
+        self.colors: Optional[npt.NDArray] = (
+            colors if type(colors) == np.ndarray and len(colors) > 0 else None
+        )
         self.vbo = None
-        self.center = tuple(np.sum(points[:, i]) / len(points) for i in range(3))
-        self.pcd_mins = np.amin(points, axis=0)
-        self.pcd_maxs = np.amax(points, axis=0)
-        self.init_translation = init_translation or calculate_init_translation(
+        self.center: Point3D = tuple(np.sum(points[:, i]) / len(points) for i in range(3))  # type: ignore
+        self.pcd_mins: npt.NDArray[np.float32] = np.amin(points, axis=0)
+        self.pcd_maxs: npt.NDArray[np.float32] = np.amax(points, axis=0)
+        self.init_translation: Point3D = init_translation or calculate_init_translation(
             self.center, self.pcd_mins, self.pcd_maxs
         )
-        self.init_rotation = init_rotation or (0, 0, 0)
+        self.init_rotation: Rotations3D = init_rotation or (0, 0, 0)
 
         # Point cloud transformations
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
@@ -130,15 +134,15 @@ class PointCloud(object):
         return len(self.points)
 
     def get_no_of_colors(self) -> int:
-        return len(self.colors)
+        return len(self.colors) if self.colors else 0
 
-    def get_rotations(self) -> List[float]:
-        return [self.rot_x, self.rot_y, self.rot_z]
+    def get_rotations(self) -> Rotations3D:
+        return self.rot_x, self.rot_y, self.rot_z
 
-    def get_translations(self) -> List[float]:
-        return [self.trans_x, self.trans_y, self.trans_z]
+    def get_translation(self) -> Translation3D:
+        return self.trans_x, self.trans_y, self.trans_z
 
-    def get_mins_maxs(self) -> Tuple[float, float]:
+    def get_mins_maxs(self) -> Tuple[npt.NDArray, npt.NDArray]:
         return self.pcd_mins, self.pcd_maxs
 
     def get_min_max_height(self) -> Tuple[float, float]:
@@ -174,12 +178,12 @@ class PointCloud(object):
 
     # MANIPULATORS
 
-    def transform_data(self) -> np.ndarray:
+    def transform_data(self) -> npt.NDArray:
         if self.colorless:
             attributes = self.points
         else:
             # Merge coordinates and colors in alternating order
-            attributes = np.concatenate((self.points, self.colors), axis=1)
+            attributes = np.concatenate((self.points, self.colors), axis=1)  # type: ignore
 
         return attributes.flatten()  # flatten to single list
 
@@ -250,14 +254,14 @@ class PointCloud(object):
                 "Number of Colors:",
                 yellow("None")
                 if self.colorless
-                else green(len(self.colors))
-                if len(self.colors) == len(self.points)
-                else red(len(self.colors)),
+                else green(len(self.colors))  # type: ignore
+                if len(self.colors) == len(self.points)  # type: ignore
+                else red(len(self.colors)),  # type: ignore
             ]
         )
-        print_column(["Point Cloud Center:", np.round(self.center, 2)])
-        print_column(["Point Cloud Minimums:", np.round(self.pcd_mins, 2)])
-        print_column(["Point Cloud Maximums:", np.round(self.pcd_maxs, 2)])
+        print_column(["Point Cloud Center:", str(np.round(self.center, 2))])
+        print_column(["Point Cloud Minimums:", str(np.round(self.pcd_mins, 2))])
+        print_column(["Point Cloud Maximums:", str(np.round(self.pcd_maxs, 2))])
         print_column(
-            ["Initial Translation:", np.round(self.init_translation, 2)], last=True
+            ["Initial Translation:", str(np.round(self.init_translation, 2))], last=True
         )

@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Tuple
 
 import numpy as np
+import numpy.typing as npt
 
 from . import BasePointCloudHandler
 
@@ -16,7 +17,7 @@ class NumpyHandler(BasePointCloudHandler):
     def __init__(self) -> None:
         super().__init__()
 
-    def read_point_cloud(self, path: Path) -> Tuple[np.ndarray, None]:
+    def read_point_cloud(self, path: Path) -> Tuple[npt.NDArray, None]:
         """Read point cloud file as array and drop reflection and nan values."""
         super().read_point_cloud(path)
         points = np.fromfile(path, dtype=np.float32)

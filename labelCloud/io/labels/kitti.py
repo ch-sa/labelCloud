@@ -30,10 +30,10 @@ class KittiFormat(BaseLabelFormat):
 
             for line in label_lines:
                 line_elements = line.split()
-                centroid = [float(v) for v in line_elements[11:14]]
+                centroid = tuple([float(v) for v in line_elements[11:14]])
                 if self.transformed:
                     centroid = centroid[2], -centroid[0], centroid[1] - 2.3
-                dimensions = [float(v) for v in line_elements[8:11]]
+                dimensions = tuple([float(v) for v in line_elements[8:11]])
                 if self.transformed:
                     dimensions = dimensions[2], dimensions[1], dimensions[0]
                 bbox = BBox(*centroid, *dimensions)
@@ -61,7 +61,7 @@ class KittiFormat(BaseLabelFormat):
             dimensions = bbox.get_dimensions()
             if self.transformed:
                 dimensions = (dimensions[2], dimensions[1], dimensions[0])
-            dimensions = " ".join([str(self.round_dec(v)) for v in dimensions])
+            dimensions_str = " ".join([str(self.round_dec(v)) for v in dimensions])
             rotation_z = bbox.get_z_rotation()
             if self.transformed:
                 rotation_y = self.round_dec(
@@ -72,7 +72,13 @@ class KittiFormat(BaseLabelFormat):
 
             data += (
                 " ".join(
-                    [obj_type, "0 0 0 0 0 0 0", dimensions, location, str(rotation_y)]
+                    [
+                        obj_type,
+                        "0 0 0 0 0 0 0",
+                        dimensions_str,
+                        location,
+                        str(rotation_y),
+                    ]
                 )
                 + "\n"
             )

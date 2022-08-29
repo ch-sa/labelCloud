@@ -1,6 +1,16 @@
-numpy~=1.21.4
-open3d~=0.14.1
-PyOpenGL~=3.1.5
-PyQt5~=5.14.1
-pytest~=7.1.1
-pytest-qt~=4.0.2
+numpy~=1.23.2
+open3d~=0.15.1
+PyOpenGL~=3.1.6
+PyOpenGL-accelerate~=3.1.5
+PyQt5~=5.15.7
+
+# Testing
+pytest~=7.1.2
+pytest-qt~=4.1.0
+
+# Development
+black~=22.1.0
+mypy~=0.971
+PyQt5-stubs~=5.15.6
+types-setuptools~=57.4.17
+types-pkg-resources~=0.1.3

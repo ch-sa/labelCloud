@@ -19,7 +19,7 @@ def startup_pyqt(qtbot, qapp):
     control = Controller()
     view = GUI(control)
     qtbot.addWidget(view)
-    qtbot.addWidget(view.glWidget)
+    qtbot.addWidget(view.gl_widget)
 
     # Install event filter to catch user interventions
     qapp.installEventFilter(view)

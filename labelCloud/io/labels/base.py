@@ -48,9 +48,11 @@ class BaseLabelFormat(ABC):
         if label_path.suffix == ".json":
             with open(label_path, "w") as write_file:
                 json.dump(data, write_file, indent="\t")
-        else:
+        elif label_path.suffix == ".txt" and isinstance(data, str):
             with open(label_path, "w") as write_file:
                 write_file.write(data)
+        else:
+            raise ValueError("Received unknown label format/ type.")
         return label_path
 
     @abstractmethod

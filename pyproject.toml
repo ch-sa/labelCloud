@@ -4,3 +4,16 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+plugins = "numpy.typing.mypy_plugin"
+exclude = [
+    'tests',
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "OpenGL.*",
+    "open3d.*"
+]
+ignore_missing_imports = true

@@ -4,11 +4,11 @@ three points on the plane that serves as the ground. Then the old point cloud wi
 saved up and the aligned current will overwrite the old.
 """
 import logging
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
-from ..definitions import Mode
+from ..definitions import Mode, Point3D
 from ..utils import oglhelper as ogl
 from .pcd_manager import PointCloudManger
 
@@ -19,20 +19,20 @@ if TYPE_CHECKING:
 class AlignMode(object):
     def __init__(self, pcd_manager: PointCloudManger) -> None:
         self.pcd_manager = pcd_manager
-        self.view: Union[GUI, None] = None
+        self.view: GUI
         self.is_active = False
         self.point_color = (1, 1, 0, 1)
         self.area_color = (1, 1, 0, 0.6)
-        self.plane1 = None
-        self.plane2 = None
-        self.plane3 = None
+        self.plane1: Optional[Point3D] = None
+        self.plane2: Optional[Point3D] = None
+        self.plane3: Optional[Point3D] = None
 
-        self.tmp_p2 = None
-        self.tmp_p3 = None
+        self.tmp_p2: Optional[Point3D] = None
+        self.tmp_p3: Optional[Point3D] = None
 
     def set_view(self, view: "GUI") -> None:
         self.view = view
-        self.view.glWidget.align_mode = self
+        self.view.gl_widget.align_mode = self
 
     def change_activation(self, force=None) -> None:
         if force is not None:
@@ -48,7 +48,7 @@ class AlignMode(object):
                 "Select three points on the plane that should be the floor.",
                 Mode.ALIGNMENT,
             )
-        self.view.action_alignpcd.setChecked(self.is_active)
+        self.view.act_align_pcd.setChecked(self.is_active)
         self.view.activate_draw_modes(
             not self.is_active
         )  # Prevent bbox drawing while aligning
@@ -88,13 +88,14 @@ class AlignMode(object):
             if self.plane1 and (self.plane2 or self.tmp_p2):
                 if self.plane2:
                     self.tmp_p2 = self.plane2
+                assert self.tmp_p2 is not None
                 ogl.draw_points([self.tmp_p2], color=self.point_color)
                 ogl.draw_lines([self.plane1, self.tmp_p2], color=self.point_color)
 
             if self.plane1 and self.plane2 and (self.tmp_p3 or self.plane3):
                 if self.plane3:
                     self.tmp_p3 = self.plane3
-
+                assert self.tmp_p3 is not None
                 ogl.draw_points(
                     [self.plane1, self.plane2, self.tmp_p3], color=self.point_color
                 )
@@ -111,6 +112,9 @@ class AlignMode(object):
             )
 
     def calculate_angles(self) -> None:
+        if self.plane1 is None or self.plane2 is None or self.plane3 is None:
+            raise Exception("Missing point for alignment")
+
         # Calculate plane normal with self.plane1 as origin
         plane_normal = np.cross(
             np.subtract(self.plane2, self.plane1), np.subtract(self.plane3, self.plane1)

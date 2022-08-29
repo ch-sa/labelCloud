@@ -1,16 +1,19 @@
 import logging
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
+
+from PyQt5 import QtGui, QtOpenGL
 
 import numpy as np
+import numpy.typing as npt
 import OpenGL.GL as GL
 from OpenGL import GLU
-from PyQt5 import QtGui, QtOpenGL
 
 from ..control.alignmode import AlignMode
 from ..control.bbox_controller import BoundingBoxController
 from ..control.config_manager import config
 from ..control.drawing_manager import DrawingManager
 from ..control.pcd_manager import PointCloudManger
+from ..definitions.types import Color4f, Point2D, Point3D
 from ..utils import oglhelper
 
 
@@ -20,28 +23,27 @@ class GLWidget(QtOpenGL.QGLWidget):
     FAR_PLANE = config.getfloat("USER_INTERFACE", "far_plane")
 
     def __init__(self, parent=None) -> None:
-        self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
         self.setMouseTracking(
             True
         )  # mouseMoveEvent is called also without button pressed
 
-        self.modelview = None
-        self.projection = None
-        self.DEVICE_PIXEL_RATIO = (
+        self.modelview: Optional[npt.NDArray] = None
+        self.projection: Optional[npt.NDArray] = None
+        self.DEVICE_PIXEL_RATIO: float = (
             self.devicePixelRatioF()
         )  # 1 = normal; 2 = retina display
         oglhelper.DEVICE_PIXEL_RATIO = (
             self.DEVICE_PIXEL_RATIO
         )  # set for helper functions
 
-        self.pcd_manager = None
-        self.bbox_controller = None
+        self.pcd_manager: Optional[PointCloudManger] = None
+        self.bbox_controller: Optional[BoundingBoxController] = None
 
         # Objects to be drawn
-        self.crosshair_pos = None
-        self.crosshair_col = (0, 1, 0, 1)
-        self.selected_side_vertices = []
+        self.crosshair_pos: Point2D = (0, 0)
+        self.crosshair_col: Color4f = (0, 1, 0, 1)
+        self.selected_side_vertices: npt.NDArray = np.array([])
         self.drawing_mode: Union[DrawingManager, None] = None
         self.align_mode: Union[AlignMode, None] = None
 
@@ -65,7 +67,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         logging.info("Intialized widget.")
 
         # Must be written again, due to buffer clearing
-        self.pcd_manager.pointcloud.write_vbo()
+        self.pcd_manager.pointcloud.write_vbo()  # type: ignore
 
     def resizeGL(self, width, height) -> None:
         logging.info("Resized widget.")
@@ -82,7 +84,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glPushMatrix()  # push the current matrix to the current stack
 
         # Draw point cloud
-        self.pcd_manager.pointcloud.draw_pointcloud()
+        self.pcd_manager.pointcloud.draw_pointcloud()  # type: ignore
 
         # Get actual matrices for click unprojection
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
@@ -92,15 +94,15 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDepthMask(GL.GL_FALSE)
 
         if config.getboolean("USER_INTERFACE", "show_floor"):
-            oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)
+            oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)  # type: ignore
 
         # Draw crosshair/ cursor in 3D world
         if self.crosshair_pos:
-            cx, cy, cz = self.get_world_coords(*self.crosshair_pos, correction=True)
+            cx, cy, cz = self.get_world_coords(*self.crosshair_pos, correction=True)  # type: ignore
             oglhelper.draw_crosshair(cx, cy, cz, color=self.crosshair_col)
 
-        if self.drawing_mode.has_preview():
-            self.drawing_mode.draw_preview()
+        if self.drawing_mode.has_preview():  # type: ignore
+            self.drawing_mode.draw_preview()  # type: ignore
 
         if self.align_mode is not None:
             if self.align_mode.is_active:
@@ -113,20 +115,20 @@ class GLWidget(QtOpenGL.QGLWidget):
         GL.glDepthMask(GL.GL_TRUE)
 
         # Draw active bbox
-        if self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().draw_bbox(highlighted=True)
+        if self.bbox_controller.has_active_bbox():  # type: ignore
+            self.bbox_controller.get_active_bbox().draw_bbox(highlighted=True)  # type: ignore
             if config.getboolean("USER_INTERFACE", "show_orientation"):
-                self.bbox_controller.get_active_bbox().draw_orientation()
+                self.bbox_controller.get_active_bbox().draw_orientation()  # type: ignore
 
         # Draw labeled bboxes
-        for bbox in self.bbox_controller.bboxes:
+        for bbox in self.bbox_controller.bboxes:  # type: ignore
             bbox.draw_bbox()
 
         GL.glPopMatrix()  # restore the previous modelview matrix
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(
-        self, x: int, y: int, z: float = None, correction: bool = False
+        self, x: float, y: float, z: float = None, correction: bool = False
     ) -> Tuple[float, float, float]:
         x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
         y *= self.DEVICE_PIXEL_RATIO

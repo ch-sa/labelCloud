@@ -1,3 +1,5 @@
+#  type: ignore
+
 import logging
 from pathlib import Path
 

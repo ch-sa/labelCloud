@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
 
 class BasePointCloudHandler(object, metaclass=SingletonABCMeta):
-    EXTENSIONS = set()  # should be set in subclasses
+    EXTENSIONS: Set[str] = set()  # should be set in subclasses
 
     @abstractmethod
-    def read_point_cloud(self, path: Path) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+    def read_point_cloud(self, path: Path) -> Tuple[np.ndarray, Optional[np.ndarray]]:  # type: ignore
         """Read a point cloud file and return only the points and colors as array."""
         logging.info(
             blue("Loading point cloud from %s using %s."), path, self.__class__.__name__
@@ -41,6 +41,6 @@ class BasePointCloudHandler(object, metaclass=SingletonABCMeta):
             if file_extension in subclass.EXTENSIONS:
                 return subclass()
 
-        logging.error(
+        raise ValueError(
             "No point cloud handler found for file extension %s.", file_extension
         )

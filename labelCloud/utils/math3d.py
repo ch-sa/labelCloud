@@ -1,22 +1,29 @@
 import logging
 import math
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
+import numpy.typing as npt
+
+from ..definitions import Point3D, Rotations3D
 
 
 # LENGTH
-def vector_length(point: List[float]) -> float:
-    return np.linalg.norm(point)
+def vector_length(point: Union[Point3D, npt.ArrayLike]) -> float:
+    return float(np.linalg.norm(point))
 
 
 # TRANSLATION
 def translate_point(
-    point: List[float], dx: float, dy: float, dz: float, backwards: bool = False
-) -> np.array:
+    point: Union[Point3D, npt.NDArray],
+    dx: float,
+    dy: float,
+    dz: float,
+    backwards: bool = False,
+) -> Point3D:
     if backwards:
         dx, dy, dz = (-dx, -dy, -dz)
-    return np.add(np.array(point), np.array([dx, dy, dz]))
+    return tuple(np.add(np.array(point), np.array([dx, dy, dz])))  # type: ignore
 
 
 # ROTATION
@@ -30,9 +37,7 @@ def radians_to_degrees(radians: float) -> float:
     return radians * (180 / np.pi)
 
 
-def rotate_around_x(
-    point: List[float], angle: float, degrees: bool = False
-) -> np.array:
+def rotate_around_x(point: Point3D, angle: float, degrees: bool = False) -> npt.NDArray:
     if degrees:
         angle = degrees_to_radians(angle)
     r_matrix = np.array(
@@ -46,8 +51,8 @@ def rotate_around_x(
 
 
 def rotate_around_y(
-    point: List[float], angle: float, degrees: bool = False
-) -> np.array:
+    point: npt.NDArray, angle: float, degrees: bool = False
+) -> npt.NDArray:
     if degrees:
         angle = degrees_to_radians(angle)
     r_matrix = np.array(
@@ -61,8 +66,8 @@ def rotate_around_y(
 
 
 def rotate_around_z(
-    point: List[float], angle: float, degrees: bool = False
-) -> np.array:
+    point: npt.NDArray, angle: float, degrees: bool = False
+) -> npt.NDArray:
     if degrees:
         angle = degrees_to_radians(angle)
     r_matrix = np.array(
@@ -76,12 +81,12 @@ def rotate_around_z(
 
 
 def rotate_around_zyx(
-    point: List[float],
+    point: Point3D,
     x_angle: float,
     y_angle: float,
     z_angle: float,
     degrees: bool = False,
-) -> np.array:
+) -> npt.NDArray:  # TODO: Return Point3D?
     return rotate_around_z(
         rotate_around_y(rotate_around_x(point, x_angle, degrees), y_angle, degrees),
         z_angle,
@@ -90,8 +95,8 @@ def rotate_around_zyx(
 
 
 def rotate_bbox_around_center(
-    vertices: List[List[float]], center: List[float], rotations: List[float]
-) -> List[List[float]]:
+    vertices: List[Point3D], center: Point3D, rotations: Rotations3D
+) -> List[Point3D]:
     rotated_vertices = []
     for vertex in vertices:
         centered_vertex = translate_point(vertex, *center, backwards=True)
@@ -104,7 +109,7 @@ def rotate_bbox_around_center(
 
 
 def vertices2rotations(
-    vertices: List[List[float]], centroid: List[float]
+    vertices: List[Point3D], centroid: Point3D
 ) -> Tuple[float, float, float]:
     x_rotation, y_rotation, z_rotation = (0.0, 0.0, 0.0)
 
@@ -146,8 +151,8 @@ def vertices2rotations(
 
 
 def get_line_perpendicular(
-    line_start: List[float], line_end: List[float], point: List[float]
-) -> Tuple[tuple, tuple]:
+    line_start: Point3D, line_end: Point3D, point: Point3D
+) -> Tuple[Point3D, tuple]:
     """Get line perpendicular to point parallel to x-y-plane
 
     Returns:
@@ -170,7 +175,7 @@ def get_line_perpendicular(
 
 # Calculates intersection between vector (p0, p1) and plane (p_co, p_no)
 def get_line_plane_intersection(
-    p0: List[float], p1: List[float], p_co: List[float], p_no: List[float], epsilon=1e-6
+    p0: Point3D, p1: Point3D, p_co: Point3D, p_no: Point3D, epsilon=1e-6
 ) -> Optional[np.ndarray]:
     """Calculate the intersection between a point and a plane.
 
