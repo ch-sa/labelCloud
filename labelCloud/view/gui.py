@@ -155,7 +155,9 @@ class GUI(QtWidgets.QMainWindow):
 
         # 2d image viewer
         self.button_show_image: QtWidgets.QPushButton
-        self.button_show_image.setVisible(config.getboolean("USER_INTERFACE", "show_2d_image"))
+        self.button_show_image.setVisible(
+            config.getboolean("USER_INTERFACE", "show_2d_image")
+        )
 
         # label mode selection
         self.button_pick_bbox: QtWidgets.QPushButton
@@ -325,9 +327,7 @@ class GUI(QtWidgets.QMainWindow):
         self.act_show_floor.toggled.connect(set_floor_visibility)
         self.act_show_orientation.toggled.connect(set_orientation_visibility)
         self.act_save_perspective.toggled.connect(set_keep_perspective)
-        self.act_align_pcd.toggled.connect(
-            self.controller.align_mode.change_activation
-        )
+        self.act_align_pcd.toggled.connect(self.controller.align_mode.change_activation)
         self.act_change_settings.triggered.connect(self.show_settings_dialog)
 
     def set_checkbox_states(self) -> None:

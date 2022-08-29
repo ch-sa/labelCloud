@@ -13,8 +13,7 @@ from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
-from ..utils.logger import (end_section, green, print_column, red,
-                            start_section, yellow)
+from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
