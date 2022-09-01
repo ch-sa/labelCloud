@@ -46,7 +46,7 @@ class KittiFormat(BaseLabelFormat):
                 bbox.set_classname(line_elements[0])
                 labels.append(bbox)
             logging.info("Imported %s labels from %s." % (len(label_lines), label_path))
-        return labels
+        return self.colorize_labels(labels)
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
         data = str()

@@ -3,34 +3,20 @@
         {
             "name": "unassigned",
             "id": 0,
-            "color": "#d3d3d3",
-            "default": false
+            "color": "#9DA2AB"
         },
         {
-            "name": "person",
+            "name": "cart",
             "id": 1,
-            "color": "#ff0000",
-            "default": true
+            "color": "FFAB76"
         },
         {
-            "name": "car",
+            "name": "box",
             "id": 2,
-            "color": "#00ff00",
-            "default": false
-        },
-        {
-            "name": "wall",
-            "id": 3,
-            "color": "#0000ff",
-            "default": false
-        },
-        {
-            "name": "floor",
-            "id": 4,
-            "color": "#ffff00",
-            "default": false
+            "color": "FF6363"
         }
     ],
-    "type": "segmentation",
-    "format": "binary"
+    "default": 1,
+    "type": "object_detection",
+    "format": "centroid_abs"
 }

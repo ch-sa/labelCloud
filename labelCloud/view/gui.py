@@ -579,6 +579,25 @@ class GUI(QtWidgets.QMainWindow):
             )
             logging.info("Changed label folder to %s!" % path_to_folder)
 
+    def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
+        object_classes = set(
+            self.controller.pcd_manager.label_manager.label_strategy.config.get_classes()
+        )  # TODO: property
+
+        object_classes.update(new_classes or [])
+        existing_classes = {
+            action.text() for action in self.actiongroup_default_class.actions()
+        }
+        for object_class in object_classes.difference(existing_classes):
+            action = self.actiongroup_default_class.addAction(
+                object_class
+            )  # TODO: Add limiter for number of classes
+            action.setCheckable(True)
+            if object_class == config.get("LABEL", "std_object_class"):
+                action.setChecked(True)
+
+        self.act_set_default_class.addActions(self.actiongroup_default_class.actions())
+
     def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())
         logging.info("Changed default object class to %s.", action.text())
