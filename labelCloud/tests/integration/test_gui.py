@@ -1,12 +1,17 @@
 import logging
 import os
+from typing import Tuple
 
-from labelCloud.control.config_manager import config
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAbstractSlider
 
+from labelCloud.control.config_manager import config
+from labelCloud.control.controller import Controller
+from labelCloud.model.bbox import BBox
+from labelCloud.view.gui import GUI
 
-def test_gui(qtbot, startup_pyqt):
+
+def test_gui(qtbot, startup_pyqt: Tuple[GUI, Controller]):
     view, controller = startup_pyqt
 
     assert len(controller.pcd_manager.pcds) > 0
@@ -17,15 +22,17 @@ def test_gui(qtbot, startup_pyqt):
     bbox = controller.bbox_controller.bboxes[0]
     bbox.center = (0, 0, 0)
     controller.bbox_controller.set_active_bbox(0)
-    qtbot.mouseClick(view.button_right, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_up, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_backward, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_right, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_up, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_backward, QtCore.Qt.LeftButton, delay=0)
     assert bbox.center == (0.03, 0.03, 0.03)
 
     view.close()
 
 
-def test_bbox_control_with_buttons(qtbot, startup_pyqt, bbox):
+def test_bbox_control_with_buttons(
+    qtbot, startup_pyqt: Tuple[GUI, Controller], bbox: BBox
+):
     view, controller = startup_pyqt
 
     # Prepare test bounding box
@@ -35,34 +42,36 @@ def test_bbox_control_with_buttons(qtbot, startup_pyqt, bbox):
 
     # Translation
     translation_step = config.getfloat("LABEL", "std_translation")
-    qtbot.mouseClick(view.button_right, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_up, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_backward, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_right, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_up, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_backward, QtCore.Qt.LeftButton, delay=0)
     assert bbox.center == (translation_step, translation_step, translation_step)
-    qtbot.mouseClick(view.button_left, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_down, QtCore.Qt.LeftButton, delay=0)
-    qtbot.mouseClick(view.button_forward, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(view.button_bbox_left, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_down, QtCore.Qt.LeftButton, delay=0)
+    qtbot.mouseClick(view.button_bbox_forward, QtCore.Qt.LeftButton)
     logging.info("BBOX: %s" % [str(c) for c in bbox.get_center()])
     assert bbox.center == (0.00, 0.00, 0.00)
 
     # Scaling
     scaling_step = config.getfloat("LABEL", "std_scaling")
-    qtbot.mouseClick(view.button_incr_dim, QtCore.Qt.LeftButton)
+    qtbot.mouseClick(view.button_bbox_increase_dimension, QtCore.Qt.LeftButton)
     assert bbox.length == old_length + scaling_step
     assert bbox.width == old_width / old_length * bbox.length
     assert bbox.height == old_height / old_length * bbox.length
 
     # Rotation
     # TODO: Make dial configureable?
-    view.dial_zrotation.triggerAction(QAbstractSlider.SliderSingleStepAdd)
+    view.dial_bbox_z_rotation.triggerAction(QAbstractSlider.SliderSingleStepAdd)
     assert bbox.z_rotation == 1
-    view.dial_zrotation.triggerAction(QAbstractSlider.SliderPageStepAdd)
+    view.dial_bbox_z_rotation.triggerAction(QAbstractSlider.SliderPageStepAdd)
     assert bbox.z_rotation == 11
 
     view.close()
 
 
-def test_bbox_control_with_keyboard(qtbot, startup_pyqt, qapp, bbox):
+def test_bbox_control_with_keyboard(
+    qtbot, startup_pyqt: Tuple[GUI, Controller], qapp, bbox: BBox
+):
     view, controller = startup_pyqt
 
     # Prepare test bounding box

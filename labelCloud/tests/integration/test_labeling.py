@@ -1,17 +1,22 @@
-import pytest
-from labelCloud.control.config_manager import config
-from labelCloud.model.bbox import BBox
+from typing import Tuple
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
 
+import pytest
+from labelCloud.control.config_manager import config
+from labelCloud.control.controller import Controller
+from labelCloud.model.bbox import BBox
+from labelCloud.view.gui import GUI
 
-def test_picking_mode(qtbot, startup_pyqt):
+
+def test_picking_mode(qtbot, startup_pyqt: Tuple[GUI, Controller]):
     view, control = startup_pyqt
     control.bbox_controller.bboxes = []
 
-    qtbot.mouseClick(view.button_activate_picking, QtCore.Qt.LeftButton, delay=1000)
+    qtbot.mouseClick(view.button_pick_bbox, QtCore.Qt.LeftButton, delay=1000)
     qtbot.mouseClick(
-        view.glWidget, QtCore.Qt.LeftButton, pos=QPoint(500, 500), delay=1000
+        view.gl_widget, QtCore.Qt.LeftButton, pos=QPoint(500, 500), delay=1000
     )
 
     assert len(control.bbox_controller.bboxes) == 1
@@ -26,23 +31,23 @@ def test_picking_mode(qtbot, startup_pyqt):
     assert new_bbox.z_rotation == new_bbox.y_rotation == new_bbox.x_rotation == 0
 
 
-def test_spanning_mode(qtbot, startup_pyqt):
+def test_spanning_mode(qtbot, startup_pyqt: Tuple[GUI, Controller]):
     view, control = startup_pyqt
     control.bbox_controller.bboxes = []
     config.set("USER_INTERFACE", "z_rotation_only", "True")
 
-    qtbot.mouseClick(view.button_activate_spanning, QtCore.Qt.LeftButton, delay=10)
+    qtbot.mouseClick(view.button_span_bbox, QtCore.Qt.LeftButton, delay=10)
     qtbot.mouseClick(
-        view.glWidget, QtCore.Qt.LeftButton, pos=QPoint(431, 475), delay=20
+        view.gl_widget, QtCore.Qt.LeftButton, pos=QPoint(431, 475), delay=20
     )
     qtbot.mouseClick(
-        view.glWidget, QtCore.Qt.LeftButton, pos=QPoint(506, 367), delay=20
+        view.gl_widget, QtCore.Qt.LeftButton, pos=QPoint(506, 367), delay=20
     )
     qtbot.mouseClick(
-        view.glWidget, QtCore.Qt.LeftButton, pos=QPoint(572, 439), delay=20
+        view.gl_widget, QtCore.Qt.LeftButton, pos=QPoint(572, 439), delay=20
     )
     qtbot.mouseClick(
-        view.glWidget, QtCore.Qt.LeftButton, pos=QPoint(607, 556), delay=20
+        view.gl_widget, QtCore.Qt.LeftButton, pos=QPoint(607, 556), delay=20
     )
 
     assert len(control.bbox_controller.bboxes) == 1
