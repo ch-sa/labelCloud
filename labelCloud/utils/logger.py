@@ -106,15 +106,15 @@ def end_section() -> None:
     pass
 
 
-rows = []
+ROWS: List[List[str]] = []
 
 
 def print_column(column_values: List[str], last: bool = False) -> None:
-    global rows
-    rows.append(column_values)
+    global ROWS
+    ROWS.append(column_values)
 
     if last:
-        col_width = max(len(str(word)) for row in rows for word in row) + 2  # padding
-        for row in rows:
+        col_width = max(len(str(word)) for row in ROWS for word in row) + 2  # padding
+        for row in ROWS:
             logging.info("".join(str(word).ljust(col_width) for word in row))
-        rows = []
+        ROWS = []

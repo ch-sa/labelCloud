@@ -125,9 +125,7 @@ class GUI(QtWidgets.QMainWindow):
 
         # Settings
         self.act_z_rotation_only: QtWidgets.QAction
-        self.action_colorwithlabel: QtWidgets.QAction = self.findChild(
-            QtWidgets.QAction, "action_colorwithlabel"
-        )
+        self.act_color_with_label: QtWidgets.QAction
         self.act_show_floor: QtWidgets.QAction
         self.act_show_orientation: QtWidgets.QAction
         self.act_save_perspective: QtWidgets.QAction
@@ -331,7 +329,7 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.reset
         )
         self.act_z_rotation_only.toggled.connect(set_zrotation_only)
-        self.action_colorwithlabel.toggled.connect(set_color_with_label)
+        self.act_color_with_label.toggled.connect(set_color_with_label)
         self.act_show_floor.toggled.connect(set_floor_visibility)
         self.act_show_orientation.toggled.connect(set_orientation_visibility)
         self.act_save_perspective.toggled.connect(set_keep_perspective)
@@ -348,7 +346,7 @@ class GUI(QtWidgets.QMainWindow):
         self.act_z_rotation_only.setChecked(
             config.getboolean("USER_INTERFACE", "z_rotation_only")
         )
-        self.action_colorwithlabel.setChecked(
+        self.act_color_with_label.setChecked(
             config.getboolean("POINTCLOUD", "color_with_label")
         )
 
