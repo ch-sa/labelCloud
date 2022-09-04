@@ -156,8 +156,8 @@ class BBox(object):
 
         GL.glPushMatrix()
         bbox_color = self.color or (0, 0, 1, 1)
-        if highlighted:
-            bbox_color = (0, 1, 0, 1)
+        # if highlighted:
+        #     bbox_color = (0, 1, 0, 1)
 
         vertices = self.get_vertices()
         drawing_sequence = []

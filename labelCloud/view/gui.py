@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Set
@@ -187,6 +188,15 @@ class GUI(QtWidgets.QMainWindow):
         self.button_delete_label: QtWidgets.QPushButton
         self.button_assign_label: QtWidgets.QPushButton
 
+        # label list actions
+        self.act_rename_class = QtWidgets.QAction("Rename class")
+        self.act_change_class_color = QtWidgets.QAction("Change class color")
+        self.act_delete_class = QtWidgets.QAction("Delete label")
+        self.label_list.addActions(
+            {self.act_rename_class, self.act_change_class_color, self.act_delete_class}
+        )
+        self.label_list.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
         self.edit_pos_y: QtWidgets.QLineEdit
@@ -288,6 +298,11 @@ class GUI(QtWidgets.QMainWindow):
         self.button_assign_label.clicked.connect(
             self.controller.bbox_controller.assign_point_label_in_active_box
         )
+        # context menu
+        self.act_delete_class.triggered.connect(
+            self.controller.bbox_controller.delete_current_bbox
+        )
+        self.act_change_class_color.triggered.connect(self.change_label_color)
 
         # open_2D_img
         self.button_show_image.pressed.connect(lambda: self.show_2d_image())
@@ -617,3 +632,7 @@ class GUI(QtWidgets.QMainWindow):
     def update_dialog_pcd(self, value: int) -> None:
         pcd_path = self.controller.pcd_manager.pcds[value]
         self.input_pcd.setLabelText(f"Insert Point Cloud number: {pcd_path.name}")
+
+    def change_label_color(self, *args, **kwargs):
+        bbox = self.controller.bbox_controller.get_active_bbox()
+        bbox.color = (random.random(), random.random(), random.random(), 1)
