@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Dict, Type
+from typing import Dict, Set, Type
 
 import numpy as np
 import numpy.typing as npt
@@ -9,7 +9,7 @@ from ...utils.singleton import SingletonABCMeta
 
 
 class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
-    EXTENSIONS = set()  # should be set in subclasses
+    EXTENSIONS: Set[str] = set()  # should be set in subclasses
 
     def __init__(self, label_definition: Dict[str, int]) -> None:
         self.label_definition = label_definition
@@ -52,3 +52,6 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
         for subclass in cls.__subclasses__():
             if file_extension in subclass.EXTENSIONS:
                 return subclass
+        raise NotImplementedError(
+            f"{file_extension} is not supported for segmentation labels."
+        )

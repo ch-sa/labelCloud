@@ -85,7 +85,7 @@ class BoundingBoxController(object):
             self.bboxes.append(bbox)
             self.set_active_bbox(self.bboxes.index(bbox))
             self.view.current_class_dropdown.setCurrentText(
-                self.get_active_bbox().classname
+                self.get_active_bbox().classname  # type: ignore
             )
             self.view.status_manager.update_status(
                 "Bounding Box added, it can now be corrected.", Mode.CORRECTION
@@ -310,7 +310,7 @@ class BoundingBoxController(object):
     def update_curr_class(self) -> None:
         if self.has_active_bbox():
             self.view.current_class_dropdown.setCurrentText(
-                self.get_active_bbox().classname
+                self.get_active_bbox().classname  # type: ignore
             )
         else:
             self.view.controller.pcd_manager.populate_class_dropdown()

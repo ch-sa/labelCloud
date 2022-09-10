@@ -1,7 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -42,7 +42,7 @@ class PointCloud(object):
     def __init__(
         self,
         path: Path,
-        points: np.ndarray,
+        points: npt.NDArray[np.float32],
         label_definition: Dict[str, int],
         colors: Optional[np.ndarray] = None,
         segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
@@ -94,7 +94,6 @@ class PointCloud(object):
                 logging.info(
                     "Generated colors for colorless point cloud based on `colorless_color`."
                 )
-
         if write_buffer:
             self.create_buffers()
 
@@ -108,6 +107,7 @@ class PointCloud(object):
 
     def create_buffers(self) -> None:
         """Create 3 different buffers holding points, colors and label colors information"""
+        self.colors = cast(npt.NDArray[np.float32], self.colors)
         (
             self.position_vbo,
             self.color_vbo,
@@ -125,9 +125,10 @@ class PointCloud(object):
     @property
     def label_colors(self) -> npt.NDArray[np.float32]:
         """blend the points with label color map"""
+        self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
             label_one_hot = np.eye(len(self.label_definition))[self.labels]
-            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)
+            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)  # type: ignore
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
             return self.colors
@@ -193,13 +194,11 @@ class PointCloud(object):
         return config.getboolean("POINTCLOUD", "color_with_label")
 
     @property
-    def int2label(self) -> Optional[Dict[int, str]]:
-        if self.label_definition is not None:
-            return {ind: label for label, ind in self.label_definition.items()}
-        return None
+    def int2label(self) -> Dict[int, str]:
+        return {ind: label for label, ind in self.label_definition.items()}
 
     @property
-    def label_counts(self) -> Optional[Dict[int, int]]:
+    def label_counts(self) -> Optional[Dict[str, int]]:
         if self.labels is not None and self.label_definition:
 
             counter = {k: 0 for k in self.label_definition}

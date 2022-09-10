@@ -247,8 +247,13 @@ class PointCloudManger(object):
                 center=(0, 0, 0),
             )
 
+        points, colors = Open3DHandler().to_point_cloud(o3d_pointcloud)
         self.pointcloud = PointCloud(
-            self.pcd_path, *Open3DHandler().to_point_cloud(o3d_pointcloud)
+            self.pcd_path,
+            points,
+            self.pointcloud.label_definition,
+            colors,
+            self.pointcloud.labels,
         )
         self.pointcloud.to_file()
 
