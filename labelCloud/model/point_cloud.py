@@ -3,14 +3,13 @@ import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
-import pkg_resources
-
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
+from ..io import read_label_definition
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
@@ -44,9 +43,9 @@ class PointCloud(object):
         self,
         path: Path,
         points: np.ndarray,
+        label_definition: Dict[str, int],
         colors: Optional[np.ndarray] = None,
         segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
-        label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
@@ -55,11 +54,11 @@ class PointCloud(object):
         self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
+        self.label_definition = label_definition
 
-        self.labels = self.label_definition = self.label_color_map = None
+        self.labels = self.label_color_map = None
         if self.SEGMENTATION:
             self.labels = segmentation_labels
-            self.label_definition = label_definition
             self.label_color_map = get_distinct_colors(len(label_definition))
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
@@ -149,30 +148,30 @@ class PointCloud(object):
             path.suffix
         ).read_point_cloud(path=path)
 
-        labels = label_def = None
+        label_definition = read_label_definition(
+            config.getpath("FILE", "label_folder")
+            / Path(f"schema/label_definition.json")
+        )
+        labels = None
         if cls.SEGMENTATION:
 
             label_path = config.getpath("FILE", "label_folder") / Path(
                 f"segmentation/{path.stem}.bin"
             )
-            label_defintion_path = config.getpath("FILE", "label_folder") / Path(
-                f"segmentation/schema/label_definition.json"
-            )
-
             logging.info(f"Loading segmentation labels from {label_path}.")
             seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
-                label_definition_path=label_defintion_path
+                label_definition=label_definition
             )
-            label_def, labels = seg_handler.read_or_create_labels(
+            labels = seg_handler.read_or_create_labels(
                 label_path=label_path, num_points=points.shape[0]
             )
 
         return cls(
             path,
             points,
+            label_definition,
             colors,
             labels,
-            label_def,
             init_translation,
             init_rotation,
             write_buffer,

@@ -7,10 +7,9 @@ from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
-import pkg_resources
-
 import numpy as np
 import open3d as o3d
+import pkg_resources
 
 from ..definitions.types import Point3D
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
@@ -41,7 +40,9 @@ class PointCloudManger(object):
 
         # Point cloud control
         self.pointcloud: Optional[PointCloud] = None
-        self.collected_object_classes: Set[str] = set()
+        self.collected_object_classes: Set[
+            str
+        ] = set()  # TODO: this should integrate with the new label definition setup.
         self.saved_perspective: Optional[Perspective] = None
 
     @property
@@ -134,6 +135,13 @@ class PointCloudManger(object):
         else:
             raise Exception("No point cloud left for loading!")
 
+    def populate_class_dropdown(self):
+        # Add point label list
+        print(self.pointcloud.points)
+        self.view.current_class_dropdown.clear()
+        for key in self.pointcloud.label_definition:
+            self.view.current_class_dropdown.addItem(key)
+
     def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.pcd_path)
         logging.info(green("Loaded %s bboxes!" % len(bboxes)))
@@ -150,8 +158,6 @@ class PointCloudManger(object):
             self.collected_object_classes.update(
                 {bbox.get_classname() for bbox in bboxes}
             )
-            self.view.update_label_completer(self.collected_object_classes)
-            self.view.update_default_object_class_menu(self.collected_object_classes)
         else:
             logging.warning("No point clouds to save labels for!")
 
