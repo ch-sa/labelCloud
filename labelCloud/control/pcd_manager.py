@@ -231,7 +231,7 @@ class PointCloudManger(object):
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
             np.multiply(axis, angle)
         )
-        o3d_pointcloud = Open3DHandler().to_open3d_point_cloud(self.pointcloud)
+        o3d_pointcloud = Open3DHandler.to_open3d_point_cloud(self.pointcloud)
         o3d_pointcloud.rotate(rotation_matrix, center=tuple(rotation_point))
         o3d_pointcloud.translate([0, 0, -rotation_point[2]])
         logging.info("Rotating point cloud...")
@@ -247,7 +247,7 @@ class PointCloudManger(object):
                 center=(0, 0, 0),
             )
 
-        points, colors = Open3DHandler().to_point_cloud(o3d_pointcloud)
+        points, colors = Open3DHandler.to_point_cloud(o3d_pointcloud)
         self.pointcloud = PointCloud(
             self.pcd_path,
             points,
