@@ -14,7 +14,7 @@
 !labelCloud/resources/examples/exemplary.ply
 !labelCloud/resources/examples/exemplary.json
 !labelCloud/resources/labelCloud_icon.pcd
-!labels/segmentation/schema/label_definition.json
+!labels/schema/label_definition.json
 !labels/segmentation/exemplary.bin
 
 # ---------------------------------------------------------------------------- #

@@ -1,0 +1,7 @@
+{
+    "unassigned": 0,
+    "person": 1,
+    "cart": 2,
+    "wall": 3,
+    "floor": 4
+}
