@@ -40,7 +40,9 @@ class PointCloudManger(object):
 
         # Point cloud control
         self.pointcloud: Optional[PointCloud] = None
-        self.collected_object_classes: Set[str] = set()
+        self.collected_object_classes: Set[
+            str
+        ] = set()  # TODO: this should integrate with the new label definition setup.
         self.saved_perspective: Optional[Perspective] = None
 
     @property
@@ -133,6 +135,13 @@ class PointCloudManger(object):
         else:
             raise Exception("No point cloud left for loading!")
 
+    def populate_class_dropdown(self) -> None:
+        # Add point label list
+        self.view.current_class_dropdown.clear()
+        assert self.pointcloud is not None
+        for key in self.pointcloud.label_definition:
+            self.view.current_class_dropdown.addItem(key)
+
     def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.pcd_path)
         logging.info(green("Loaded %s bboxes!" % len(bboxes)))
@@ -149,8 +158,6 @@ class PointCloudManger(object):
             self.collected_object_classes.update(
                 {bbox.get_classname() for bbox in bboxes}
             )
-            self.view.update_label_completer(self.collected_object_classes)
-            self.view.update_default_object_class_menu(self.collected_object_classes)
         else:
             logging.warning("No point clouds to save labels for!")
 
@@ -224,7 +231,7 @@ class PointCloudManger(object):
         rotation_matrix = o3d.geometry.get_rotation_matrix_from_axis_angle(
             np.multiply(axis, angle)
         )
-        o3d_pointcloud = Open3DHandler().to_open3d_point_cloud(self.pointcloud)
+        o3d_pointcloud = Open3DHandler.to_open3d_point_cloud(self.pointcloud)
         o3d_pointcloud.rotate(rotation_matrix, center=tuple(rotation_point))
         o3d_pointcloud.translate([0, 0, -rotation_point[2]])
         logging.info("Rotating point cloud...")
@@ -240,8 +247,13 @@ class PointCloudManger(object):
                 center=(0, 0, 0),
             )
 
+        points, colors = Open3DHandler.to_point_cloud(o3d_pointcloud)
         self.pointcloud = PointCloud(
-            self.pcd_path, *Open3DHandler().to_point_cloud(o3d_pointcloud)
+            self.pcd_path,
+            points,
+            self.pointcloud.label_definition,
+            colors,
+            self.pointcloud.labels,
         )
         self.pointcloud.to_file()
 

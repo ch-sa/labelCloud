@@ -1,9 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple
-
-import pkg_resources
+from typing import Dict, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -11,6 +9,7 @@ import OpenGL.GL as GL
 
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
+from ..io import read_label_definition
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
@@ -43,10 +42,10 @@ class PointCloud(object):
     def __init__(
         self,
         path: Path,
-        points: np.ndarray,
+        points: npt.NDArray[np.float32],
+        label_definition: Dict[str, int],
         colors: Optional[np.ndarray] = None,
         segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
-        label_definition: Optional[Dict[str, int]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
         init_rotation: Optional[Tuple[float, float, float]] = None,
         write_buffer: bool = True,
@@ -55,11 +54,11 @@ class PointCloud(object):
         self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
+        self.label_definition = label_definition
 
-        self.labels = self.label_definition = self.label_color_map = None
+        self.labels = self.label_color_map = None
         if self.SEGMENTATION:
             self.labels = segmentation_labels
-            self.label_definition = label_definition
             self.label_color_map = get_distinct_colors(len(label_definition))
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
@@ -95,7 +94,6 @@ class PointCloud(object):
                 logging.info(
                     "Generated colors for colorless point cloud based on `colorless_color`."
                 )
-
         if write_buffer:
             self.create_buffers()
 
@@ -109,6 +107,7 @@ class PointCloud(object):
 
     def create_buffers(self) -> None:
         """Create 3 different buffers holding points, colors and label colors information"""
+        self.colors = cast(npt.NDArray[np.float32], self.colors)
         (
             self.position_vbo,
             self.color_vbo,
@@ -126,9 +125,10 @@ class PointCloud(object):
     @property
     def label_colors(self) -> npt.NDArray[np.float32]:
         """blend the points with label color map"""
+        self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
             label_one_hot = np.eye(len(self.label_definition))[self.labels]
-            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)
+            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)  # type: ignore
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
             return self.colors
@@ -149,30 +149,30 @@ class PointCloud(object):
             path.suffix
         ).read_point_cloud(path=path)
 
-        labels = label_def = None
+        label_definition = read_label_definition(
+            config.getpath("FILE", "label_folder")
+            / Path(f"schema/label_definition.json")
+        )
+        labels = None
         if cls.SEGMENTATION:
 
             label_path = config.getpath("FILE", "label_folder") / Path(
                 f"segmentation/{path.stem}.bin"
             )
-            label_defintion_path = config.getpath("FILE", "label_folder") / Path(
-                f"segmentation/schema/label_definition.json"
-            )
-
             logging.info(f"Loading segmentation labels from {label_path}.")
             seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
-                label_definition_path=label_defintion_path
+                label_definition=label_definition
             )
-            label_def, labels = seg_handler.read_or_create_labels(
+            labels = seg_handler.read_or_create_labels(
                 label_path=label_path, num_points=points.shape[0]
             )
 
         return cls(
             path,
             points,
+            label_definition,
             colors,
             labels,
-            label_def,
             init_translation,
             init_rotation,
             write_buffer,
@@ -194,13 +194,11 @@ class PointCloud(object):
         return config.getboolean("POINTCLOUD", "color_with_label")
 
     @property
-    def int2label(self) -> Optional[Dict[int, str]]:
-        if self.label_definition is not None:
-            return {ind: label for label, ind in self.label_definition.items()}
-        return None
+    def int2label(self) -> Dict[int, str]:
+        return {ind: label for label, ind in self.label_definition.items()}
 
     @property
-    def label_counts(self) -> Optional[Dict[int, int]]:
+    def label_counts(self) -> Optional[Dict[str, int]]:
         if self.labels is not None and self.label_definition:
 
             counter = {k: 0 for k in self.label_definition}
