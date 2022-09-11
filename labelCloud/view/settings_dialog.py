@@ -52,9 +52,6 @@ class SettingsDialog(QDialog):
             LabelManager.LABEL_FORMATS
         )  # TODO: Fix visualization
         self.comboBox_labelformat.setCurrentText(config.get("LABEL", "label_format"))
-        self.plainTextEdit_objectclasses.setPlainText(
-            config.get("LABEL", "object_classes")
-        )
         self.lineEdit_standardobjectclass.setText(
             config.get("LABEL", "std_object_class")
         )
@@ -124,9 +121,6 @@ class SettingsDialog(QDialog):
 
         # Label
         config["LABEL"]["label_format"] = self.comboBox_labelformat.currentText()
-        config["LABEL"][
-            "object_classes"
-        ] = self.plainTextEdit_objectclasses.toPlainText()
         config["LABEL"]["std_object_class"] = self.lineEdit_standardobjectclass.text()
         config["LABEL"]["export_precision"] = str(self.spinBox_exportprecision.value())
         config["LABEL"]["min_boundingbox_dimension"] = str(

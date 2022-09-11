@@ -5,6 +5,7 @@ from typing import Dict
 
 import numpy as np
 import pytest
+from labelCloud.io import read_label_definition
 from labelCloud.io.segmentations import NumpySegmentationHandler
 
 
@@ -16,10 +17,15 @@ def segmentation_path() -> Path:
 
 
 @pytest.fixture
-def label_definition_path(segmentation_path) -> Path:
-    path = segmentation_path / Path("schema/label_definition.json")
+def label_definition_path() -> Path:
+    path = Path("labels/schema/label_definition.json")
     assert path.exists()
     return path
+
+
+@pytest.fixture
+def label_definition(label_definition_path: Path) -> Dict[str, int]:
+    return read_label_definition(label_definition_path)
 
 
 @pytest.fixture
@@ -41,15 +47,15 @@ def expected_label_definition() -> Dict[str, int]:
     return {
         "unassigned": 0,
         "person": 1,
-        "car": 2,
+        "cart": 2,
         "wall": 3,
         "floor": 4,
     }
 
 
 @pytest.fixture
-def handler(label_definition_path) -> NumpySegmentationHandler:
-    return NumpySegmentationHandler(label_definition_path=label_definition_path)
+def handler(label_definition) -> NumpySegmentationHandler:
+    return NumpySegmentationHandler(label_definition=label_definition)
 
 
 def test_label_definition(
@@ -102,10 +108,10 @@ def test_read_or_create_labels_when_exist(
     expected_label_definition: Dict[str, int],
 ) -> None:
     with exception:
-        label_definition, labels = handler.read_or_create_labels(
+        labels = handler.read_or_create_labels(
             label_path=label_path, num_points=num_points
         )
-        assert label_definition == expected_label_definition
+        assert handler.label_definition == expected_label_definition
         assert labels.dtype == np.int8
         assert labels.shape == (num_points,)
 
@@ -115,10 +121,8 @@ def test_read_or_create_labels_when_not_exist(
     not_label_path: Path,
     expected_label_definition: Dict[str, int],
 ) -> None:
-    label_definition, labels = handler.read_or_create_labels(
-        label_path=not_label_path, num_points=420
-    )
-    assert label_definition == expected_label_definition
+    labels = handler.read_or_create_labels(label_path=not_label_path, num_points=420)
+    assert handler.label_definition == expected_label_definition
     assert labels.dtype == np.int8
     assert labels.shape == (420,)
     assert (labels == np.zeros((420,))).all()

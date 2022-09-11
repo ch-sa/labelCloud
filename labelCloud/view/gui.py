@@ -11,7 +11,6 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
-    QCompleter,
     QFileDialog,
     QInputDialog,
     QLabel,
@@ -87,6 +86,9 @@ STYLESHEET = """
         border: none;
         background: rgb(0, 0, 255);
         background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
+    }}
+    QComboBox#current_class_dropdown {{
+        selection-background-color: gray;
     }}
 """
 
@@ -171,7 +173,7 @@ class GUI(QtWidgets.QMainWindow):
 
         # RIGHT PANEL
         self.label_list: QtWidgets.QListWidget
-        self.edit_current_class: QtWidgets.QLineEdit
+        self.current_class_dropdown: QtWidgets.QComboBox
         self.button_deselect_label: QtWidgets.QPushButton
         self.button_delete_label: QtWidgets.QPushButton
 
@@ -189,7 +191,6 @@ class GUI(QtWidgets.QMainWindow):
         self.edit_rot_z: QtWidgets.QLineEdit
 
         self.all_line_edits = [
-            self.edit_current_class,
             self.edit_pos_x,
             self.edit_pos_y,
             self.edit_pos_z,
@@ -210,8 +211,6 @@ class GUI(QtWidgets.QMainWindow):
         # Connect all events to functions
         self.connect_events()
         self.set_checkbox_states()  # tick in menu
-        self.update_label_completer()  # initialize label completer with classes in config
-        self.update_default_object_class_menu()
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
@@ -259,7 +258,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # LABELING CONTROL
-        self.edit_current_class.textChanged.connect(
+        self.current_class_dropdown.currentTextChanged.connect(
             self.controller.bbox_controller.set_classname
         )
         self.button_deselect_label.clicked.connect(
@@ -381,9 +380,9 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.mouse_clicked(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         elif (event.type() == QEvent.MouseButtonPress) and (
-            event_object != self.edit_current_class
+            event_object != self.current_class_dropdown
         ):
-            self.edit_current_class.clearFocus()
+            self.current_class_dropdown.clearFocus()
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
 
@@ -456,19 +455,8 @@ class GUI(QtWidgets.QMainWindow):
     def update_progress(self, value) -> None:
         self.progressbar_pcds.setValue(value)
 
-    def update_curr_class_edit(self, force: Optional[str] = None) -> None:
-        if force is not None:
-            self.edit_current_class.setText(force)
-        else:
-            bbox = self.controller.bbox_controller.get_active_bbox()
-            if bbox:
-                self.edit_current_class.setText(bbox.get_classname())
-
-    def update_label_completer(self, classnames=None) -> None:
-        if classnames is None:
-            classnames = set()
-        classnames.update(config.getlist("LABEL", "object_classes"))
-        self.edit_current_class.setCompleter(QCompleter(classnames))
+    def update_current_class_dropdown(self) -> None:
+        self.controller.pcd_manager.populate_class_dropdown()
 
     def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
@@ -572,26 +560,6 @@ class GUI(QtWidgets.QMainWindow):
                 path_to_folder
             )
             logging.info("Changed label folder to %s!" % path_to_folder)
-
-    def update_default_object_class_menu(
-        self, new_classes: Optional[Set[str]] = None
-    ) -> None:
-        object_classes = {
-            str(class_name) for class_name in config.getlist("LABEL", "object_classes")
-        }
-        object_classes.update(new_classes or [])
-        existing_classes = {
-            action.text() for action in self.actiongroup_default_class.actions()
-        }
-        for object_class in object_classes.difference(existing_classes):
-            action = self.actiongroup_default_class.addAction(
-                object_class
-            )  # TODO: Add limiter for number of classes
-            action.setCheckable(True)
-            if object_class == config.get("LABEL", "std_object_class"):
-                action.setChecked(True)
-
-        self.act_set_default_class.addActions(self.actiongroup_default_class.actions())
 
     def change_default_object_class(self, action: QAction) -> None:
         config.set("LABEL", "std_object_class", action.text())
