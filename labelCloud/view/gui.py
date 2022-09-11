@@ -178,8 +178,6 @@ class GUI(QtWidgets.QMainWindow):
         self.button_deselect_label: QtWidgets.QPushButton
         self.button_delete_label: QtWidgets.QPushButton
         self.button_assign_label: QtWidgets.QPushButton
-        if not config.getboolean("MODE", "segmentation"):
-            self.button_assign_label.setVisible(False)
 
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
@@ -207,6 +205,11 @@ class GUI(QtWidgets.QMainWindow):
         ]
 
         self.label_volume: QtWidgets.QLabel
+
+        # Segmentation only functionalities
+        if not config.getboolean("MODE", "segmentation"):
+            self.button_assign_label.setVisible(False)
+            self.act_color_with_label.setVisible(False)
 
         # Connect with controller
         self.controller = control
