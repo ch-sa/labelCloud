@@ -308,10 +308,3 @@ class Controller:
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
             self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
-
-    def assign_point_label_in_active_box(self) -> None:
-        box = self.bbox_controller.get_active_bbox()
-        if box is not None:
-            self.pcd_manager.assign_point_label_in_box(box)
-            if config.getboolean("USER_INTERFACE", "delete_box_after_assign"):
-                self.bbox_controller.delete_current_bbox()

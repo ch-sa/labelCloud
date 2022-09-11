@@ -278,7 +278,7 @@ class GUI(QtWidgets.QMainWindow):
             self.controller.bbox_controller.set_active_bbox
         )
         self.button_assign_label.clicked.connect(
-            self.controller.assign_point_label_in_active_box
+            self.controller.bbox_controller.assign_point_label_in_active_box
         )
 
         # open_2D_img

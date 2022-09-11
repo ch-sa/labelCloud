@@ -331,3 +331,10 @@ class BoundingBoxController(object):
             if current_item:
                 current_item.setSelected(True)
         self.view.label_list.blockSignals(False)
+
+    def assign_point_label_in_active_box(self) -> None:
+        box = self.get_active_bbox()
+        if box is not None:
+            self.pcd_manager.assign_point_label_in_box(box)
+            if config.getboolean("USER_INTERFACE", "delete_box_after_assign"):
+                self.delete_current_bbox()
