@@ -179,6 +179,7 @@ class GUI(QtWidgets.QMainWindow):
         self.current_class_dropdown: QtWidgets.QComboBox
         self.button_deselect_label: QtWidgets.QPushButton
         self.button_delete_label: QtWidgets.QPushButton
+        self.button_assign_label: QtWidgets.QPushButton
 
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
@@ -272,6 +273,9 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.label_list.currentRowChanged.connect(
             self.controller.bbox_controller.set_active_bbox
+        )
+        self.button_assign_label.clicked.connect(
+            self.controller.assign_point_label_in_active_box
         )
 
         # open_2D_img

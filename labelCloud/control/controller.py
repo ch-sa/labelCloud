@@ -6,7 +6,6 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 
 from ..definitions import BBOX_SIDES, Color, Context
-from ..model.bbox import BBox
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -310,5 +309,5 @@ class Controller:
         box = self.bbox_controller.get_active_bbox()
         if box is not None:
             self.pcd_manager.assign_point_label_in_box(box)
-            if config.getboolean("USER_INTERFACE", "delete_after_assign"):
+            if config.getboolean("USER_INTERFACE", "delete_box_after_assign"):
                 self.bbox_controller.delete_current_bbox()

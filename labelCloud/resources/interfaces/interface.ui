@@ -1433,6 +1433,31 @@
           </property>
          </widget>
         </item>
+        <item>
+        <widget class="QPushButton" name="button_assign_label">
+          <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+          </sizepolicy>
+          </property>
+          <property name="toolTip">
+          <string>Assign labels</string>
+          </property>
+          <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+          <string notr="true"/>
+          </property>
+          <property name="text">
+          <string>Assign</string>
+          </property>
+          <property name="flat">
+          <bool>false</bool>
+          </property>
+        </widget>
+        </item>
        </layout>
       </item>
       <item>
