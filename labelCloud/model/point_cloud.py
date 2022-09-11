@@ -238,7 +238,7 @@ class PointCloud(object):
         if inside_idx.shape[0] == 0:
             logging.warning("No points are found inside the selected boxes.")
             return
-        logging.info(f"Update {len(inside_idx)} point colors in label VBO.")
+        logging.debug(f"Update {len(inside_idx)} point colors in label VBO.")
         arrays = consecutive(
             inside_idx
         )  # find contiguous points so they can be updated together

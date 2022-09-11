@@ -269,6 +269,9 @@ class PointCloudManger(object):
                 box.classname
             ]
             self.pointcloud.update_colors_selected_points(points_inside)
+            logging.info(
+                f"Labeled {np.sum(points_inside)} points inside the current bounding box with label `{box.classname}`"
+            )
 
     # HELPER
 
