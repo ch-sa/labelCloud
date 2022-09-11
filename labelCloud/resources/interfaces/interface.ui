@@ -1442,7 +1442,7 @@
           </sizepolicy>
           </property>
           <property name="toolTip">
-          <string>Assign labels</string>
+          <string>Assign labels to points inside a box</string>
           </property>
           <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>

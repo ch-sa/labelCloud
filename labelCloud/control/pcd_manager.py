@@ -137,7 +137,6 @@ class PointCloudManger(object):
 
     def populate_class_dropdown(self):
         # Add point label list
-        print(self.pointcloud.points)
         self.view.current_class_dropdown.clear()
         for key in self.pointcloud.label_definition:
             self.view.current_class_dropdown.addItem(key)
