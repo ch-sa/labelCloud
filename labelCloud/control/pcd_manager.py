@@ -135,10 +135,10 @@ class PointCloudManger(object):
         else:
             raise Exception("No point cloud left for loading!")
 
-    def populate_class_dropdown(self):
+    def populate_class_dropdown(self) -> None:
         # Add point label list
-        print(self.pointcloud.points)
         self.view.current_class_dropdown.clear()
+        assert self.pointcloud is not None
         for key in self.pointcloud.label_definition:
             self.view.current_class_dropdown.addItem(key)
 
