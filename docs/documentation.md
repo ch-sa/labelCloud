@@ -47,7 +47,6 @@ The following parameters can be changed:
 |         `std_zoom`          | Standard step for zooming (with mouse scroll).                                                  |       *0.0025*        |
 |         **[LABEL]**         |
 |       `label_format`        | Format for exporting labels, choose from `vertices`, `centroid_rel`, `centroid_abs` or `kitti`. |    *centroid_abs*     |
-|      `object_classes`       | List of object classes for autocompletion in the class text field.                              | *class1, class2, ...* |
 |     `std_object_class`      | Default object class for new bounding boxes.                                                    |    *default_class*    |
 |     `export_precision`      | Number of decimal places for exporting the bounding box parameters.                             |          *8*          |
 |  `std_boundingbox_length`   | Default length of the bounding box (for picking mode).                                          |        *0.75*         |

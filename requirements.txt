@@ -9,7 +9,7 @@ pytest~=7.1.2
 pytest-qt~=4.1.0
 
 # Development
-black~=22.1.0
+black~=22.3.0
 mypy~=0.971
 PyQt5-stubs~=5.15.6
 types-setuptools~=57.4.17
