@@ -85,8 +85,12 @@ class Controller:
 
     # CONTROL METHODS
     def save(self) -> None:
-        """Saves all bounding boxes in the label file."""
+        """Saves all bounding boxes and optionally segmentation labels in the label file."""
         self.pcd_manager.save_labels_into_file(self.bbox_controller.bboxes)
+
+        if config.getboolean("MODE", "SEGMENTATION"):
+            assert self.pcd_manager.pointcloud is not None
+            self.pcd_manager.pointcloud.save_segmentation_labels()
 
     def reset(self) -> None:
         """Resets the controllers and bounding boxes from the current screen."""

@@ -1722,6 +1722,7 @@
   <tabstop>edit_rot_z</tabstop>
   <tabstop>button_deselect_label</tabstop>
   <tabstop>button_delete_label</tabstop>
+  <tabstop>button_assign_label</tabstop>
   <tabstop>label_list</tabstop>
  </tabstops>
  <resources/>

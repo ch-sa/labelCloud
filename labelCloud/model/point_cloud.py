@@ -138,6 +138,17 @@ class PointCloud(object):
         else:
             return self.colors
 
+    def save_segmentation_labels(self, extension=".bin") -> None:
+        label_path = config.getpath("FILE", "label_folder") / Path(
+            f"segmentation/{self.path.stem}{extension}"
+        )
+        seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
+            label_definition=self.label_definition
+        )
+        assert self.labels is not None
+        seg_handler.overwrite_labels(label_path=label_path, labels=self.labels)
+        logging.info(f"Writing segmentation labels to {label_path}")
+
     @classmethod
     def from_file(
         cls,
