@@ -88,8 +88,16 @@ STYLESHEET = """
         background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
     }}
 
-    QComboBox#current_class_dropdown {{
-        selection-background-color: gray;
+    QComboBox#current_class_dropdown::item:checked{{
+        color: gray;
+    }}
+
+    QComboBox#current_class_dropdown::item:selected {{
+        color: #FFFFFF;
+    }}
+
+    QComboBox#current_class_dropdown{{
+        selection-background-color: #0000FF;
     }}
 """
 
