@@ -12,7 +12,7 @@ class NumpySegmentationHandler(BaseSegmentationHandler):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def _create_labels(self, num_points: int, *args, **kwargs) -> npt.NDArray[np.int8]:
+    def _create_labels(self, num_points: int) -> npt.NDArray[np.int8]:
         return np.ones(shape=(num_points,), dtype=np.int8) * self.default_label
 
     def _read_labels(self, label_path: Path) -> npt.NDArray[np.int8]:

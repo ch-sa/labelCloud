@@ -1,7 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -34,6 +34,11 @@ def calculate_init_translation(
         config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
     )
     return tuple(-np.add(center, [0, 0, zoom]))  # type: ignore
+
+
+def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.int64]]:
+    """Split an 1-d array of integers to a list of 1-d array where the elements are consecutive"""
+    return np.split(data, np.where(np.diff(data) != stepsize)[0] + 1)
 
 
 class PointCloud(object):
@@ -133,6 +138,17 @@ class PointCloud(object):
         else:
             return self.colors
 
+    def save_segmentation_labels(self, extension=".bin") -> None:
+        label_path = config.getpath("FILE", "label_folder") / Path(
+            f"segmentation/{self.path.stem}{extension}"
+        )
+        seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
+            label_definition=self.label_definition
+        )
+        assert self.labels is not None
+        seg_handler.overwrite_labels(label_path=label_path, labels=self.labels)
+        logging.info(f"Writing segmentation labels to {label_path}")
+
     @classmethod
     def from_file(
         cls,
@@ -209,6 +225,40 @@ class PointCloud(object):
                 counter[int2label[ind]] = count
             return counter
         return None
+
+    @property
+    def has_label(self) -> bool:
+        return self.labels is not None
+
+    def update_selected_points_in_label_vbo(
+        self, points_inside: npt.NDArray[np.bool_]
+    ) -> None:
+        """Send the selected updated label colors to label vbo. This function
+        assumes the `self.label_colors[points_inside]` have been altered.
+        This function only partially updates the label vbo to minimise the
+        data sent to gpu. It leverages `glBufferSubData` method to perform
+        partial update and `consecutive` method to find consecutive indexes
+        so they can be updated in one single `glBufferSubData` call.
+        """
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.label_vbo)
+        inside_idx = np.where(points_inside)[0]
+        if inside_idx.shape[0] == 0:
+            logging.warning("No points are found inside the selected boxes.")
+            return
+        logging.debug(f"Update {len(inside_idx)} point colors in label VBO.")
+        # find contiguous points so they can be updated together in one glBufferSubData call
+        arrays = consecutive(inside_idx)
+        label_color = self.label_colors
+        stride = label_color.shape[1] * SIZE_OF_FLOAT
+        for arr in arrays:
+            colors: npt.NDArray[np.float32] = label_color[arr]
+            # partially update label_vbo from positions arr[0] to arr[-1]
+            GL.glBufferSubData(
+                GL.GL_ARRAY_BUFFER,
+                offset=arr[0] * stride,
+                size=colors.nbytes,
+                data=colors,
+            )
 
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:
