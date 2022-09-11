@@ -87,8 +87,17 @@ STYLESHEET = """
         background: rgb(0, 0, 255);
         background: url("{icons_dir}/cube-outline_white.svg") center left no-repeat, #0000ff;
     }}
-    QComboBox#current_class_dropdown {{
-        selection-background-color: gray;
+
+    QComboBox#current_class_dropdown::item:checked{{
+        color: gray;
+    }}
+
+    QComboBox#current_class_dropdown::item:selected {{
+        color: #FFFFFF;
+    }}
+
+    QComboBox#current_class_dropdown{{
+        selection-background-color: #0000FF;
     }}
 """
 
@@ -176,6 +185,7 @@ class GUI(QtWidgets.QMainWindow):
         self.current_class_dropdown: QtWidgets.QComboBox
         self.button_deselect_label: QtWidgets.QPushButton
         self.button_delete_label: QtWidgets.QPushButton
+        self.button_assign_label: QtWidgets.QPushButton
 
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
@@ -203,6 +213,11 @@ class GUI(QtWidgets.QMainWindow):
         ]
 
         self.label_volume: QtWidgets.QLabel
+
+        # Segmentation only functionalities
+        if not config.getboolean("MODE", "segmentation"):
+            self.button_assign_label.setVisible(False)
+            self.act_color_with_label.setVisible(False)
 
         # Connect with controller
         self.controller = control
@@ -269,6 +284,9 @@ class GUI(QtWidgets.QMainWindow):
         )
         self.label_list.currentRowChanged.connect(
             self.controller.bbox_controller.set_active_bbox
+        )
+        self.button_assign_label.clicked.connect(
+            self.controller.bbox_controller.assign_point_label_in_active_box
         )
 
         # open_2D_img
