@@ -40,7 +40,7 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def _create_labels(self, num_points: int, *args, **kwargs) -> npt.NDArray[np.int8]:
+    def _create_labels(self, num_points: int) -> npt.NDArray[np.int8]:
         raise NotImplementedError
 
     @abstractmethod
