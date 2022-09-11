@@ -247,6 +247,18 @@ class BBox(object):
     def is_inside(self, points: npt.NDArray[np.float32]) -> npt.NDArray[np.bool_]:
 
         vertices = self.get_vertices().copy()
+
+        #       .------------.
+        #      /|           /|
+        #     / |          / |
+        #(p1).------------.  |
+        #    |  |         |  |
+        #    |  |         |  |
+        #    |  .(p2)_____|__.
+        #    | /          | /
+        #    ./___________./
+        #  (p0)           (p3)
+
         p0 = vertices[0]
         p1 = vertices[3]
         p2 = vertices[1]
