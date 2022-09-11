@@ -181,7 +181,7 @@ class GUI(QtWidgets.QMainWindow):
         self.button_delete_label: QtWidgets.QPushButton
         self.button_assign_label: QtWidgets.QPushButton
         if not config.getboolean("MODE", "segmentation"):
-            self.button_assign_label.setEnabled(False)
+            self.button_assign_label.setVisible(False)
 
         # BOUNDING BOX PARAMETER EDITS
         self.edit_pos_x: QtWidgets.QLineEdit
