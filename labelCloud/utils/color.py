@@ -29,7 +29,7 @@ def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
 
 def colorize_points_with_height(
     points: np.ndarray, z_min: float, z_max: float
-) -> np.ndarray:
+) -> npt.NDArray[np.float32]:
     palette = np.loadtxt(
         pkg_resources.resource_filename("labelCloud.resources", "rocket-palette.txt")
     )
