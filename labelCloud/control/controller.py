@@ -306,24 +306,9 @@ class Controller:
             self.ctrl_pressed = False
             self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
 
-    def _overwrite_point_label(self, box: BBox) -> None:
-        assert self.pcd_manager.pointcloud is not None
-        points = self.pcd_manager.pointcloud.points
-        points_inside = box.is_inside(points)
-
-        # Relabel the points if its inside the box
-        if self.pcd_manager.pointcloud.has_label:
-            assert self.pcd_manager.pointcloud.labels is not None
-            self.pcd_manager.pointcloud.labels[
-                points_inside
-            ] = self.pcd_manager.pointcloud.label_definition[box.classname]
-            self.pcd_manager.pointcloud.update_colors_selected_points(points_inside)
-
-    def overwrite_point_label_in_selected_box(self):
-        box_id = self.bbox_controller.active_bbox_id()
-        if box_id != -1:
-            box = self.bbox_controller.bboxes[box_id]
-            self._overwrite_point_label(box)
-
+    def assign_point_label_in_active_box(self) -> None:
+        box = self.bbox_controller.get_active_bbox()
+        if box is not None:
+            self.pcd_manager.assign_point_label_in_box(box)
             if config.getboolean("USER_INTERFACE", "delete_after_assign"):
                 self.bbox_controller.delete_current_bbox()
