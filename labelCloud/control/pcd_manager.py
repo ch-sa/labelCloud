@@ -257,6 +257,22 @@ class PointCloudManger(object):
         )
         self.pointcloud.to_file()
 
+    def assign_point_label_in_box(self, box: BBox) -> None:
+        assert self.pointcloud is not None
+        points = self.pointcloud.points
+        points_inside = box.is_inside(points)
+
+        # Relabel the points if its inside the box
+        if self.pointcloud.has_label:
+            assert self.pointcloud.labels is not None
+            self.pointcloud.labels[points_inside] = self.pointcloud.label_definition[
+                box.classname
+            ]
+            self.pointcloud.update_selected_points_in_label_vbo(points_inside)
+            logging.info(
+                f"Labeled {np.sum(points_inside)} points inside the current bounding box with label `{box.classname}`"
+            )
+
     # HELPER
 
     def get_perspective(self) -> Tuple[float, float, float]:
