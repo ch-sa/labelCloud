@@ -230,25 +230,35 @@ class PointCloud(object):
     def has_label(self) -> bool:
         return self.labels is not None
 
-    def update_colors_selected_points(
+    def update_selected_points_in_label_vbo(
         self, points_inside: npt.NDArray[np.bool_]
     ) -> None:
+        """Send the selected updated label colors to label vbo. This function
+        assumes the `self.label_colors[points_inside]` have been altered.
+        This function only partially updates the label vbo to minimise the
+        data sent to gpu. It leverages `glBufferSubData` method to perform
+        partial update and `consecutive` method to find consecutive indexes
+        so they can be updated in one single `glBufferSubData` call.
+        """
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.label_vbo)
         inside_idx = np.where(points_inside)[0]
         if inside_idx.shape[0] == 0:
             logging.warning("No points are found inside the selected boxes.")
             return
         logging.debug(f"Update {len(inside_idx)} point colors in label VBO.")
-        arrays = consecutive(
-            inside_idx
-        )  # find contiguous points so they can be updated together
+        # find contiguous points so they can be updated together in one glBufferSubData call
+        arrays = consecutive(inside_idx)
         label_color = self.label_colors
+        stride = label_color.shape[1] * SIZE_OF_FLOAT
         for arr in arrays:
-            colors = label_color[arr]
-            attributes = colors.flatten()
-            bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
-            buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
-            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, arr[0] * 12, buffersize, bufferdata)
+            colors: npt.NDArray[np.float32] = label_color[arr]
+            # partially update label_vbo from positions arr[0] to arr[-1]
+            GL.glBufferSubData(
+                GL.GL_ARRAY_BUFFER,
+                offset=arr[0] * stride,
+                size=colors.nbytes,
+                data=colors,
+            )
 
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:
