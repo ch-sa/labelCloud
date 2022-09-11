@@ -1,7 +1,7 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -34,6 +34,11 @@ def calculate_init_translation(
         config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
     )
     return tuple(-np.add(center, [0, 0, zoom]))  # type: ignore
+
+
+def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.int64]]:
+    """Split an 1-d array of integers to a list of 1-d array where the elements are consecutive"""
+    return np.split(data, np.where(np.diff(data) != stepsize)[0] + 1)
 
 
 class PointCloud(object):
@@ -209,6 +214,30 @@ class PointCloud(object):
                 counter[int2label[ind]] = count
             return counter
         return None
+
+    @property
+    def has_label(self) -> bool:
+        return self.labels is not None
+
+    def update_colors_selected_points(
+        self, points_inside: npt.NDArray[np.bool_]
+    ) -> None:
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.label_vbo)
+        inside_idx = np.where(points_inside)[0]
+        if inside_idx.shape[0] == 0:
+            logging.warning("No points are found inside the selected boxes.")
+            return
+        logging.info(f"Update {len(inside_idx)} point colors in label VBO.")
+        arrays = consecutive(
+            inside_idx
+        )  # find contiguous points so they can be updated together
+        label_color = self.label_colors
+        for arr in arrays:
+            colors = label_color[arr]
+            attributes = colors.flatten()
+            bufferdata = (ctypes.c_float * len(attributes))(*attributes)  # float buffer
+            buffersize = len(attributes) * SIZE_OF_FLOAT  # buffer size in bytes
+            GL.glBufferSubData(GL.GL_ARRAY_BUFFER, arr[0] * 12, buffersize, bufferdata)
 
     # GETTERS AND SETTERS
     def get_no_of_points(self) -> int:

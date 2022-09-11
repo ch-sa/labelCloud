@@ -1,16 +1,17 @@
 import logging
-from typing import Optional, Union
+from typing import Optional
 
+import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 
-import numpy as np
-
 from ..definitions import BBOX_SIDES, Color, Context
+from ..model.bbox import BBox
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
+from .config_manager import config
 from .drawing_manager import DrawingManager
 from .pcd_manager import PointCloudManger
 
@@ -304,3 +305,25 @@ class Controller:
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
             self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
+
+    def _overwrite_point_label(self, box: BBox) -> None:
+        assert self.pcd_manager.pointcloud is not None
+        points = self.pcd_manager.pointcloud.points
+        points_inside = box.is_inside(points)
+
+        # Relabel the points if its inside the box
+        if self.pcd_manager.pointcloud.has_label:
+            assert self.pcd_manager.pointcloud.labels is not None
+            self.pcd_manager.pointcloud.labels[
+                points_inside
+            ] = self.pcd_manager.pointcloud.label_definition[box.classname]
+            self.pcd_manager.pointcloud.update_colors_selected_points(points_inside)
+
+    def overwrite_point_label_in_selected_box(self):
+        box_id = self.bbox_controller.active_bbox_id()
+        if box_id != -1:
+            box = self.bbox_controller.bboxes[box_id]
+            self._overwrite_point_label(box)
+
+            if config.getboolean("USER_INTERFACE", "delete_after_assign"):
+                self.bbox_controller.delete_current_bbox()
