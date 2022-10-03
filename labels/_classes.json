@@ -31,7 +31,7 @@
             "color": "#AA6363"
         }
     ],
-    "default": 1,
+    "default": 0,
     "type": "object_detection",
     "format": "centroid_abs"
 }
