@@ -9,7 +9,6 @@ import OpenGL.GL as GL
 
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
-from ..io import read_label_definition
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
@@ -48,7 +47,6 @@ class PointCloud(object):
         self,
         path: Path,
         points: npt.NDArray[np.float32],
-        label_definition: Dict[str, int],
         colors: Optional[np.ndarray] = None,
         segmentation_labels: Optional[npt.NDArray[np.int8]] = None,
         init_translation: Optional[Tuple[float, float, float]] = None,
@@ -59,12 +57,12 @@ class PointCloud(object):
         self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
-        self.label_definition = label_definition
+        self.label_definition: list = []  # TODO: get from label manager
 
         self.labels = self.label_color_map = None
         if self.SEGMENTATION:
             self.labels = segmentation_labels
-            self.label_color_map = get_distinct_colors(len(label_definition))
+            self.label_color_map = get_distinct_colors(len(self.label_definition))
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
         self.vbo = None
@@ -165,10 +163,7 @@ class PointCloud(object):
             path.suffix
         ).read_point_cloud(path=path)
 
-        label_definition = read_label_definition(
-            config.getpath("FILE", "label_folder")
-            / Path(f"schema/label_definition.json")
-        )
+        label_definition = []  # TODO: read_label_definition()
         labels = None
         if cls.SEGMENTATION:
 
@@ -186,7 +181,6 @@ class PointCloud(object):
         return cls(
             path,
             points,
-            label_definition,
             colors,
             labels,
             init_translation,

@@ -1,7 +1,6 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -24,7 +23,6 @@ class BaseLabelFormat(ABC):
         self.export_precision = export_precision
         self.relative_rotation = relative_rotation
         self.file_ending = ".json"
-        self.config = self.load_class_definitions()
 
         if relative_rotation:
             logging.info(
@@ -39,12 +37,8 @@ class BaseLabelFormat(ABC):
 
     def update_label_folder(self, new_label_folder: Path) -> None:
         self.label_folder = new_label_folder
-        self.config = self.load_class_definitions()
+        LabelConfig().load_config()
         logging.info(f"Updated label folder to {new_label_folder}.")
-
-    def load_class_definitions(self) -> LabelConfig:
-        with self.label_folder.joinpath(CONFIG_FILE).open("r") as stream:
-            return LabelConfig.from_dict(json.load(stream))
 
     def round_dec(self, x, decimal_places: Optional[int] = None) -> List[float]:
         if not decimal_places:
@@ -69,16 +63,6 @@ class BaseLabelFormat(ABC):
     @abstractmethod
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         raise NotImplementedError
-
-    def colorize_labels(self, bboxes: List[BBox]) -> List[BBox]:
-        for bbox in bboxes:
-
-            try:
-                bbox.color = next((c.color for c in self.config.classes if c.name == bbox.classname))
-            except StopIteration:
-                raise NotImplementedError("Color generator")  # TODO: Implement
-
-        return bboxes
 
     @abstractmethod
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:

@@ -6,7 +6,8 @@ import numpy.typing as npt
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
-from ..definitions import BBOX_EDGES, BBOX_SIDES, Dimensions3D, Point3D, Rotations3D, Color4f
+from ..definitions import BBOX_EDGES, BBOX_SIDES, Dimensions3D, Point3D, Rotations3D
+from ..io.labels.config import LabelConfig
 from ..utils import math3d, oglhelper
 
 
@@ -22,7 +23,6 @@ class BBox(object):
         length: float = None,
         width: float = None,
         height: float = None,
-        color: Color4f = (0, 0, 1, 1),
     ) -> None:
         self.center: Point3D = (cx, cy, cz)
         self.length: float = length or config.getfloat(
@@ -32,11 +32,10 @@ class BBox(object):
         self.height: float = height or config.getfloat(
             "LABEL", "STD_BOUNDINGBOX_HEIGHT"
         )
-        self.color = color
         self.x_rotation: float = 0
         self.y_rotation: float = 0
         self.z_rotation: float = 0
-        self.classname: str = config.get("LABEL", "STD_OBJECT_CLASS")
+        self.classname: str = LabelConfig().get_default_class_name()
         self.verticies: npt.NDArray = np.zeros((8, 3))
         self.set_axis_aligned_verticies()
 
@@ -155,7 +154,7 @@ class BBox(object):
         self.set_axis_aligned_verticies()
 
         GL.glPushMatrix()
-        bbox_color = self.color or (0, 0, 1, 1)
+        bbox_color = LabelConfig().get_class_color(self.classname)
         # if highlighted:
         #     bbox_color = (0, 1, 0, 1)
 

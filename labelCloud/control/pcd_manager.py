@@ -7,11 +7,13 @@ from pathlib import Path
 from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
-import numpy as np
-import open3d as o3d
 import pkg_resources
 
+import numpy as np
+import open3d as o3d
+
 from ..definitions.types import Point3D
+from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
 from ..utils.logger import blue, green, print_column
@@ -139,8 +141,9 @@ class PointCloudManger(object):
         # Add point label list
         self.view.current_class_dropdown.clear()
         assert self.pointcloud is not None
-        for key in self.pointcloud.label_definition:
-            self.view.current_class_dropdown.addItem(key)
+
+        for label_class in LabelConfig().classes:
+            self.view.current_class_dropdown.addItem(label_class.name)
 
     def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.pcd_path)

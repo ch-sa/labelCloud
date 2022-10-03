@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
+from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
 from .status_manager import StatusManager
@@ -595,9 +596,7 @@ class GUI(QtWidgets.QMainWindow):
             logging.info("Changed label folder to %s!" % path_to_folder)
 
     def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
-        object_classes = set(
-            self.controller.pcd_manager.label_manager.label_strategy.config.get_classes()
-        )  # TODO: property
+        object_classes = set(LabelConfig().get_classes())  # TODO: property
 
         object_classes.update(new_classes or [])
         existing_classes = {

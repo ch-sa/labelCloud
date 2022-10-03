@@ -8,12 +8,12 @@
         {
             "name": "cart",
             "id": 1,
-            "color": "FFAB76"
+            "color": "#FFAB76"
         },
         {
             "name": "box",
             "id": 2,
-            "color": "FF6363"
+            "color": "#FF6363"
         }
     ],
     "default": 1,

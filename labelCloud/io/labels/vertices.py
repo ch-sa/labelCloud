@@ -45,7 +45,7 @@ class VerticesFormat(BaseLabelFormat):
             logging.info(
                 "Imported %s labels from %s." % (len(data["objects"]), label_path)
             )
-        return self.colorize_labels(labels)
+        return labels
 
     def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
         data: Dict[str, Any] = dict()
