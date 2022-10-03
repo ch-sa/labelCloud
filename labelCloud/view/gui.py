@@ -596,7 +596,7 @@ class GUI(QtWidgets.QMainWindow):
             logging.info("Changed label folder to %s!" % path_to_folder)
 
     def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
-        object_classes = set(LabelConfig().get_classes())  # TODO: property
+        object_classes = set(LabelConfig().get_classes())
 
         object_classes.update(new_classes or [])
         existing_classes = {
@@ -607,13 +607,13 @@ class GUI(QtWidgets.QMainWindow):
                 object_class
             )  # TODO: Add limiter for number of classes
             action.setCheckable(True)
-            if object_class == config.get("LABEL", "std_object_class"):
+            if object_class == LabelConfig().get_default_class_name():
                 action.setChecked(True)
 
         self.act_set_default_class.addActions(self.actiongroup_default_class.actions())
 
     def change_default_object_class(self, action: QAction) -> None:
-        config.set("LABEL", "std_object_class", action.text())
+        LabelConfig().set_default_class(action.text())
         logging.info("Changed default object class to %s.", action.text())
 
     def ask_custom_index(self):

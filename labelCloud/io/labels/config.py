@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from ...control.config_manager import config
 from ...definitions.types import Color4f
-from ...utils.color import hex_to_rgba
+from ...utils.color import hex_to_rgba, rgba_to_hex
 from ...utils.singleton import SingletonABCMeta
 
 CONFIG_FILE = "_classes.json"  # TODO: Move to config?
@@ -20,6 +20,13 @@ class ClassConfig:
     @classmethod
     def from_dict(cls, data: dict) -> "ClassConfig":
         return cls(name=data["name"], id=data["id"], color=hex_to_rgba(data["color"]))
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "id": self.id,
+            "color": rgba_to_hex(self.color),
+        }
 
 
 class LabelConfig(object, metaclass=SingletonABCMeta):
@@ -44,6 +51,18 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         self.format = data["format"]
         self._loaded = True
 
+    def save_config(self) -> None:
+        data = {
+            "classes": [c.to_dict() for c in self.classes],
+            "default": self.default,
+            "type": self.type,
+            "format": self.format,
+        }
+        with config.getpath("FILE", "label_folder").joinpath(CONFIG_FILE).open(
+            "w"
+        ) as stream:
+            json.dump(data, stream, indent=4)
+
     def get_classes(self) -> Dict[str, ClassConfig]:
         return {c.name: c for c in self.classes}
 
@@ -58,3 +77,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
     def get_default_class_name(self) -> str:
         return next((c.name for c in self.classes if c.id == self.default))
+
+    def set_default_class(self, class_name: str) -> None:
+        self.default = next((c.id for c in self.classes if c.name == class_name))
+        self.save_config()

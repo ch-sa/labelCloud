@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QDialog
 
 from ..control.config_manager import config, config_manager
 from ..control.label_manager import LabelManager
+from ..io.labels.config import LabelConfig
 
 
 class SettingsDialog(QDialog):
@@ -51,10 +52,10 @@ class SettingsDialog(QDialog):
         self.comboBox_labelformat.addItems(
             LabelManager.LABEL_FORMATS
         )  # TODO: Fix visualization
-        self.comboBox_labelformat.setCurrentText(config.get("LABEL", "label_format"))
+        self.comboBox_labelformat.setCurrentText(LabelConfig().format)
         self.lineEdit_standardobjectclass.setText(
-            config.get("LABEL", "std_object_class")
-        )
+            LabelConfig().get_default_class_name()
+        )  #TODO: Make dropdown
         self.spinBox_exportprecision.setValue(
             config.getint("LABEL", "export_precision")
         )
@@ -120,8 +121,8 @@ class SettingsDialog(QDialog):
         config["POINTCLOUD"]["std_zoom"] = str(self.doubleSpinBox_standardzoom.value())
 
         # Label
-        config["LABEL"]["label_format"] = self.comboBox_labelformat.currentText()
-        config["LABEL"]["std_object_class"] = self.lineEdit_standardobjectclass.text()
+        LabelConfig().format = self.comboBox_labelformat.currentText()
+        LabelConfig().set_default_class(self.lineEdit_standardobjectclass.text())
         config["LABEL"]["export_precision"] = str(self.spinBox_exportprecision.value())
         config["LABEL"]["min_boundingbox_dimension"] = str(
             self.doubleSpinBox_minbboxdimensions.value()
@@ -169,7 +170,7 @@ class SettingsDialog(QDialog):
         config_manager.write_into_file()
         self.parent_gui.set_checkbox_states()
         self.parent_gui.controller.pcd_manager.label_manager = LabelManager(
-            strategy=config["LABEL"]["label_format"],
+            strategy=LabelConfig().format,
             path_to_label_folder=Path(config["FILE"]["label_folder"]),
         )
         logging.info("Saved and activated new configuration!")

@@ -61,3 +61,15 @@ def hex_to_rgba(hex: str) -> Color4f:
     return tuple(  # type: ignore
         [int(hex[i : i + 2], 16) / 255 for i in range(0, 8, 2)]
     )
+
+
+def rgba_to_hex(color: Color4f) -> str:
+    """Converts a list of RGBA values to a hex color.
+
+    Args:
+        color (Color4f): The RGBA values.
+
+    Returns:
+        str: The hex color.
+    """
+    return "#%02x%02x%02x%02x" % tuple([int(c * 255) for c in color])
