@@ -14,6 +14,21 @@
             "name": "box",
             "id": 2,
             "color": "#FF6363"
+        },
+        {
+            "name": "label3",
+            "id": 3,
+            "color": "#FF63FF"
+        },
+        {
+            "name": "label4",
+            "id": 4,
+            "color": "#FFFF63"
+        },
+        {
+            "name": "label5",
+            "id": 5,
+            "color": "#AA6363"
         }
     ],
     "default": 1,

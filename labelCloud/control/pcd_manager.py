@@ -257,7 +257,6 @@ class PointCloudManger(object):
         self.pointcloud = PointCloud(
             self.pcd_path,
             points,
-            self.pointcloud.label_definition,
             colors,
             self.pointcloud.labels,
         )
@@ -271,9 +270,9 @@ class PointCloudManger(object):
         # Relabel the points if its inside the box
         if self.pointcloud.has_label:
             assert self.pointcloud.labels is not None
-            self.pointcloud.labels[points_inside] = self.pointcloud.label_definition[
-                box.classname
-            ]
+            self.pointcloud.labels[points_inside] = (
+                LabelConfig().get_class(box.classname).id
+            )
             self.pointcloud.update_selected_points_in_label_vbo(points_inside)
             logging.info(
                 f"Labeled {np.sum(points_inside)} points inside the current bounding box with label `{box.classname}`"

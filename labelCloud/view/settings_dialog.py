@@ -55,7 +55,7 @@ class SettingsDialog(QDialog):
         self.comboBox_labelformat.setCurrentText(LabelConfig().format)
         self.lineEdit_standardobjectclass.setText(
             LabelConfig().get_default_class_name()
-        )  #TODO: Make dropdown
+        )  # TODO: Make dropdown
         self.spinBox_exportprecision.setValue(
             config.getint("LABEL", "export_precision")
         )

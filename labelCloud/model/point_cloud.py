@@ -6,14 +6,15 @@ from typing import Dict, List, Optional, Tuple, cast
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
+from labelCloud.io.labels.config import LabelConfig
 
+from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height, get_distinct_colors
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
-from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -57,12 +58,11 @@ class PointCloud(object):
         self.path = path
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
-        self.label_definition: list = []  # TODO: get from label manager
 
         self.labels = self.label_color_map = None
         if self.SEGMENTATION:
             self.labels = segmentation_labels
-            self.label_color_map = get_distinct_colors(len(self.label_definition))
+            self.label_color_map = LabelConfig().get_color_map()
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
         self.vbo = None
@@ -130,7 +130,7 @@ class PointCloud(object):
         """blend the points with label color map"""
         self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
-            label_one_hot = np.eye(len(self.label_definition))[self.labels]
+            label_one_hot = np.eye(LabelConfig().nb_of_classes)[self.labels]
             colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)  # type: ignore
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
@@ -140,9 +140,9 @@ class PointCloud(object):
         label_path = config.getpath("FILE", "label_folder") / Path(
             f"segmentation/{self.path.stem}{extension}"
         )
-        seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
-            label_definition=self.label_definition
-        )
+        seg_handler: BaseSegmentationHandler = BaseSegmentationHandler.get_handler(
+            label_path.suffix
+        )()
         assert self.labels is not None
         seg_handler.overwrite_labels(label_path=label_path, labels=self.labels)
         logging.info(f"Writing segmentation labels to {label_path}")
@@ -163,7 +163,6 @@ class PointCloud(object):
             path.suffix
         ).read_point_cloud(path=path)
 
-        label_definition = []  # TODO: read_label_definition()
         labels = None
         if cls.SEGMENTATION:
 
@@ -171,9 +170,7 @@ class PointCloud(object):
                 f"segmentation/{path.stem}.bin"
             )
             logging.info(f"Loading segmentation labels from {label_path}.")
-            seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)(
-                label_definition=label_definition
-            )
+            seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)()
             labels = seg_handler.read_or_create_labels(
                 label_path=label_path, num_points=points.shape[0]
             )
@@ -205,20 +202,8 @@ class PointCloud(object):
 
     @property
     def int2label(self) -> Dict[int, str]:
-        return {ind: label for label, ind in self.label_definition.items()}
-
-    @property
-    def label_counts(self) -> Optional[Dict[str, int]]:
-        if self.labels is not None and self.label_definition:
-
-            counter = {k: 0 for k in self.label_definition}
-            indexes, counts = np.unique(self.labels, return_counts=True)
-            int2label = self.int2label.copy()
-
-            for ind, count in zip(indexes, counts):
-                counter[int2label[ind]] = count
-            return counter
-        return None
+        # TODO: Move to LabelConfig?
+        return {c.id: c.name for c in LabelConfig().classes}
 
     @property
     def has_label(self) -> bool:

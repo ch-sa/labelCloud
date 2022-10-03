@@ -5,6 +5,7 @@ from typing import Dict, Set, Type
 
 import numpy as np
 import numpy.typing as npt
+from labelCloud.io.labels.config import LabelConfig
 
 from ...utils.singleton import SingletonABCMeta
 
@@ -12,22 +13,9 @@ from ...utils.singleton import SingletonABCMeta
 class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
     EXTENSIONS: Set[str] = set()  # should be set in subclasses
 
-    def __init__(self, label_definition_path: Path) -> None:
-        self.read_label_definition(label_definition_path)
-
-    def read_label_definition(self, label_definition_path: Path) -> None:
-        with open(label_definition_path, "r") as f:
-            class_data = json.loads(f.read())
-
-        self.label_definition = {
-            label["name"]: label["id"] for label in class_data["classes"]
-        }
-
-        assert len(self.label_definition) > 0
-
     @property
     def default_label(self) -> int:
-        return min(list(self.label_definition.values()))
+        return LabelConfig().default
 
     def read_or_create_labels(
         self, label_path: Path, num_points: int
@@ -37,7 +25,8 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
             labels = self._read_labels(label_path)
             if labels.shape[0] != num_points:
                 raise ValueError(
-                    f"The segmentation label doesn't match with the point cloud, label file contains {labels.shape[0]} while point cloud contains {num_points}."
+                    f"The segmentation label doesn't match with the point cloud, "
+                    "label file contains {labels.shape[0]} while point cloud contains {num_points}."
                 )
         else:
             labels = self._create_labels(num_points)

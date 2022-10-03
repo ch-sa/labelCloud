@@ -3,6 +3,9 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
+import numpy as np
+import numpy.typing as npt
+
 from ...control.config_manager import config
 from ...definitions.types import Color4f
 from ...utils.color import hex_to_rgba, rgba_to_hex
@@ -63,8 +66,15 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         ) as stream:
             json.dump(data, stream, indent=4)
 
+    @property
+    def nb_of_classes(self) -> int:
+        return len(self.classes)
+
     def get_classes(self) -> Dict[str, ClassConfig]:
         return {c.name: c for c in self.classes}
+
+    def get_class(self, class_name: str) -> ClassConfig:
+        return self.get_classes()[class_name]
 
     def get_class_color(self, class_name: str) -> Color4f:
         try:
@@ -77,6 +87,9 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
     def get_default_class_name(self) -> str:
         return next((c.name for c in self.classes if c.id == self.default))
+
+    def get_color_map(self) -> npt.NDArray[np.float32]:
+        return np.array([c.color[0:3] for c in self.classes]).astype(np.float32)
 
     def set_default_class(self, class_name: str) -> None:
         self.default = next((c.id for c in self.classes if c.name == class_name))
