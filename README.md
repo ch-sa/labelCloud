@@ -10,7 +10,7 @@
 # labelCloud
 A lightweight tool for labeling 3D bounding boxes in point clouds.
 
-![Overview of the Labeling Tool](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/io_overview.png)
+![Overview of the Labeling Tool](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/assets/io_overview.png)
 
 :new: *labelCloud is now [part of the PyPI](https://pypi.org/project/labelCloud/) and can be installed via pip!*
 
@@ -34,12 +34,12 @@ pip install -r requirements.txt  # 2. Install requirements
 python3 labelCloud.py  # 4. Start labelCloud
 ```
 
-Configure the software to your needs by editing the `config.ini` file or settings according to the [docs](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md).
+Configure the software to your needs by editing the `config.ini` file or settings according to the [docs](https://github.com/ch-sa/labelCloud/blob/master/docs/configuration.md).
 
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
-![Screencast of the Labeling Methods](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/screencast_small.gif)
+![Screencast of the Labeling Methods](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/assets/screencast_small.gif)
 (See also https://www.youtube.com/watch?v=8GF9n1WeR8A for a short introduction and preview of the tool.)
 
 **Picking Mode**
@@ -63,7 +63,7 @@ Now you will be free to rotate around all three axes.
 
 ## Import & Export Options
 labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
-The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [documentation](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md)) for a description of all parameters).
+The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [Configuration](https://github.com/ch-sa/labelCloud/blob/master/docs/configuration.md)) for a description of all parameters).
 
 **Supported Import Formats**
 
@@ -78,7 +78,7 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]`                 |
 | `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`                  |
-| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/documentation.md) for order) |
+| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/conventions.md) for order) |
 | `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt))                 |
 | `kitti_untransformed` | See above, but without transformations.                                                                                                                        |
 
@@ -109,7 +109,7 @@ See [documentation.md](https://github.com/ch-sa/labelCloud/blob/master/docs/docu
 
 ## Usage & Attribution
 When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
-If you are using the tool for a scientific project please consider citing our [pending publication](https://arxiv.org/abs/2103.04970):
+If you are using the tool for a scientific project please consider citing our [publication](http://cad-journal.net/files/vol_19/CAD_19(6)_2022_1191-1206.pdf):
 
     # CAD Journal
     @article{Sager_2022,
