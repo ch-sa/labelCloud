@@ -1,0 +1,26 @@
+site_name: labelCloud
+
+repo_url: https://github.com/ch-sa/labelCloud
+
+nav:
+    - 'index.md'
+    - 'setup.md'
+    - 'configuration.md'
+    - 'shortcuts.md'
+    - 'conventions.md'
+
+theme:
+  name: material
+  logo: assets/logo.png
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+
+plugins:
+  - search
