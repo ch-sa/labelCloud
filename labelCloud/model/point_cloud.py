@@ -201,11 +201,6 @@ class PointCloud(object):
         return config.getboolean("POINTCLOUD", "color_with_label")
 
     @property
-    def int2label(self) -> Dict[int, str]:
-        # TODO: Move to LabelConfig?
-        return {c.id: c.name for c in LabelConfig().classes}
-
-    @property
     def has_label(self) -> bool:
         return self.labels is not None
 
