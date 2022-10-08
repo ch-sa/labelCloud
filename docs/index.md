@@ -2,14 +2,14 @@
 
 labelCloud is a lightweight tool for labeling 3D bounding boxes in point clouds.
 
-![Overview of the Labeling Tool](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/io_overview.png)
+![Overview of the Labeling Tool](assets/io_overview.png)
 
 It is written in Python and can be installed via `pip` (see [Setup](setup.md)).
 
 ## Labeling
 labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
 
-![Screencast of the Labeling Methods](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/screencast_small.gif)
+![Screencast of the Labeling Methods](assets/screencast_small.gif)
 (There is also a [short YouTube-Video](https://www.youtube.com/watch?v=8GF9n1WeR8A) that introduces the tool.)
 
 ### Picking Mode
