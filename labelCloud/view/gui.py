@@ -12,6 +12,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QAction,
     QActionGroup,
+    QColorDialog,
     QFileDialog,
     QInputDialog,
     QLabel,
@@ -19,6 +20,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
+from ..definitions.types import Color3f
 from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
@@ -190,12 +192,10 @@ class GUI(QtWidgets.QMainWindow):
         self.button_assign_label: QtWidgets.QPushButton
 
         # label list actions
-        self.act_rename_class = QtWidgets.QAction("Rename class")
+        # self.act_rename_class = QtWidgets.QAction("Rename class") #TODO: Implement!
         self.act_change_class_color = QtWidgets.QAction("Change class color")
         self.act_delete_class = QtWidgets.QAction("Delete label")
-        self.label_list.addActions(
-            {self.act_rename_class, self.act_change_class_color, self.act_delete_class}
-        )
+        self.label_list.addActions([self.act_change_class_color, self.act_delete_class])
         self.label_list.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         # BOUNDING BOX PARAMETER EDITS
@@ -632,6 +632,8 @@ class GUI(QtWidgets.QMainWindow):
         pcd_path = self.controller.pcd_manager.pcds[value]
         self.input_pcd.setLabelText(f"Insert Point Cloud number: {pcd_path.name}")
 
-    def change_label_color(self, *args, **kwargs):
+    def change_label_color(self):
         bbox = self.controller.bbox_controller.get_active_bbox()
-        bbox.color = (random.random(), random.random(), random.random(), 1)
+        LabelConfig().set_class_color(
+            bbox.classname, Color3f.from_qcolor(QColorDialog.getColor())
+        )

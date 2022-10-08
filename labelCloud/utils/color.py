@@ -1,11 +1,10 @@
 import colorsys
 
-import pkg_resources
-
 import numpy as np
 import numpy.typing as npt
+import pkg_resources
 
-from ..definitions.types import Color4f
+from ..definitions.types import Color3f
 
 
 def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
@@ -44,32 +43,28 @@ def colorize_points_with_height(
     return colors.astype(np.float32)
 
 
-def hex_to_rgba(hex: str) -> Color4f:
+def hex_to_rgb(hex: str) -> Color3f:
     """Converts a hex color to a list of RGBA values.
 
     Args:
         hex (str): The hex color to convert.
 
     Returns:
-        List[float]: The RGBA values.
+        List[float]: The RGB values.
     """
     hex = hex.lstrip("#")
-
-    if len(hex) == 6:
-        hex = hex + "ff"
-
     return tuple(  # type: ignore
-        [int(hex[i : i + 2], 16) / 255 for i in range(0, 8, 2)]
+        [int(hex[i : i + 2], 16) / 255 for i in range(0, 6, 2)]
     )
 
 
-def rgba_to_hex(color: Color4f) -> str:
+def rgb_to_hex(color: Color3f) -> str:
     """Converts a list of RGBA values to a hex color.
 
     Args:
-        color (Color4f): The RGBA values.
+        color (ColorRGB): The RGB values.
 
     Returns:
         str: The hex color.
     """
-    return "#%02x%02x%02x%02x" % tuple([int(c * 255) for c in color])
+    return "#%02x%02x%02x" % tuple([int(c * 255) for c in color])

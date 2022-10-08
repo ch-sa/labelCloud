@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 from OpenGL import GLU
 
@@ -31,7 +32,9 @@ def draw_points(
 
 
 def draw_lines(
-    points: List[Point3D], color: Color4f = (0, 1, 1, 1), line_width: int = 2
+    points: List[Point3D],
+    color: Color4f = (0, 1, 1, 1),
+    line_width: int = 2,
 ) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)

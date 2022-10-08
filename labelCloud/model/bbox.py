@@ -3,10 +3,18 @@ from typing import List
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
-from ..definitions import BBOX_EDGES, BBOX_SIDES, Dimensions3D, Point3D, Rotations3D
+from ..definitions import (
+    BBOX_EDGES,
+    BBOX_SIDES,
+    Color3f,
+    Dimensions3D,
+    Point3D,
+    Rotations3D,
+)
 from ..io.labels.config import LabelConfig
 from ..utils import math3d, oglhelper
 
@@ -164,7 +172,7 @@ class BBox(object):
             for vertex_id in edge:
                 drawing_sequence.append(vertices[vertex_id])
 
-        oglhelper.draw_lines(drawing_sequence, color=bbox_color)
+        oglhelper.draw_lines(drawing_sequence, color=Color3f.to_rgba(bbox_color))
         GL.glPopMatrix()
 
     def draw_orientation(self, crossed_side: bool = True) -> None:

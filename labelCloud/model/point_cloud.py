@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 from labelCloud.io.labels.config import LabelConfig
 
@@ -59,10 +60,9 @@ class PointCloud(object):
         self.points = points
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
 
-        self.labels = self.label_color_map = None
+        self.labels = None
         if self.SEGMENTATION:
             self.labels = segmentation_labels
-            self.label_color_map = LabelConfig().get_color_map()
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
         self.vbo = None
@@ -131,7 +131,7 @@ class PointCloud(object):
         self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
             label_one_hot = np.eye(LabelConfig().nb_of_classes)[self.labels]
-            colors = np.dot(label_one_hot, self.label_color_map).astype(np.float32)  # type: ignore
+            colors = np.dot(label_one_hot, LabelConfig().color_map).astype(np.float32)  # type: ignore
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
             return self.colors
