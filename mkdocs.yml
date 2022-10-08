@@ -1,6 +1,6 @@
 site_name: labelCloud
-
 repo_url: https://github.com/ch-sa/labelCloud
+copyright: "&copy; Christoph Sager & Contributers"
 
 nav:
     - 'index.md'
@@ -24,3 +24,12 @@ markdown_extensions:
 
 plugins:
   - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ch-sa
+    - icon: fontawesome/brands/linkedin
+      link: https://de.linkedin.com/in/christophsager
+    - icon: fontawesome/brands/twitter 
+      link: https://twitter.com/ch_sager
