@@ -1,5 +1,6 @@
 import ctypes
 import logging
+from operator import imod
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, cast
 
@@ -130,8 +131,7 @@ class PointCloud(object):
         """blend the points with label color map"""
         self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
-            label_one_hot = np.eye(LabelConfig().nb_of_classes)[self.labels]
-            colors = np.dot(label_one_hot, LabelConfig().color_map).astype(np.float32)  # type: ignore
+            colors = LabelConfig().color_map[LabelConfig().class_order[self.labels]]
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
             return self.colors

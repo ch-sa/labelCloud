@@ -72,7 +72,17 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
     @property
     def color_map(self) -> npt.NDArray[np.float32]:
+        """An (N, 3) array where N is the number of classes and color_map[i] represents the i-th class' rgb color."""
         return np.array([c.color[0:3] for c in self.classes]).astype(np.float32)
+
+    @property
+    def class_order(self) -> npt.NDArray[np.int8]:
+        """An array lookup table to look up the order of a class id in the label definition."""
+        max_class_id = max(c.id for c in self.classes) + 1
+        lookup = -np.ones((max_class_id,), dtype=np.int8)
+        for order, c in enumerate(self.classes):
+            lookup[c.id] = order
+        return lookup
 
     # GETTERS
 

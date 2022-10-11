@@ -26,8 +26,8 @@
             "color": "#FFFF63"
         },
         {
-            "name": "label5",
-            "id": 5,
+            "name": "clutter",
+            "id": 255,
             "color": "#AA6363"
         }
     ],
