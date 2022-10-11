@@ -101,6 +101,9 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             )
             return hex_to_rgb("#FF0000")
 
+    def get_class_colors(self, labels: npt.NDArray[np.int8]) -> npt.NDArray[np.float32]:
+        return self.color_map[self.class_order[labels]]
+
     def get_default_class_name(self) -> str:
         return next((c.name for c in self.classes if c.id == self.default))
 

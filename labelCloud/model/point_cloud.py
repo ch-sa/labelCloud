@@ -131,7 +131,7 @@ class PointCloud(object):
         """blend the points with label color map"""
         self.colors = cast(npt.NDArray[np.float32], self.colors)
         if self.labels is not None:
-            colors = LabelConfig().color_map[LabelConfig().class_order[self.labels]]
+            colors = LabelConfig().get_class_colors(self.labels)
             return colors * self.mix_ratio + self.colors * (1 - self.mix_ratio)
         else:
             return self.colors
