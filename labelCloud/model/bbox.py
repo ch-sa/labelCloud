@@ -21,7 +21,8 @@ from ..utils import math3d, oglhelper
 
 class BBox(object):
 
-    MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
+    MIN_DIMENSION: float = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
+    HIGHLIGHTED_COLOR: Color3f = Color3f(0, 1, 0)
 
     def __init__(
         self,
@@ -163,8 +164,8 @@ class BBox(object):
 
         GL.glPushMatrix()
         bbox_color = LabelConfig().get_class_color(self.classname)
-        # if highlighted:
-        #     bbox_color = (0, 1, 0, 1)
+        if highlighted:
+            bbox_color = self.HIGHLIGHTED_COLOR
 
         vertices = self.get_vertices()
         drawing_sequence = []

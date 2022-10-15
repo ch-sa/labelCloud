@@ -9,8 +9,6 @@ import numpy as np
 from ...model import BBox
 from .config import LabelConfig
 
-CONFIG_FILE = "_classes.json"
-
 
 class BaseLabelFormat(ABC):
     FILE_ENDING = ".json"

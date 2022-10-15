@@ -11,8 +11,6 @@ from ...definitions.types import Color3f
 from ...utils.color import hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
 
-CONFIG_FILE = "_classes.json"  # TODO: Move to config?
-
 
 @dataclass
 class ClassConfig:
@@ -43,9 +41,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             self.load_config()
 
     def load_config(self) -> None:
-        with config.getpath("FILE", "label_folder").joinpath(CONFIG_FILE).open(
-            "r"
-        ) as stream:
+        with config.getpath("FILE", "class_definitions").open("r") as stream:
             data = json.load(stream)
 
         self.classes = [ClassConfig.from_dict(c) for c in data["classes"]]
@@ -61,9 +57,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             "type": self.type,
             "format": self.format,
         }
-        with config.getpath("FILE", "label_folder").joinpath(CONFIG_FILE).open(
-            "w"
-        ) as stream:
+        with config.getpath("FILE", "label_folder").open("w") as stream:
             json.dump(data, stream, indent=4)
 
     @property
