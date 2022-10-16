@@ -5,7 +5,6 @@ from typing import Dict
 
 import numpy as np
 import pytest
-from labelCloud.io import read_label_definition
 from labelCloud.io.segmentations import NumpySegmentationHandler
 
 
@@ -21,11 +20,6 @@ def label_definition_path() -> Path:
     path = Path("labels/schema/label_definition.json")
     assert path.exists()
     return path
-
-
-@pytest.fixture
-def label_definition(label_definition_path: Path) -> Dict[str, int]:
-    return read_label_definition(label_definition_path)
 
 
 @pytest.fixture
@@ -54,15 +48,8 @@ def expected_label_definition() -> Dict[str, int]:
 
 
 @pytest.fixture
-def handler(label_definition) -> NumpySegmentationHandler:
-    return NumpySegmentationHandler(label_definition=label_definition)
-
-
-def test_label_definition(
-    handler: NumpySegmentationHandler, expected_label_definition: Dict[str, int]
-) -> None:
-    assert handler.label_definition == expected_label_definition
-    assert handler.default_label == 0
+def handler() -> NumpySegmentationHandler:
+    return NumpySegmentationHandler()
 
 
 def test_read_labels(handler: NumpySegmentationHandler, label_path: Path) -> None:
@@ -105,13 +92,11 @@ def test_read_or_create_labels_when_exist(
     label_path: Path,
     num_points: int,
     exception: BaseException,
-    expected_label_definition: Dict[str, int],
 ) -> None:
     with exception:
         labels = handler.read_or_create_labels(
             label_path=label_path, num_points=num_points
         )
-        assert handler.label_definition == expected_label_definition
         assert labels.dtype == np.int8
         assert labels.shape == (num_points,)
 
@@ -119,10 +104,8 @@ def test_read_or_create_labels_when_exist(
 def test_read_or_create_labels_when_not_exist(
     handler: NumpySegmentationHandler,
     not_label_path: Path,
-    expected_label_definition: Dict[str, int],
 ) -> None:
     labels = handler.read_or_create_labels(label_path=not_label_path, num_points=420)
-    assert handler.label_definition == expected_label_definition
     assert labels.dtype == np.int8
     assert labels.shape == (420,)
     assert (labels == np.zeros((420,))).all()

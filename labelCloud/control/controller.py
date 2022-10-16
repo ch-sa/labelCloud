@@ -5,7 +5,7 @@ import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 
-from ..definitions import BBOX_SIDES, Color, Context
+from ..definitions import BBOX_SIDES, Colors, Context
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -102,7 +102,7 @@ class Controller:
     def set_crosshair(self) -> None:
         """Sets the crosshair position in the glWidget to the current cursor position."""
         if self.curr_cursor_pos:
-            self.view.gl_widget.crosshair_col = Color.GREEN.value
+            self.view.gl_widget.crosshair_col = Colors.GREEN.value
             self.view.gl_widget.crosshair_pos = (
                 self.curr_cursor_pos.x(),
                 self.curr_cursor_pos.y(),
@@ -128,7 +128,7 @@ class Controller:
             and (not self.ctrl_pressed)
             and self.bbox_controller.has_active_bbox()
         ):
-            self.view.gl_widget.crosshair_col = Color.RED.value
+            self.view.gl_widget.crosshair_col = Colors.RED.value
             side_vertices = self.bbox_controller.get_active_bbox().get_vertices()  # type: ignore
             self.view.gl_widget.selected_side_vertices = side_vertices[
                 BBOX_SIDES[self.selected_side]

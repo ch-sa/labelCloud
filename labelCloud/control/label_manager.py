@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List
 
 from ..io.labels import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
+from ..io.labels.config import LabelConfig
 from ..model import BBox
 from .config_manager import config
 
@@ -41,7 +42,7 @@ class LabelManager(object):
         "centroid_abs",
         "kitti",
     ]
-    STD_LABEL_FORMAT = config.get("LABEL", "label_format")
+    STD_LABEL_FORMAT = LabelConfig().format
     EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
     def __init__(
