@@ -6,17 +6,15 @@ import numpy as np
 import numpy.typing as npt
 
 from ...utils.singleton import SingletonABCMeta
+from ..labels.config import LabelConfig
 
 
 class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
     EXTENSIONS: Set[str] = set()  # should be set in subclasses
 
-    def __init__(self, label_definition: Dict[str, int]) -> None:
-        self.label_definition = label_definition
-
     @property
     def default_label(self) -> int:
-        return min(list(self.label_definition.values()))
+        return LabelConfig().default
 
     def read_or_create_labels(
         self, label_path: Path, num_points: int
@@ -26,7 +24,8 @@ class BaseSegmentationHandler(object, metaclass=SingletonABCMeta):
             labels = self._read_labels(label_path)
             if labels.shape[0] != num_points:
                 raise ValueError(
-                    f"The segmentation label doesn't match with the point cloud, label file contains {labels.shape[0]} while point cloud contains {num_points}."
+                    f"The segmentation label doesn't match with the point cloud, "
+                    "label file contains {labels.shape[0]} while point cloud contains {num_points}."
                 )
         else:
             labels = self._create_labels(num_points)

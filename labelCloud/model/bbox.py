@@ -3,16 +3,26 @@ from typing import List, Optional
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 
 from ..control.config_manager import config
-from ..definitions import BBOX_EDGES, BBOX_SIDES, Dimensions3D, Point3D, Rotations3D
+from ..definitions import (
+    BBOX_EDGES,
+    BBOX_SIDES,
+    Color3f,
+    Dimensions3D,
+    Point3D,
+    Rotations3D,
+)
+from ..io.labels.config import LabelConfig
 from ..utils import math3d, oglhelper
 
 
 class BBox(object):
 
-    MIN_DIMENSION = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
+    MIN_DIMENSION: float = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
+    HIGHLIGHTED_COLOR: Color3f = Color3f(0, 1, 0)
 
     def __init__(
         self,
@@ -34,7 +44,7 @@ class BBox(object):
         self.x_rotation: float = 0
         self.y_rotation: float = 0
         self.z_rotation: float = 0
-        self.classname: str = config.get("LABEL", "STD_OBJECT_CLASS")
+        self.classname: str = LabelConfig().get_default_class_name()
         self.verticies: npt.NDArray = np.zeros((8, 3))
         self.set_axis_aligned_verticies()
 
@@ -153,9 +163,9 @@ class BBox(object):
         self.set_axis_aligned_verticies()
 
         GL.glPushMatrix()
-        bbox_color = (0, 0, 1, 1)
+        bbox_color = LabelConfig().get_class_color(self.classname)
         if highlighted:
-            bbox_color = (0, 1, 0, 1)
+            bbox_color = self.HIGHLIGHTED_COLOR
 
         vertices = self.get_vertices()
         drawing_sequence = []
@@ -163,7 +173,7 @@ class BBox(object):
             for vertex_id in edge:
                 drawing_sequence.append(vertices[vertex_id])
 
-        oglhelper.draw_lines(drawing_sequence, color=bbox_color)
+        oglhelper.draw_lines(drawing_sequence, color=Color3f.to_rgba(bbox_color))
         GL.glPopMatrix()
 
     def draw_orientation(self, crossed_side: bool = True) -> None:

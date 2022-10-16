@@ -4,6 +4,8 @@ import numpy as np
 import numpy.typing as npt
 import pkg_resources
 
+from ..definitions.types import Color3f
+
 
 def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
     """generate visualy distinct colors
@@ -39,3 +41,30 @@ def colorize_points_with_height(
     for ind, height in enumerate(points[:, 2]):
         colors[ind] = palette[round((height - z_min) / (z_max - z_min) * palette_len)]
     return colors.astype(np.float32)
+
+
+def hex_to_rgb(hex: str) -> Color3f:
+    """Converts a hex color to a list of RGBA values.
+
+    Args:
+        hex (str): The hex color to convert.
+
+    Returns:
+        List[float]: The RGB values.
+    """
+    hex = hex.lstrip("#")
+    return tuple(  # type: ignore
+        [int(hex[i : i + 2], 16) / 255 for i in range(0, 6, 2)]
+    )
+
+
+def rgb_to_hex(color: Color3f) -> str:
+    """Converts a list of RGBA values to a hex color.
+
+    Args:
+        color (ColorRGB): The RGB values.
+
+    Returns:
+        str: The hex color.
+    """
+    return "#%02x%02x%02x" % tuple([int(c * 255) for c in color])
