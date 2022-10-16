@@ -1,0 +1,22 @@
+{
+    "classes": [
+        {
+            "name": "unassigned",
+            "id": 0,
+            "color": "#9DA2AB"
+        },
+        {
+            "name": "cart",
+            "id": 1,
+            "color": "#FFAB76"
+        },
+        {
+            "name": "box",
+            "id": 2,
+            "color": "#FF6363"
+        }
+    ],
+    "default": 0,
+    "type": "object_detection",
+    "format": "centroid_abs"
+}

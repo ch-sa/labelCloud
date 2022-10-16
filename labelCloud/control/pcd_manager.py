@@ -12,6 +12,7 @@ import open3d as o3d
 import pkg_resources
 
 from ..definitions.types import Point3D
+from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
 from ..utils.logger import blue, green, print_column
@@ -139,8 +140,9 @@ class PointCloudManger(object):
         # Add point label list
         self.view.current_class_dropdown.clear()
         assert self.pointcloud is not None
-        for key in self.pointcloud.label_definition:
-            self.view.current_class_dropdown.addItem(key)
+
+        for label_class in LabelConfig().classes:
+            self.view.current_class_dropdown.addItem(label_class.name)
 
     def get_labels_from_file(self) -> List[BBox]:
         bboxes = self.label_manager.import_labels(self.pcd_path)
@@ -151,6 +153,9 @@ class PointCloudManger(object):
     def set_view(self, view: "GUI") -> None:
         self.view = view
         self.view.gl_widget.set_pointcloud_controller(self)
+        self.view.update_default_object_class_menu(
+            set(LabelConfig().get_classes().keys())
+        )  # TODO: Move to better location
 
     def save_labels_into_file(self, bboxes: List[BBox]) -> None:
         if self.pcds:
@@ -251,7 +256,6 @@ class PointCloudManger(object):
         self.pointcloud = PointCloud(
             self.pcd_path,
             points,
-            self.pointcloud.label_definition,
             colors,
             self.pointcloud.labels,
         )
@@ -265,9 +269,9 @@ class PointCloudManger(object):
         # Relabel the points if its inside the box
         if self.pointcloud.has_label:
             assert self.pointcloud.labels is not None
-            self.pointcloud.labels[points_inside] = self.pointcloud.label_definition[
-                box.classname
-            ]
+            self.pointcloud.labels[points_inside] = (
+                LabelConfig().get_class(box.classname).id
+            )
             self.pointcloud.update_selected_points_in_label_vbo(points_inside)
             logging.info(
                 f"Labeled {np.sum(points_inside)} points inside the current bounding box with label `{box.classname}`"

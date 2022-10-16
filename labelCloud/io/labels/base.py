@@ -1,12 +1,13 @@
 import json
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
 
 from ...model import BBox
+from .config import LabelConfig
 
 
 class BaseLabelFormat(ABC):
@@ -20,6 +21,7 @@ class BaseLabelFormat(ABC):
         self.export_precision = export_precision
         self.relative_rotation = relative_rotation
         self.file_ending = ".json"
+
         if relative_rotation:
             logging.info(
                 "Saving rotations relatively to positve x-axis in radians (-pi..+pi)."
@@ -33,6 +35,7 @@ class BaseLabelFormat(ABC):
 
     def update_label_folder(self, new_label_folder: Path) -> None:
         self.label_folder = new_label_folder
+        LabelConfig().load_config()
         logging.info(f"Updated label folder to {new_label_folder}.")
 
     def round_dec(self, x, decimal_places: Optional[int] = None) -> List[float]:

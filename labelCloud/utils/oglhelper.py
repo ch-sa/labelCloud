@@ -32,7 +32,9 @@ def draw_points(
 
 
 def draw_lines(
-    points: List[Point3D], color: Color4f = (0, 1, 1, 1), line_width: int = 2
+    points: List[Point3D],
+    color: Color4f = (0, 1, 1, 1),
+    line_width: int = 2,
 ) -> None:
     GL.glColor4d(*color)
     GL.glLineWidth(line_width)
