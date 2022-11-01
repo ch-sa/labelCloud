@@ -5,7 +5,8 @@ import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 
-from ..definitions import BBOX_SIDES, Colors, Context
+from ..definitions import BBOX_SIDES, Colors, Context, LabelingMode
+from ..io.labels.config import LabelConfig
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -88,7 +89,7 @@ class Controller:
         """Saves all bounding boxes and optionally segmentation labels in the label file."""
         self.pcd_manager.save_labels_into_file(self.bbox_controller.bboxes)
 
-        if config.getboolean("MODE", "SEGMENTATION"):
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
             assert self.pcd_manager.pointcloud is not None
             self.pcd_manager.pointcloud.save_segmentation_labels()
 

@@ -1,11 +1,12 @@
 import logging
 import os
-import random
 import re
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Set
 
 import pkg_resources
+from labelCloud.view.startup_dialog import StartupDialog
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap
@@ -20,7 +21,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
-from ..definitions.types import Color3f
+from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
@@ -225,18 +226,25 @@ class GUI(QtWidgets.QMainWindow):
 
         self.label_volume: QtWidgets.QLabel
 
-        # Segmentation only functionalities
-        if not config.getboolean("MODE", "segmentation"):
-            self.button_assign_label.setVisible(False)
-            self.act_color_with_label.setVisible(False)
-
-        # Connect with controller
         self.controller = control
-        self.controller.startup(self)
 
         # Connect all events to functions
         self.connect_events()
         self.set_checkbox_states()  # tick in menu
+
+        # Run startup dialog
+        startup_dialog = StartupDialog()
+        if startup_dialog.exec():
+            startup_dialog.save_class_labels()
+        else:
+            sys.exit()
+        # Segmentation only functionalities
+        if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
+            self.button_assign_label.setVisible(False)
+            self.act_color_with_label.setVisible(False)
+
+        # Connect with controller
+        self.controller.startup(self)
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
