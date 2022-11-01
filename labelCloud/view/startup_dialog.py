@@ -1,0 +1,132 @@
+from PyQt5 import QtGui, QtWidgets
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+)
+
+from ..io.labels.config import ClassConfig, LabelConfig
+from ..utils.color import hex_to_rgb, rgb_to_hex
+
+
+class ColorButton(QtWidgets.QPushButton):
+    """
+    Custom Qt Widget to show a chosen color.
+
+    Left-clicking the button shows the color-chooser, while
+    right-clicking resets the color to None (no-color).
+
+    Source: https://www.pythonguis.com/widgets/qcolorbutton-a-color-selector-tool-for-pyqt/
+    """
+
+    colorChanged = pyqtSignal(object)
+
+    def __init__(self, *args, color=None, **kwargs):
+        super(ColorButton, self).__init__(*args, **kwargs)
+
+        self._color = None
+        self._default = color
+        self.pressed.connect(self.onColorPicker)
+
+        # Set the initial/default state.
+        self.setColor(self._default)
+
+    def setColor(self, color):
+        if color != self._color:
+            self._color = color
+            self.colorChanged.emit(color)
+
+        if self._color:
+            self.setStyleSheet("background-color: %s;" % self._color)
+        else:
+            self.setStyleSheet("")
+
+    def color(self):
+        return self._color
+
+    def onColorPicker(self):
+        """
+        Show color-picker dialog to select color.
+
+        Qt will use the native dialog by default.
+
+        """
+        dlg = QtWidgets.QColorDialog(self)
+        if self._color:
+            dlg.setCurrentColor(QtGui.QColor(self._color))
+
+        if dlg.exec_():
+            self.setColor(dlg.currentColor().name())
+
+    def mousePressEvent(self, e):
+        if e.button() == Qt.RightButton:
+            self.setColor(self._default)
+
+        return super(ColorButton, self).mousePressEvent(e)
+
+
+class StartupDialog(QDialog):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.parent_gui = parent
+
+        self.setWindowTitle("Welcome to labelCloud")
+
+        self.main_layout = QVBoxLayout()
+
+        row_buttons = QHBoxLayout()
+        button_object_detection = QPushButton(text="Object Detection")
+        button_semantic_segmentation = QPushButton(text="Semantic Segmentation")
+        row_buttons.addWidget(button_object_detection)
+        row_buttons.addWidget(button_semantic_segmentation)
+        self.main_layout.addLayout(row_buttons)
+
+        self.load_class_labels(self.main_layout)
+
+        self.button_add_label = QPushButton(text="Add new label")
+        self.button_add_label.clicked.connect(self.add_label_row)
+        self.main_layout.addWidget(self.button_add_label)
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        self.main_layout.addWidget(self.buttonBox)
+
+        self.setLayout(self.main_layout)
+
+    def load_class_labels(self, main_layout) -> None:
+        for class_label in LabelConfig().classes:
+            row_label = QHBoxLayout()
+            label_id = QLabel(text=str(class_label.id))
+            label_name = QLineEdit(class_label.name)
+            label_color = ColorButton(color=rgb_to_hex(class_label.color))
+            row_label.addWidget(label_id)
+            row_label.addWidget(label_name, stretch=2)
+            row_label.addWidget(label_color)
+            main_layout.addLayout(row_label)
+
+    def save_class_labels(self) -> None:
+        classes = []
+        for i in range(1, self.layout().count() - 2):
+            row = self.layout().itemAt(i)
+            class_id = int(row.itemAt(0).widget().text())
+            class_name = row.itemAt(1).widget().text()
+            class_color = hex_to_rgb(row.itemAt(2).widget().color())
+            classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
+        LabelConfig().classes = classes
+        LabelConfig().save_config()
+
+    def add_label_row(self) -> None:
+        row_label = QHBoxLayout()
+        label_id = QLabel(text="0")
+        label_name = QLineEdit()
+        label_color = ColorButton()
+        row_label.addWidget(label_id)
+        row_label.addWidget(label_name, stretch=2)
+        row_label.addWidget(label_color)
+        self.main_layout.insertLayout(self.layout().count() - 2, row_label)

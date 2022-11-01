@@ -57,7 +57,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             "type": self.type,
             "format": self.format,
         }
-        with config.getpath("FILE", "label_folder").open("w") as stream:
+        with config.getpath("FILE", "class_definitions").open("w") as stream:
             json.dump(data, stream, indent=4)
 
     @property

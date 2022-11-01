@@ -1,7 +1,7 @@
 import logging
 import os
-import random
 import re
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Set
 
@@ -18,6 +18,8 @@ from PyQt5.QtWidgets import (
     QLabel,
     QMessageBox,
 )
+
+from labelCloud.view.startup_dialog import StartupDialog
 
 from ..control.config_manager import config
 from ..definitions.types import Color3f
@@ -237,6 +239,13 @@ class GUI(QtWidgets.QMainWindow):
         # Connect all events to functions
         self.connect_events()
         self.set_checkbox_states()  # tick in menu
+
+        # Run startup dialog
+        startup_dialog = StartupDialog()
+        if startup_dialog.exec():
+            startup_dialog.save_class_labels()
+        else:
+            sys.exit()
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
