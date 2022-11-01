@@ -3,20 +3,25 @@
         {
             "name": "unassigned",
             "id": 0,
-            "color": "#9DA2AB"
+            "color": "#9da2ab"
         },
         {
             "name": "cart",
             "id": 1,
-            "color": "#FFAB76"
+            "color": "#0df63d"
         },
         {
             "name": "box",
             "id": 2,
-            "color": "#FF6363"
+            "color": "#0d29f0"
+        },
+        {
+            "name": "person",
+            "id": 4,
+            "color": "#ff0000"
         }
     ],
     "default": 0,
-    "type": "object_detection",
+    "type": "semantic_segmentation",
     "format": "centroid_abs"
 }

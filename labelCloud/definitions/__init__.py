@@ -6,6 +6,7 @@ from .types import (
     Color3f,
     Color4f,
     Dimensions3D,
+    LabelingMode,
     Point2D,
     Point3D,
     Rotations3D,

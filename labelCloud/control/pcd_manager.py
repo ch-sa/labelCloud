@@ -11,7 +11,7 @@ import numpy as np
 import open3d as o3d
 import pkg_resources
 
-from ..definitions.types import Point3D
+from ..definitions.types import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
@@ -28,7 +28,7 @@ class PointCloudManger(object):
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
-    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
+    SEGMENTATION = LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION
 
     def __init__(self) -> None:
         # Point cloud management
