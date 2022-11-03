@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Set
 
 import pkg_resources
+from labelCloud.view.startup_dialog import StartupDialog
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap
@@ -18,8 +19,6 @@ from PyQt5.QtWidgets import (
     QLabel,
     QMessageBox,
 )
-
-from labelCloud.view.startup_dialog import StartupDialog
 
 from ..control.config_manager import config
 from ..definitions.types import Color3f
@@ -232,9 +231,7 @@ class GUI(QtWidgets.QMainWindow):
             self.button_assign_label.setVisible(False)
             self.act_color_with_label.setVisible(False)
 
-        # Connect with controller
         self.controller = control
-        self.controller.startup(self)
 
         # Connect all events to functions
         self.connect_events()
@@ -246,6 +243,8 @@ class GUI(QtWidgets.QMainWindow):
             startup_dialog.save_class_labels()
         else:
             sys.exit()
+        # Connect with controller
+        self.controller.startup(self)
 
         # Start event cycle
         self.timer = QtCore.QTimer(self)
