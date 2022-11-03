@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..definitions.types import LabelingMode
 from ..io.labels.config import ClassConfig, LabelConfig
 from ..utils.color import hex_to_rgb, rgb_to_hex
 
@@ -80,10 +81,13 @@ class StartupDialog(QDialog):
         self.main_layout = QVBoxLayout()
 
         row_buttons = QHBoxLayout()
-        button_object_detection = QPushButton(text="Object Detection")
-        button_semantic_segmentation = QPushButton(text="Semantic Segmentation")
-        row_buttons.addWidget(button_object_detection)
-        row_buttons.addWidget(button_semantic_segmentation)
+        self.button_object_detection = QPushButton(text="Object Detection")
+        self.button_object_detection.setCheckable(True)
+        self.button_semantic_segmentation = QPushButton(text="Semantic Segmentation")
+        self.button_semantic_segmentation.setCheckable(True)
+
+        row_buttons.addWidget(self.button_object_detection)
+        row_buttons.addWidget(self.button_semantic_segmentation)
         self.main_layout.addLayout(row_buttons)
 
         self.load_class_labels(self.main_layout)
@@ -95,9 +99,25 @@ class StartupDialog(QDialog):
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
+        self.button_object_detection.clicked.connect(self.switch_to_object_detection_mode)
+        self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
+
         self.main_layout.addWidget(self.buttonBox)
 
         self.setLayout(self.main_layout)
+    
+    def switch_to_object_detection_mode(self) -> None:
+        self.button_object_detection.setChecked(True)
+        self.button_semantic_segmentation.setChecked(False)
+
+    def switch_to_semantic_segmentation_mode(self) -> None:
+        self.button_object_detection.setChecked(False)
+        self.button_semantic_segmentation.setChecked(True)
+
+    def get_labeling_mode(self) -> LabelingMode:
+        if self.button_object_detection.isChecked():
+            return LabelingMode.OBJECT_DETECTION
+        return LabelingMode.SEMANTIC_SEGMENTATION
 
     def load_class_labels(self, main_layout) -> None:
         for class_label in LabelConfig().classes:
@@ -109,6 +129,10 @@ class StartupDialog(QDialog):
             row_label.addWidget(label_name, stretch=2)
             row_label.addWidget(label_color)
             main_layout.addLayout(row_label)
+        if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
+            self.button_object_detection.setChecked(True)
+        else:
+            self.button_semantic_segmentation.setChecked(True)
 
     def save_class_labels(self) -> None:
         classes = []
@@ -119,11 +143,20 @@ class StartupDialog(QDialog):
             class_color = hex_to_rgb(row.itemAt(2).widget().color())
             classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
         LabelConfig().classes = classes
+        LabelConfig().type = self.get_labeling_mode()        
         LabelConfig().save_config()
+
+    @property
+    def next_label_id(self) -> int:
+        max_class_id = 0
+        for i in range(1, self.layout().count() - 2):
+            row = self.layout().itemAt(i)
+            max_class_id = max(max_class_id, int(row.itemAt(0).widget().text()))
+        return max_class_id + 1
 
     def add_label_row(self) -> None:
         row_label = QHBoxLayout()
-        label_id = QLabel(text="0")
+        label_id = QLabel(text=str(self.next_label_id))
         label_name = QLineEdit()
         label_color = ColorButton()
         row_label.addWidget(label_id)

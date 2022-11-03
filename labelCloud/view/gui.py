@@ -227,7 +227,7 @@ class GUI(QtWidgets.QMainWindow):
         self.label_volume: QtWidgets.QLabel
 
         # Segmentation only functionalities
-        if not config.getboolean("MODE", "segmentation"):
+        if not True:
             self.button_assign_label.setVisible(False)
             self.act_color_with_label.setVisible(False)
 

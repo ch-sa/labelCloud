@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 
 from ...control.config_manager import config
-from ...definitions.types import Color3f
+from ...definitions.types import Color3f, LabelingMode
 from ...utils.color import hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
 
@@ -34,7 +34,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
     def __init__(self) -> None:
         self.classes: List[ClassConfig]
         self.default: int
-        self.type: str
+        self.type: LabelingMode
         self.format: str
 
         if getattr(self, "_loaded", False) != True:
@@ -54,7 +54,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         data = {
             "classes": [c.to_dict() for c in self.classes],
             "default": self.default,
-            "type": self.type,
+            "type": self.type.value,
             "format": self.format,
         }
         with config.getpath("FILE", "class_definitions").open("w") as stream:

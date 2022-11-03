@@ -5,12 +5,11 @@ from typing import List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
-
 import OpenGL.GL as GL
 from labelCloud.io.labels.config import LabelConfig
 
 from ..control.config_manager import config
-from ..definitions.types import Point3D, Rotations3D, Translation3D
+from ..definitions.types import LabelingMode, Point3D, Rotations3D, Translation3D
 from ..io import read_label_definition
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
@@ -44,7 +43,6 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
 
 
 class PointCloud(object):
-    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
 
     def __init__(
         self,
@@ -62,7 +60,7 @@ class PointCloud(object):
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
 
         self.labels = None
-        if self.SEGMENTATION:
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
             self.labels = segmentation_labels
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
@@ -164,7 +162,7 @@ class PointCloud(object):
         ).read_point_cloud(path=path)
 
         labels = None
-        if cls.SEGMENTATION:
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
 
             label_path = config.getpath("FILE", "label_folder") / Path(
                 f"segmentation/{path.stem}.bin"

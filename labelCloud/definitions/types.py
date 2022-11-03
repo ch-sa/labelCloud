@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Tuple
 
 from PyQt5.QtGui import QColor
@@ -13,6 +14,10 @@ Dimensions3D = Tuple[float, float, float]  # length, width, height in meters
 
 Color4f = Tuple[float, float, float, float]  # type alias for type hinting
 
+
+class LabelingMode(str, Enum):
+    OBJECT_DETECTION = "object_detection"
+    SEMANTIC_SEGMENTATION = "semantic_segmentation"
 
 class Color3f(tuple):
     def __new__(cls, r, g, b):
