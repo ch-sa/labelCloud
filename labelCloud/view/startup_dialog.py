@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QSpinBox,
     QVBoxLayout,
 )
 
@@ -122,7 +123,10 @@ class StartupDialog(QDialog):
     def load_class_labels(self, main_layout) -> None:
         for class_label in LabelConfig().classes:
             row_label = QHBoxLayout()
-            label_id = QLabel(text=str(class_label.id))
+            label_id = QSpinBox()
+            label_id.setMinimum(0)
+            label_id.setMaximum(255)
+            label_id.setValue(class_label.id)
             label_name = QLineEdit(class_label.name)
             label_color = ColorButton(color=rgb_to_hex(class_label.color))
             row_label.addWidget(label_id)
