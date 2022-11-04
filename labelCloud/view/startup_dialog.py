@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QScrollArea,
     QSpinBox,
     QVBoxLayout,
 )
@@ -82,9 +83,9 @@ class StartupDialog(QDialog):
         self.main_layout = QVBoxLayout()
 
         row_buttons = QHBoxLayout()
-        self.button_object_detection = QPushButton(text="Object Detection")
+        self.button_object_detection = QPushButton(text=LabelingMode.OBJECT_DETECTION.title().replace("_", " "))
         self.button_object_detection.setCheckable(True)
-        self.button_semantic_segmentation = QPushButton(text="Semantic Segmentation")
+        self.button_semantic_segmentation = QPushButton(text=LabelingMode.SEMANTIC_SEGMENTATION.title().replace("_", " "))
         self.button_semantic_segmentation.setCheckable(True)
 
         row_buttons.addWidget(self.button_object_detection)
@@ -92,7 +93,7 @@ class StartupDialog(QDialog):
         self.main_layout.addLayout(row_buttons)
 
         self.load_class_labels(self.main_layout)
-
+        
         self.button_add_label = QPushButton(text="Add new label")
         self.button_add_label.clicked.connect(self.add_label_row)
         self.main_layout.addWidget(self.button_add_label)
@@ -104,6 +105,7 @@ class StartupDialog(QDialog):
         self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
 
         self.main_layout.addWidget(self.buttonBox)
+
 
         self.setLayout(self.main_layout)
     
@@ -120,19 +122,30 @@ class StartupDialog(QDialog):
             return LabelingMode.OBJECT_DETECTION
         return LabelingMode.SEMANTIC_SEGMENTATION
 
-    def load_class_labels(self, main_layout) -> None:
+    def load_class_labels(self, main_layout: QVBoxLayout) -> None:
+
+        self.class_labels = QVBoxLayout()
         for class_label in LabelConfig().classes:
             row_label = QHBoxLayout()
+            # label id
             label_id = QSpinBox()
             label_id.setMinimum(0)
             label_id.setMaximum(255)
             label_id.setValue(class_label.id)
+            # label name
             label_name = QLineEdit(class_label.name)
+            # label color
             label_color = ColorButton(color=rgb_to_hex(class_label.color))
+            # delete button
+            label_delete = QPushButton(text="delete")
+            row_label.addWidget(label_delete)
             row_label.addWidget(label_id)
             row_label.addWidget(label_name, stretch=2)
             row_label.addWidget(label_color)
-            main_layout.addLayout(row_label)
+            self.class_labels.addLayout(row_label)
+        main_layout.addWidget(QLabel("Class definition"))
+        main_layout.addLayout(self.class_labels)
+        # Load annotation mode
         if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
             self.button_object_detection.setChecked(True)
         else:
@@ -140,30 +153,37 @@ class StartupDialog(QDialog):
 
     def save_class_labels(self) -> None:
         classes = []
-        for i in range(1, self.layout().count() - 2):
-            row = self.layout().itemAt(i)
-            class_id = int(row.itemAt(0).widget().text())
-            class_name = row.itemAt(1).widget().text()
-            class_color = hex_to_rgb(row.itemAt(2).widget().color())
+        for i in range(self.class_labels.count()):
+            
+            row: QHBoxLayout = self.class_labels.itemAt(i)
+            class_id = int(row.itemAt(1).widget().text())
+            class_name = row.itemAt(2).widget().text()
+            class_color = hex_to_rgb(row.itemAt(3).widget().color())
             classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
         LabelConfig().classes = classes
+        print(LabelConfig())
         LabelConfig().type = self.get_labeling_mode()        
         LabelConfig().save_config()
 
-    @property
     def next_label_id(self) -> int:
         max_class_id = 0
-        for i in range(1, self.layout().count() - 2):
-            row = self.layout().itemAt(i)
-            max_class_id = max(max_class_id, int(row.itemAt(0).widget().text()))
+        for i in range(self.class_labels.count()):
+            row: QHBoxLayout = self.class_labels.itemAt(i)
+            max_class_id = max(max_class_id, int(row.itemAt(1).widget().text()))
         return max_class_id + 1
 
     def add_label_row(self) -> None:
         row_label = QHBoxLayout()
-        label_id = QLabel(text=str(self.next_label_id))
+
+        label_id = QSpinBox()
+        label_id.setMinimum(0)
+        label_id.setMaximum(255)
+        label_id.setValue(self.next_label_id())
         label_name = QLineEdit()
         label_color = ColorButton()
+        label_delete = QPushButton(text="delete")
+        row_label.addWidget(label_delete)
         row_label.addWidget(label_id)
         row_label.addWidget(label_name, stretch=2)
         row_label.addWidget(label_color)
-        self.main_layout.insertLayout(self.layout().count() - 2, row_label)
+        self.class_labels.insertLayout(self.class_labels.count(), row_label)
