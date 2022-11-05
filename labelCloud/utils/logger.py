@@ -106,7 +106,7 @@ def end_section() -> None:
     pass
 
 
-rows = []
+rows: List[List[str]] = []
 
 
 def print_column(column_values: List[str], last: bool = False) -> None:

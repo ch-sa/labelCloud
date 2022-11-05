@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 from OpenGL import GLU
 
@@ -82,7 +83,7 @@ def draw_crosshair(
     cx: float, cy: float, cz: float, color: Color4f = (0, 1, 0, 1)
 ) -> None:
     GL.glBegin(GL.GL_LINES)
-    GL.glColor3d(*color)
+    GL.glColor4d(*color)
     GL.glVertex3d(cx + 0.1, cy, cz)  # x-line
     GL.glVertex3d(cx - 0.1, cy, cz)
     GL.glVertex3d(cx, cy + 0.1, cz)  # y-line
