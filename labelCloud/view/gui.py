@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
-from ..definitions.types import Color3f
+from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
@@ -226,11 +226,6 @@ class GUI(QtWidgets.QMainWindow):
 
         self.label_volume: QtWidgets.QLabel
 
-        # Segmentation only functionalities
-        if not True:
-            self.button_assign_label.setVisible(False)
-            self.act_color_with_label.setVisible(False)
-
         self.controller = control
 
         # Connect all events to functions
@@ -243,6 +238,11 @@ class GUI(QtWidgets.QMainWindow):
             startup_dialog.save_class_labels()
         else:
             sys.exit()
+        # Segmentation only functionalities
+        if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
+            self.button_assign_label.setVisible(False)
+            self.act_color_with_label.setVisible(False)
+
         # Connect with controller
         self.controller.startup(self)
 
