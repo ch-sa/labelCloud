@@ -1,13 +1,15 @@
+from typing import List
+
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
+    QButtonGroup,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
     QSpinBox,
     QVBoxLayout,
 )
@@ -93,22 +95,21 @@ class StartupDialog(QDialog):
         self.main_layout.addLayout(row_buttons)
 
         self.load_class_labels(self.main_layout)
-        
+
         self.button_add_label = QPushButton(text="Add new label")
         self.button_add_label.clicked.connect(self.add_label_row)
         self.main_layout.addWidget(self.button_add_label)
 
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Save)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         self.button_object_detection.clicked.connect(self.switch_to_object_detection_mode)
         self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
-
         self.main_layout.addWidget(self.buttonBox)
-
-
         self.setLayout(self.main_layout)
-    
+
+        self.delete_buttons.buttonClicked.connect(self.delete_label_row)
+
     def switch_to_object_detection_mode(self) -> None:
         self.button_object_detection.setChecked(True)
         self.button_semantic_segmentation.setChecked(False)
@@ -125,6 +126,9 @@ class StartupDialog(QDialog):
     def load_class_labels(self, main_layout: QVBoxLayout) -> None:
 
         self.class_labels = QVBoxLayout()
+        self.delete_buttons = QButtonGroup()
+        self.delete_button_hash: List[int] = []
+
         for class_label in LabelConfig().classes:
             row_label = QHBoxLayout()
             # label id
@@ -137,11 +141,15 @@ class StartupDialog(QDialog):
             # label color
             label_color = ColorButton(color=rgb_to_hex(class_label.color))
             # delete button
-            label_delete = QPushButton(text="delete")
+            label_delete = QPushButton(text="X")
+            self.delete_buttons.addButton(label_delete, hash(label_delete))
+            self.delete_button_hash.append(hash(label_delete))
+
             row_label.addWidget(label_delete)
             row_label.addWidget(label_id)
             row_label.addWidget(label_name, stretch=2)
             row_label.addWidget(label_color)
+
             self.class_labels.addLayout(row_label)
         main_layout.addWidget(QLabel("Class definition"))
         main_layout.addLayout(self.class_labels)
@@ -161,7 +169,6 @@ class StartupDialog(QDialog):
             class_color = hex_to_rgb(row.itemAt(3).widget().color())
             classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
         LabelConfig().classes = classes
-        print(LabelConfig())
         LabelConfig().type = self.get_labeling_mode()        
         LabelConfig().save_config()
 
@@ -172,6 +179,17 @@ class StartupDialog(QDialog):
             max_class_id = max(max_class_id, int(row.itemAt(1).widget().text()))
         return max_class_id + 1
 
+    def delete_label_row(self, object):
+
+        row = self.delete_button_hash.index(hash(object))
+        del self.delete_button_hash[row]
+        row_label: QHBoxLayout = self.class_labels.itemAt(row)
+        for _ in range(row_label.count()):
+            row_label.removeWidget(row_label.itemAt(0).widget())
+
+        self.class_labels.removeItem(self.class_labels.itemAt(row))
+        
+
     def add_label_row(self) -> None:
         row_label = QHBoxLayout()
 
@@ -181,7 +199,9 @@ class StartupDialog(QDialog):
         label_id.setValue(self.next_label_id())
         label_name = QLineEdit()
         label_color = ColorButton()
-        label_delete = QPushButton(text="delete")
+        label_delete = QPushButton(text="X")
+        self.delete_button_hash.append(hash(label_delete))
+        self.delete_buttons.addButton(label_delete)
         row_label.addWidget(label_delete)
         row_label.addWidget(label_id)
         row_label.addWidget(label_name, stretch=2)
