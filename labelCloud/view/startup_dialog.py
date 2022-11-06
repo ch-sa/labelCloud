@@ -81,7 +81,7 @@ class LabelNameValidator(QValidator):
         if a0 != "":
             return (QValidator.Acceptable, a0, a1)
         else:
-            return (QValidator.Intermediate, a0, a1)
+            return (QValidator.Invalid, a0, a1)
 
 class StartupDialog(QDialog):
     def __init__(self, parent=None) -> None:
@@ -101,6 +101,7 @@ class StartupDialog(QDialog):
         row_buttons.addWidget(self.button_object_detection)
         row_buttons.addWidget(self.button_semantic_segmentation)
         self.main_layout.addLayout(row_buttons)
+        self.label_name_validator = LabelNameValidator()
 
         self.load_class_labels(self.main_layout)
 
@@ -115,6 +116,7 @@ class StartupDialog(QDialog):
         self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
         self.main_layout.addWidget(self.buttonBox)
         self.setLayout(self.main_layout)
+
 
         self.delete_buttons.buttonClicked.connect(self.delete_label_row)
 
@@ -146,7 +148,8 @@ class StartupDialog(QDialog):
             label_id.setValue(class_label.id)
             # label name
             label_name = QLineEdit(class_label.name)
-            label_name.setValidator(LabelNameValidator())
+            
+            label_name.setValidator(self.label_name_validator)
             # label color
             label_color = ColorButton(color=rgb_to_hex(class_label.color))
             # delete button
@@ -197,6 +200,10 @@ class StartupDialog(QDialog):
             row_label.removeWidget(row_label.itemAt(0).widget())
 
         self.class_labels.removeItem(self.class_labels.itemAt(row))
+
+    def check_savable(self, s):
+        print(s)
+
         
 
     def add_label_row(self) -> None:
@@ -207,7 +214,8 @@ class StartupDialog(QDialog):
         label_id.setMaximum(255)
         next_label_id = self.next_label_id()
         label_id.setValue(next_label_id)
-        label_name = QLineEdit(f"Label{next_label_id}")
+        label_name = QLineEdit(f"Label{next_label_id}")        
+        label_name.setValidator(self.label_name_validator)
         label_color = ColorButton()
         label_delete = QPushButton(text="X")
         self.delete_button_hash.append(hash(label_delete))
