@@ -115,6 +115,7 @@ class StartupDialog(QDialog):
         self.button_object_detection.clicked.connect(self.switch_to_object_detection_mode)
         self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
         self.main_layout.addWidget(self.buttonBox)
+        self.main_layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.main_layout)
 
 
