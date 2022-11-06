@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Tuple
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QValidator
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QDialog,
@@ -31,7 +32,7 @@ class ColorButton(QtWidgets.QPushButton):
 
     colorChanged = pyqtSignal(object)
 
-    def __init__(self, *args, color=None, **kwargs):
+    def __init__(self, *args, color="#FF0000", **kwargs):
         super(ColorButton, self).__init__(*args, **kwargs)
 
         self._color = None
@@ -74,6 +75,13 @@ class ColorButton(QtWidgets.QPushButton):
 
         return super(ColorButton, self).mousePressEvent(e)
 
+
+class LabelNameValidator(QValidator):
+    def validate(self, a0: str, a1: int) -> Tuple['QValidator.State', str, int]:
+        if a0 != "":
+            return (QValidator.Acceptable, a0, a1)
+        else:
+            return (QValidator.Intermediate, a0, a1)
 
 class StartupDialog(QDialog):
     def __init__(self, parent=None) -> None:
@@ -138,6 +146,7 @@ class StartupDialog(QDialog):
             label_id.setValue(class_label.id)
             # label name
             label_name = QLineEdit(class_label.name)
+            label_name.setValidator(LabelNameValidator())
             # label color
             label_color = ColorButton(color=rgb_to_hex(class_label.color))
             # delete button
@@ -196,8 +205,9 @@ class StartupDialog(QDialog):
         label_id = QSpinBox()
         label_id.setMinimum(0)
         label_id.setMaximum(255)
-        label_id.setValue(self.next_label_id())
-        label_name = QLineEdit()
+        next_label_id = self.next_label_id()
+        label_id.setValue(next_label_id)
+        label_name = QLineEdit(f"Label{next_label_id}")
         label_color = ColorButton()
         label_delete = QPushButton(text="X")
         self.delete_button_hash.append(hash(label_delete))
