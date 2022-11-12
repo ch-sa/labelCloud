@@ -70,7 +70,7 @@ class PointCloud(object):
         self.init_translation: Point3D = init_translation or calculate_init_translation(
             self.center, self.pcd_mins, self.pcd_maxs
         )
-        self.init_rotation: Rotations3D = init_rotation or (0, 0, 0)
+        self.init_rotation: Rotations3D = init_rotation or tuple([0, 0, 0])  # type: ignore
 
         # Point cloud transformations
         self.trans_x, self.trans_y, self.trans_z = self.init_translation

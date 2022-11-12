@@ -3,7 +3,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 import pkg_resources
 from labelCloud.view.startup_dialog import StartupDialog
@@ -233,9 +233,9 @@ class GUI(QtWidgets.QMainWindow):
         self.set_checkbox_states()  # tick in menu
 
         # Run startup dialog
-        startup_dialog = StartupDialog()
-        if startup_dialog.exec():
-            startup_dialog.save_class_labels()
+        self.startup_dialog = StartupDialog()
+        if self.startup_dialog.exec():
+            self.startup_dialog.save_class_labels()
         else:
             sys.exit()
         # Segmentation only functionalities
@@ -603,7 +603,9 @@ class GUI(QtWidgets.QMainWindow):
             )
             logging.info("Changed label folder to %s!" % path_to_folder)
 
-    def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
+    def update_default_object_class_menu(
+        self, new_classes: Optional[Set[str]] = None
+    ) -> None:
         object_classes = set(LabelConfig().get_classes())
 
         object_classes.update(new_classes or [])
