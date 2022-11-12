@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from typing import Tuple
 
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QValidator
+import pkg_resources
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QPixmap, QValidator
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QDialog,
@@ -18,211 +18,204 @@ from PyQt5.QtWidgets import (
 from ..definitions.types import LabelingMode
 from ..io.labels.config import ClassConfig, LabelConfig
 from ..utils.color import hex_to_rgb, rgb_to_hex
-
-
-class ColorButton(QtWidgets.QPushButton):
-    """
-    Custom Qt Widget to show a chosen color.
-
-    Left-clicking the button shows the color-chooser, while
-    right-clicking resets the color to None (no-color).
-
-    Source: https://www.pythonguis.com/widgets/qcolorbutton-a-color-selector-tool-for-pyqt/
-    """
-
-    colorChanged = pyqtSignal(object)
-
-    def __init__(self, *args, color="#FF0000", **kwargs):
-        super(ColorButton, self).__init__(*args, **kwargs)
-
-        self._color = None
-        self._default = color
-        self.pressed.connect(self.onColorPicker)
-
-        # Set the initial/default state.
-        self.setColor(self._default)
-
-    def setColor(self, color):
-        if color != self._color:
-            self._color = color
-            self.colorChanged.emit(color)
-
-        if self._color:
-            self.setStyleSheet("background-color: %s;" % self._color)
-        else:
-            self.setStyleSheet("")
-
-    def color(self):
-        return self._color
-
-    def onColorPicker(self):
-        """
-        Show color-picker dialog to select color.
-
-        Qt will use the native dialog by default.
-
-        """
-        dlg = QtWidgets.QColorDialog(self)
-        if self._color:
-            dlg.setCurrentColor(QtGui.QColor(self._color))
-
-        if dlg.exec_():
-            self.setColor(dlg.currentColor().name())
-
-    def mousePressEvent(self, e):
-        if e.button() == Qt.RightButton:
-            self.setColor(self._default)
-
-        return super(ColorButton, self).mousePressEvent(e)
+from ..view.color_button import ColorButton
 
 
 class LabelNameValidator(QValidator):
-    def validate(self, a0: str, a1: int) -> Tuple['QValidator.State', str, int]:
+    def validate(self, a0: str, a1: int) -> Tuple["QValidator.State", str, int]:
         if a0 != "":
             return (QValidator.Acceptable, a0, a1)
-        else:
-            return (QValidator.Invalid, a0, a1)
+        return (QValidator.Invalid, a0, a1)
+
 
 class StartupDialog(QDialog):
+
+    NAME_VALIDATOR = LabelNameValidator()
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.parent_gui = parent
 
         self.setWindowTitle("Welcome to labelCloud")
+        self.setWindowIcon(
+            QIcon(
+                pkg_resources.resource_filename(
+                    "labelCloud.resources.icons", "labelCloud.ico"
+                )
+            )
+        )
+        self.setContentsMargins(50, 10, 50, 10)
 
-        self.main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
+        main_layout.setSpacing(10)
+        main_layout.setAlignment(Qt.AlignTop)
+        self.setLayout(main_layout)
 
-        row_buttons = QHBoxLayout()
-        self.button_object_detection = QPushButton(text=LabelingMode.OBJECT_DETECTION.title().replace("_", " "))
-        self.button_object_detection.setCheckable(True)
-        self.button_semantic_segmentation = QPushButton(text=LabelingMode.SEMANTIC_SEGMENTATION.title().replace("_", " "))
-        self.button_semantic_segmentation.setCheckable(True)
+        # 1. Row: Selection of labeling mode via checkable buttons
+        self.button_object_detection: QPushButton
+        self.button_semantic_segmentation: QPushButton
+        self.add_labeling_mode_row(main_layout)
 
-        row_buttons.addWidget(self.button_object_detection)
-        row_buttons.addWidget(self.button_semantic_segmentation)
-        self.main_layout.addLayout(row_buttons)
-        self.label_name_validator = LabelNameValidator()
+        # 2. Row: Definition of class labels
+        self.add_class_definition_rows(main_layout)
 
-        self.load_class_labels(self.main_layout)
-
+        # 3. Row: Addition of new class labels
         self.button_add_label = QPushButton(text="Add new label")
-        self.button_add_label.clicked.connect(self.add_label_row)
-        self.main_layout.addWidget(self.button_add_label)
+        self.button_add_label.clicked.connect(
+            lambda: self.add_label(
+                id=self.next_label_id,
+                name="new_label",
+                hex_color="#FF0000",
+            )
+        )
+        self.delete_buttons.buttonClicked.connect(self.delete_label)
+        main_layout.addWidget(self.button_add_label)
 
+        # 4. Row: Buttons to save or cancel
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Save)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        self.button_object_detection.clicked.connect(self.switch_to_object_detection_mode)
-        self.button_semantic_segmentation.clicked.connect(self.switch_to_semantic_segmentation_mode)
-        self.main_layout.addWidget(self.buttonBox)
-        self.main_layout.setAlignment(Qt.AlignTop)
-        self.setLayout(self.main_layout)
 
+        main_layout.addWidget(self.buttonBox)
 
-        self.delete_buttons.buttonClicked.connect(self.delete_label_row)
+    # ---------------------------------------------------------------------------- #
+    #                                     SETUP                                    #
+    # ---------------------------------------------------------------------------- #
 
-    def switch_to_object_detection_mode(self) -> None:
-        self.button_object_detection.setChecked(True)
-        self.button_semantic_segmentation.setChecked(False)
+    def add_labeling_mode_row(self, parent_layout: QVBoxLayout) -> None:
+        """
+        Add a row to the dialog to select the labeling mode with two exclusive buttons.
+        """
+        parent_layout.addWidget(QLabel("Select labeling mode:"))
 
-    def switch_to_semantic_segmentation_mode(self) -> None:
-        self.button_object_detection.setChecked(False)
-        self.button_semantic_segmentation.setChecked(True)
+        row_buttons = QHBoxLayout()
 
-    def get_labeling_mode(self) -> LabelingMode:
-        if self.button_object_detection.isChecked():
-            return LabelingMode.OBJECT_DETECTION
-        return LabelingMode.SEMANTIC_SEGMENTATION
+        self.button_object_detection = QPushButton(
+            text=LabelingMode.OBJECT_DETECTION.title().replace("_", " ")
+        )
+        self.button_object_detection.setCheckable(True)
+        self.button_object_detection.setToolTip(
+            "This will result in a label file for each point cloud\n"
+            "with a bounding box for each annotated object."
+        )
+        row_buttons.addWidget(self.button_object_detection)
 
-    def load_class_labels(self, main_layout: QVBoxLayout) -> None:
+        self.button_semantic_segmentation = QPushButton(
+            text=LabelingMode.SEMANTIC_SEGMENTATION.title().replace("_", " ")
+        )
+        self.button_semantic_segmentation.setCheckable(True)
+        self.button_semantic_segmentation.setToolTip(
+            "This will result in a *.bin file for each point cloud\n"
+            "with a label for each annotated point of an object."
+        )
+        row_buttons.addWidget(self.button_semantic_segmentation)
 
+        parent_layout.addLayout(row_buttons)
+
+        # Click callbacks to switch between the two modes
+        def select_object_detection():
+            self.button_object_detection.setChecked(True)
+            self.button_semantic_segmentation.setChecked(False)
+
+        self.button_object_detection.clicked.connect(select_object_detection)
+
+        def select_semantic_segmentation():
+            self.button_semantic_segmentation.setChecked(True)
+            self.button_object_detection.setChecked(False)
+
+        self.button_semantic_segmentation.clicked.connect(select_semantic_segmentation)
+
+    def add_class_definition_rows(self, parent_layout: QVBoxLayout) -> None:
         self.class_labels = QVBoxLayout()
         self.delete_buttons = QButtonGroup()
-        self.delete_button_hash: List[int] = []
 
         for class_label in LabelConfig().classes:
-            row_label = QHBoxLayout()
-            # label id
-            label_id = QSpinBox()
-            label_id.setMinimum(0)
-            label_id.setMaximum(255)
-            label_id.setValue(class_label.id)
-            # label name
-            label_name = QLineEdit(class_label.name)
-            
-            label_name.setValidator(self.label_name_validator)
-            # label color
-            label_color = ColorButton(color=rgb_to_hex(class_label.color))
-            # delete button
-            label_delete = QPushButton(text="X")
-            self.delete_buttons.addButton(label_delete, hash(label_delete))
-            self.delete_button_hash.append(hash(label_delete))
+            self.add_label(
+                class_label.id, class_label.name, rgb_to_hex(class_label.color)
+            )
 
-            row_label.addWidget(label_delete)
-            row_label.addWidget(label_id)
-            row_label.addWidget(label_name, stretch=2)
-            row_label.addWidget(label_color)
-
-            self.class_labels.addLayout(row_label)
-        main_layout.addWidget(QLabel("Class definition"))
-        main_layout.addLayout(self.class_labels)
+        parent_layout.addWidget(QLabel("Change class labels:"))
+        parent_layout.addLayout(self.class_labels)
         # Load annotation mode
         if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
             self.button_object_detection.setChecked(True)
         else:
             self.button_semantic_segmentation.setChecked(True)
 
-    def save_class_labels(self) -> None:
-        classes = []
-        for i in range(self.class_labels.count()):
-            
-            row: QHBoxLayout = self.class_labels.itemAt(i)
-            class_id = int(row.itemAt(1).widget().text())
-            class_name = row.itemAt(2).widget().text()
-            class_color = hex_to_rgb(row.itemAt(3).widget().color())
-            classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
-        LabelConfig().classes = classes
-        LabelConfig().type = self.get_labeling_mode()        
-        LabelConfig().save_config()
+    # ---------------------------------------------------------------------------- #
+    #                                  PROPERTIES                                  #
+    # ---------------------------------------------------------------------------- #
 
+    @property
+    def get_labeling_mode(self) -> LabelingMode:
+        if self.button_object_detection.isChecked():
+            return LabelingMode.OBJECT_DETECTION
+        return LabelingMode.SEMANTIC_SEGMENTATION
+
+    @property
     def next_label_id(self) -> int:
         max_class_id = 0
         for i in range(self.class_labels.count()):
-            row: QHBoxLayout = self.class_labels.itemAt(i)
-            max_class_id = max(max_class_id, int(row.itemAt(1).widget().text()))
+            label_id = int(self.class_labels.itemAt(i).itemAt(0).widget().text())  # type: ignore
+            max_class_id = max(max_class_id, label_id)
         return max_class_id + 1
 
-    def delete_label_row(self, object):
+    # ---------------------------------------------------------------------------- #
+    #                                     LOGIC                                    #
+    # ---------------------------------------------------------------------------- #
 
-        row = self.delete_button_hash.index(hash(object))
-        del self.delete_button_hash[row]
-        row_label: QHBoxLayout = self.class_labels.itemAt(row)
-        for _ in range(row_label.count()):
-            row_label.removeWidget(row_label.itemAt(0).widget())
-
-        self.class_labels.removeItem(self.class_labels.itemAt(row))
-
-    def check_savable(self, s):
-        print(s)
-
-        
-
-    def add_label_row(self) -> None:
+    def add_label(self, id: int, name: str, hex_color: str) -> None:
         row_label = QHBoxLayout()
 
         label_id = QSpinBox()
         label_id.setMinimum(0)
         label_id.setMaximum(255)
-        next_label_id = self.next_label_id()
-        label_id.setValue(next_label_id)
-        label_name = QLineEdit(f"Label{next_label_id}")        
-        label_name.setValidator(self.label_name_validator)
-        label_color = ColorButton()
-        label_delete = QPushButton(text="X")
-        self.delete_button_hash.append(hash(label_delete))
-        self.delete_buttons.addButton(label_delete)
-        row_label.addWidget(label_delete)
+        label_id.setValue(id)
         row_label.addWidget(label_id)
+
+        label_name = QLineEdit(name)
+        label_name.setValidator(self.NAME_VALIDATOR)
         row_label.addWidget(label_name, stretch=2)
+
+        label_color = ColorButton(color=hex_color)
         row_label.addWidget(label_color)
+
+        label_delete = QPushButton(
+            icon=QIcon(
+                QPixmap(
+                    pkg_resources.resource_filename(
+                        "labelCloud.resources.icons", "delete-outline.svg"
+                    )
+                )
+            ),
+            text="",
+        )
+        self.delete_buttons.addButton(
+            label_delete, id=len(self.delete_buttons.buttons())
+        )
+        row_label.addWidget(label_delete)
+
         self.class_labels.insertLayout(self.class_labels.count(), row_label)
+
+    def delete_label(self, delete_button: QPushButton) -> None:
+        row = self.delete_buttons.id(delete_button)
+        row_label: QHBoxLayout = self.class_labels.itemAt(row)  # type: ignore
+        for _ in range(row_label.count()):
+            row_label.removeWidget(row_label.itemAt(0).widget())
+
+        self.class_labels.removeItem(self.class_labels.itemAt(row))
+
+        self.adjustSize()
+
+    def save_class_labels(self) -> None:
+        classes = []
+        for i in range(self.class_labels.count()):
+
+            row: QHBoxLayout = self.class_labels.itemAt(i)  # type: ignore
+            class_id = int(row.itemAt(1).widget().text())  # type: ignore
+            class_name = row.itemAt(2).widget().text()  # type: ignore
+            class_color = hex_to_rgb(row.itemAt(3).widget().color())  # type: ignore
+            classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
+        LabelConfig().classes = classes
+        LabelConfig().type = self.get_labeling_mode
+        LabelConfig().save_config()
