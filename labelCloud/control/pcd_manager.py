@@ -8,8 +8,9 @@ from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 import numpy as np
-import open3d as o3d
 import pkg_resources
+
+import open3d as o3d
 
 from ..definitions.types import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig

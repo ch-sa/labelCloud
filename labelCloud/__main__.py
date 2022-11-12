@@ -57,6 +57,10 @@ def setup_example_project() -> None:
         str(pcd_folder.joinpath("exemplary.ply")),
     )
     shutil.copy(
+        pkg_resources.resource_filename("labelCloud.resources", "default_classes.json"),
+        str(label_folder.joinpath("_classes.json")),
+    )
+    shutil.copy(
         pkg_resources.resource_filename(
             "labelCloud.resources.examples", "exemplary.json"
         ),

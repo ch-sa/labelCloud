@@ -1,13 +1,13 @@
 import numpy as np
+
 from labelCloud.utils.color import colorize_points_with_height, get_distinct_colors
 
 
 def test_get_distinct_colors() -> None:
     num_colors = 17
     colors = get_distinct_colors(num_colors)
-    assert colors.dtype == np.float32
-    assert colors.shape == (num_colors, 3)
-    assert 0 <= colors.max() <= 1
+    assert isinstance(colors[0], str)
+    assert len(colors) == num_colors
 
 
 def test_colorize_points_with_height() -> None:
