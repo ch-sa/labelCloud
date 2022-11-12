@@ -1,11 +1,15 @@
 import logging
 import os
+import time
+from typing import Tuple
 
 import pytest
+from PyQt5 import QtCore
 
 from labelCloud.control.controller import Controller
 from labelCloud.model.bbox import BBox
 from labelCloud.view.gui import GUI
+from labelCloud.view.startup_dialog import StartupDialog
 
 
 def pytest_configure(config):
@@ -14,10 +18,12 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def startup_pyqt(qtbot, qapp):
+def startup_pyqt(qtbot, qapp, monkeypatch):
 
     # Setup Model-View-Control structure
     control = Controller()
+
+    monkeypatch.setattr(StartupDialog, "exec", lambda self: 1)
 
     view = GUI(control)
     qtbot.addWidget(view)
