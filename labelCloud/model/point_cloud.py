@@ -5,17 +5,17 @@ from typing import List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
+
 import OpenGL.GL as GL
 from labelCloud.io.labels.config import LabelConfig
 
+from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import LabelingMode, Point3D, Rotations3D, Translation3D
-from ..io import read_label_definition
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
-from ..utils.color import colorize_points_with_height, get_distinct_colors
+from ..utils.color import colorize_points_with_height
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
-from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -43,7 +43,6 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
 
 
 class PointCloud(object):
-
     def __init__(
         self,
         path: Path,

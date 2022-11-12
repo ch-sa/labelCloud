@@ -19,6 +19,7 @@ class LabelingMode(str, Enum):
     OBJECT_DETECTION = "object_detection"
     SEMANTIC_SEGMENTATION = "semantic_segmentation"
 
+
 class Color3f(tuple):
     def __new__(cls, r, g, b):
         return super(Color3f, cls).__new__(cls, (r, g, b))

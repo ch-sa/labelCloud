@@ -1,4 +1,5 @@
 import colorsys
+from typing import List
 
 import numpy as np
 import numpy.typing as npt
@@ -7,7 +8,7 @@ import pkg_resources
 from ..definitions.types import Color3f
 
 
-def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
+def get_distinct_colors(n: int) -> List[str]:
     """generate visualy distinct colors
     Args:
         n (int): number of colors
@@ -15,7 +16,7 @@ def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
         npt.NDArray[np.float32]: n x 3 (rgb) values between 0 and 1
     """
     hue_partition = 1.0 / (n + 1)
-    return np.vstack(
+    colors = np.vstack(
         [
             np.array(
                 colorsys.hsv_to_rgb(
@@ -27,6 +28,8 @@ def get_distinct_colors(n: int) -> npt.NDArray[np.float32]:
             for value in range(0, n)
         ]
     ).astype(np.float32)
+
+    return [rgb_to_hex(color) for color in colors]
 
 
 def colorize_points_with_height(
