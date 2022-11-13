@@ -2,6 +2,7 @@ import logging
 import os
 
 import pytest
+
 from labelCloud.control.controller import Controller
 from labelCloud.model.bbox import BBox
 from labelCloud.view.gui import GUI
@@ -17,6 +18,7 @@ def startup_pyqt(qtbot, qapp):
 
     # Setup Model-View-Control structure
     control = Controller()
+
     view = GUI(control)
     qtbot.addWidget(view)
     qtbot.addWidget(view.gl_widget)

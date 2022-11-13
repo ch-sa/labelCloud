@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -447,7 +447,7 @@ class GUI(QtWidgets.QMainWindow):
     def update_progress(self, value) -> None:
         self.progressbar_pcds.setValue(value)
 
-    def update_curr_class_edit(self, force: str = None) -> None:
+    def update_curr_class_edit(self, force: Optional[str] = None) -> None:
         if force is not None:
             self.edit_current_class.setText(force)
         else:
@@ -564,7 +564,9 @@ class GUI(QtWidgets.QMainWindow):
             )
             logging.info("Changed label folder to %s!" % path_to_folder)
 
-    def update_default_object_class_menu(self, new_classes: Set[str] = None) -> None:
+    def update_default_object_class_menu(
+        self, new_classes: Optional[Set[str]] = None
+    ) -> None:
         object_classes = {
             str(class_name) for class_name in config.getlist("LABEL", "object_classes")
         }
