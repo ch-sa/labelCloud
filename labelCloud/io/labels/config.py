@@ -1,21 +1,21 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from ...control.config_manager import config
 from ...definitions.types import Color3f, LabelingMode
-from ...utils.color import hex_to_rgb, rgb_to_hex
+from ...utils.color import get_random_hex_color, hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
 
 
 @dataclass
 class ClassConfig:
-    name: str
     id: int
+    name: str
     color: Color3f
 
     @classmethod
@@ -78,6 +78,10 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             lookup[c.id] = order
         return lookup
 
+    @property
+    def next_class_id(self) -> int:  # TODO: merge with welcome dialog?
+        return max(label_class.id for label_class in self.classes) + 1
+
     # GETTERS
 
     def get_classes(self) -> Dict[str, ClassConfig]:
@@ -106,4 +110,16 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
     def set_class_color(self, class_name: str, color: Color3f) -> None:
         self.get_class(class_name).color = color
+        self.save_config()
+
+    def add_class(
+        self, name: str, id: Optional[int] = None, color: Optional[Color3f] = None
+    ) -> None:
+        self.classes.append(
+            ClassConfig(
+                id=id or self.next_class_id,
+                name=name,
+                color=color or hex_to_rgb(get_random_hex_color()),
+            )
+        )
         self.save_config()

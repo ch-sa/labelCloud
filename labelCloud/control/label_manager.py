@@ -35,6 +35,22 @@ def get_label_strategy(export_format: str, label_folder: Path) -> "BaseLabelForm
     )
 
 
+def add_unknown_labels_to_label_config(labels: List[BBox]) -> None:
+    """
+    Add a new label class for each bounding box with a classname that is not yet defined.
+
+     - uses a random color for the new class and the next available id
+    """
+    loaded_classes = {label.classname for label in labels}
+    existing_classes = {c.name for c in LabelConfig().classes}
+
+    missing_classes = loaded_classes.difference(existing_classes)
+
+    for classname in missing_classes:
+        LabelConfig().add_class(classname)
+        logging.warning("Added new class '%s' to class definitions!", classname)
+
+
 class LabelManager(object):
     LABEL_FORMATS = [
         "vertices",
@@ -60,7 +76,7 @@ class LabelManager(object):
 
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         try:
-            return self.label_strategy.import_labels(pcd_path)
+            labels = self.label_strategy.import_labels(pcd_path)
         except KeyError as key_error:
             logging.warning("Found a key error with %s in the dictionary." % key_error)
             logging.warning(
@@ -75,6 +91,10 @@ class LabelManager(object):
                 "Could not import labels, please check the consistency of the label format."
             )
             return []
+
+        add_unknown_labels_to_label_config(labels)
+
+        return labels
 
     def export_labels(self, pcd_path: Path, bboxes: List[BBox]) -> None:
         self.label_strategy.export_labels(bboxes, pcd_path)

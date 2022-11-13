@@ -1,10 +1,7 @@
 import logging
 import os
-import time
-from typing import Tuple
 
 import pytest
-from PyQt5 import QtCore
 
 from labelCloud.control.controller import Controller
 from labelCloud.model.bbox import BBox
@@ -39,5 +36,4 @@ def startup_pyqt(qtbot, qapp, monkeypatch):
 
 @pytest.fixture
 def bbox():
-
     return BBox(cx=0, cy=0, cz=0, length=3, width=2, height=1)

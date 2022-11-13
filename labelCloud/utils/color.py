@@ -1,4 +1,5 @@
 import colorsys
+import random
 from typing import List
 
 import numpy as np
@@ -30,6 +31,18 @@ def get_distinct_colors(n: int) -> List[str]:
     ).astype(np.float32)
 
     return [rgb_to_hex(color) for color in colors]
+
+
+DISTINCT_COLORS: List[str] = []
+
+
+def get_random_hex_color() -> str:
+    global DISTINCT_COLORS
+    if not DISTINCT_COLORS:
+        DISTINCT_COLORS = get_distinct_colors(25)
+        random.shuffle(DISTINCT_COLORS)
+
+    return DISTINCT_COLORS.pop()
 
 
 def colorize_points_with_height(
