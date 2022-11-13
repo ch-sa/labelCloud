@@ -174,7 +174,9 @@ class BoundingBoxController(object):
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
-    def rotate_around_x(self, dangle: float = None, clockwise: bool = False) -> None:
+    def rotate_around_x(
+        self, dangle: Optional[float] = None, clockwise: bool = False
+    ) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
@@ -184,7 +186,9 @@ class BoundingBoxController(object):
 
     @only_zrotation_decorator
     @has_active_bbox_decorator
-    def rotate_around_y(self, dangle: float = None, clockwise: bool = False) -> None:
+    def rotate_around_y(
+        self, dangle: Optional[float] = None, clockwise: bool = False
+    ) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
             dangle *= -1
@@ -194,7 +198,10 @@ class BoundingBoxController(object):
 
     @has_active_bbox_decorator
     def rotate_around_z(
-        self, dangle: float = None, clockwise: bool = False, absolute: bool = False
+        self,
+        dangle: Optional[float] = None,
+        clockwise: bool = False,
+        absolute: bool = False,
     ) -> None:
         dangle = dangle or config.getfloat("LABEL", "std_rotation")
         if clockwise:
@@ -225,7 +232,9 @@ class BoundingBoxController(object):
         self.rotate_around_z(x_angle)
 
     @has_active_bbox_decorator
-    def translate_along_x(self, distance: float = None, left: bool = False) -> None:
+    def translate_along_x(
+        self, distance: Optional[float] = None, left: bool = False
+    ) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if left:
             distance *= -1
@@ -237,7 +246,9 @@ class BoundingBoxController(object):
         active_bbox.set_y_translation(active_bbox.center[1] + distance * sinz)
 
     @has_active_bbox_decorator
-    def translate_along_y(self, distance: float = None, forward: bool = False) -> None:
+    def translate_along_y(
+        self, distance: Optional[float] = None, forward: bool = False
+    ) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if forward:
             distance *= -1
@@ -249,7 +260,9 @@ class BoundingBoxController(object):
         active_bbox.set_y_translation(active_bbox.center[1] + distance * bu * cosz)
 
     @has_active_bbox_decorator
-    def translate_along_z(self, distance: float = None, down: bool = False) -> None:
+    def translate_along_z(
+        self, distance: Optional[float] = None, down: bool = False
+    ) -> None:
         distance = distance or config.getfloat("LABEL", "std_translation")
         if down:
             distance *= -1
@@ -258,7 +271,9 @@ class BoundingBoxController(object):
         active_bbox.set_z_translation(active_bbox.center[2] + distance)
 
     @has_active_bbox_decorator
-    def scale(self, length_increase: float = None, decrease: bool = False) -> None:
+    def scale(
+        self, length_increase: Optional[float] = None, decrease: bool = False
+    ) -> None:
         """Scales a bounding box while keeping the previous aspect ratio.
 
         :param length_increase: factor by which the length should be increased

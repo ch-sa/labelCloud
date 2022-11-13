@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -19,9 +19,9 @@ class BBox(object):
         cx: float,
         cy: float,
         cz: float,
-        length: float = None,
-        width: float = None,
-        height: float = None,
+        length: Optional[float] = None,
+        width: Optional[float] = None,
+        height: Optional[float] = None,
     ) -> None:
         self.center: Point3D = (cx, cy, cz)
         self.length: float = length or config.getfloat(

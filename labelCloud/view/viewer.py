@@ -128,7 +128,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     # Translates the 2D cursor position from screen plane into 3D world space coordinates
     def get_world_coords(
-        self, x: float, y: float, z: float = None, correction: bool = False
+        self, x: float, y: float, z: Optional[float] = None, correction: bool = False
     ) -> Tuple[float, float, float]:
         x *= self.DEVICE_PIXEL_RATIO  # For fixing mac retina bug
         y *= self.DEVICE_PIXEL_RATIO
