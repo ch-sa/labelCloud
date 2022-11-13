@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from ..io.labels import BaseLabelFormat, CentroidFormat, KittiFormat, VerticesFormat
 from ..io.labels.config import LabelConfig
@@ -46,7 +46,9 @@ class LabelManager(object):
     EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
     def __init__(
-        self, strategy: str = STD_LABEL_FORMAT, path_to_label_folder: Path = None
+        self,
+        strategy: str = STD_LABEL_FORMAT,
+        path_to_label_folder: Optional[Path] = None,
     ) -> None:
         self.label_folder = path_to_label_folder or config.getpath(
             "FILE", "label_folder"

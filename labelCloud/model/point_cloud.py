@@ -9,14 +9,13 @@ import numpy.typing as npt
 import OpenGL.GL as GL
 from labelCloud.io.labels.config import LabelConfig
 
+from . import Perspective
 from ..control.config_manager import config
-from ..definitions.types import Point3D, Rotations3D, Translation3D
-from ..io import read_label_definition
+from ..definitions.types import LabelingMode, Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
-from ..utils.color import colorize_points_with_height, get_distinct_colors
+from ..utils.color import colorize_points_with_height
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
-from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -44,8 +43,6 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
 
 
 class PointCloud(object):
-    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
-
     def __init__(
         self,
         path: Path,
@@ -62,7 +59,7 @@ class PointCloud(object):
         self.colors = colors if type(colors) == np.ndarray and len(colors) > 0 else None
 
         self.labels = None
-        if self.SEGMENTATION:
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
             self.labels = segmentation_labels
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
@@ -73,7 +70,7 @@ class PointCloud(object):
         self.init_translation: Point3D = init_translation or calculate_init_translation(
             self.center, self.pcd_mins, self.pcd_maxs
         )
-        self.init_rotation: Rotations3D = init_rotation or (0, 0, 0)
+        self.init_rotation: Rotations3D = init_rotation or tuple([0, 0, 0])  # type: ignore
 
         # Point cloud transformations
         self.trans_x, self.trans_y, self.trans_z = self.init_translation
@@ -164,7 +161,7 @@ class PointCloud(object):
         ).read_point_cloud(path=path)
 
         labels = None
-        if cls.SEGMENTATION:
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
 
             label_path = config.getpath("FILE", "label_folder") / Path(
                 f"segmentation/{path.stem}.bin"

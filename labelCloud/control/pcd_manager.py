@@ -8,10 +8,11 @@ from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 import numpy as np
-import open3d as o3d
 import pkg_resources
 
-from ..definitions.types import Point3D
+import open3d as o3d
+
+from ..definitions.types import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
@@ -28,7 +29,7 @@ class PointCloudManger(object):
     ORIGINALS_FOLDER = "original_pointclouds"
     TRANSLATION_FACTOR = config.getfloat("POINTCLOUD", "STD_TRANSLATION")
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
-    SEGMENTATION = config.getboolean("MODE", "SEGMENTATION")
+    SEGMENTATION = LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION
 
     def __init__(self) -> None:
         # Point cloud management
@@ -295,7 +296,7 @@ class PointCloudManger(object):
 
     # UPDATE GUI
 
-    def update_pcd_infos(self, pointcloud_label: str = None) -> None:
+    def update_pcd_infos(self, pointcloud_label: Optional[str] = None) -> None:
         self.view.set_pcd_label(pointcloud_label or self.pcd_name or "")
         self.view.update_progress(self.current_id)
 
