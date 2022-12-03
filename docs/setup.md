@@ -2,7 +2,7 @@
 
 ## Installation
 !!! info Python Support
-    Currently labelCloud supports Python 3.6 to 3.9.
+    Currently labelCloud supports Python 3.7 to 3.9.
 
 ### via pip (PyPI)
 
