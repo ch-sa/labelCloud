@@ -5,17 +5,17 @@ from typing import List, Optional, Tuple, cast
 
 import numpy as np
 import numpy.typing as npt
-
 import OpenGL.GL as GL
+
 from labelCloud.io.labels.config import LabelConfig
 
-from . import Perspective
 from ..control.config_manager import config
 from ..definitions.types import LabelingMode, Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
+from . import Perspective
 
 # Get size of float (4 bytes) for VBOs
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
@@ -134,8 +134,9 @@ class PointCloud(object):
             return self.colors
 
     def save_segmentation_labels(self, extension=".bin") -> None:
-        label_path = config.getpath("FILE", "label_folder") / Path(
-            f"segmentation/{self.path.stem}{extension}"
+        label_path = (
+            config.getpath("FILE", "segmentation_folder")
+            / f"{self.path.stem}{extension}"
         )
         seg_handler: BaseSegmentationHandler = BaseSegmentationHandler.get_handler(
             label_path.suffix
@@ -162,9 +163,8 @@ class PointCloud(object):
 
         labels = None
         if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
-
-            label_path = config.getpath("FILE", "label_folder") / Path(
-                f"segmentation/{path.stem}.bin"
+            label_path = (
+                config.getpath("FILE", "segmentation_folder") / f"{path.stem}.bin"
             )
             logging.info(f"Loading segmentation labels from {label_path}.")
             seg_handler = BaseSegmentationHandler.get_handler(label_path.suffix)()

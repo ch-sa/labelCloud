@@ -59,6 +59,18 @@ By default the x- and y-rotation of bounding boxes will be prohibited.
 For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode` in the menu, settings or `config.ini` file.
 Now you will be free to rotate around all three axes.
 
+### Semantic Segmentation (bounding box-based)
+
+labelCloud also supports the creation of segmentation labels based on bounding boxes.
+To activate the semantic segmentation mode, toggle the segmentation button in the startup dialog.
+Then label as usual and push the *Assign* button whenever all points inside the current bounding box
+should be labeled with the current class.
+
+The resulting labels will be stored as `*.bin` files inside `labels/segmentation/`.
+Each `*.bin` file contains an array of shape of (number of points, ) with dtype `np.int8` and each entry
+represents the index of the label of the corresponding points in the original point cloud.
+
+
 ## Import & Export Options
 labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
 The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see the [Configuration](https://ch-sa.github.io/labelCloud/configuration/)) for a description of all parameters).
@@ -72,13 +84,13 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 
 **Supported Export Formats**
 
-| Label Format          | Description                                                                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]`                 |
-| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`                  |
-| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [Conventions](https://ch-sa.github.io/labelCloud/conventions/) for the order) |
-| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt))                 |
-| `kitti_untransformed` | See above, but without transformations.                                                                                                                        |
+| Label Format          | Description                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
+| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`  |
+| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [Conventions](https://ch-sa.github.io/labelCloud/conventions/) for the order)        |
+| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| `kitti_untransformed` | See above, but without transformations.                                                                                                        |
 
 You can easily create your own exporter by subclassing the abstract [BaseLabelFormat](https://github.com/ch-sa/labelCloud/blob/master/labelCloud/label_formats/base.py#L10).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
