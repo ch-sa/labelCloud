@@ -8,15 +8,15 @@
         {
             "name": "cart",
             "id": 1,
-            "color": "#f6df0d"
+            "color": "#ffbf35"
         },
         {
             "name": "box",
             "id": 2,
-            "color": "#0d29f0"
+            "color": "#f156ff"
         }
     ],
-    "default": 1,
+    "default": 0,
     "type": "object_detection",
     "format": "centroid_abs"
 }

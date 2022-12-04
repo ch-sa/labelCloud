@@ -444,7 +444,9 @@ class GUI(QtWidgets.QMainWindow):
 
         # Look for image files with the name of the point cloud
         pcd_name = self.controller.pcd_manager.pcd_path.stem
-        image_file_pattern = re.compile(f"{pcd_name}+(\\.(?i:(jpe?g|png|gif|bmp|tiff)))")
+        image_file_pattern = re.compile(
+            f"{pcd_name}+(\\.(?i:(jpe?g|png|gif|bmp|tiff)))"
+        )
 
         try:
             image_name = next(

@@ -20,4 +20,7 @@ class NumpySegmentationHandler(BaseSegmentationHandler):
         return labels
 
     def _write_labels(self, label_path: Path, labels: npt.NDArray[np.int8]) -> None:
+        if not label_path.parent.exists():
+            label_path.parent.mkdir(parents=True)
+
         labels.tofile(label_path)
