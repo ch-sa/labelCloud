@@ -26,6 +26,7 @@ The following parameters can be changed:
 |       `std_rotation`        | Standard step for rotating the bounding box (with key press).                                   |         *0.5*          |
 |        `std_scaling`        | Standard step for scaling the bounding box (with button press).                                 |         *0.03*         |
 | `min_boundingbox_dimension` | Minimum value for the length, width and height of a bounding box.                               |         *0.01*         |
+|     `propagate_labels`      | Copy all bounding boxes of the current point cloud to the next point cloud (only forward).      |        *False*         |
 |    **[USER_INTERFACE]**     |
 |      `z_rotation_only`      | Only allow z-rotation of bounding box; deactivate to also label x- & y-rotation.                |         *True*         |
 |        `show_floor`         | Visualizes the floor (x-y-plane) as a grid.                                                     |         *True*         |

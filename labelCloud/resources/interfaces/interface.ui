@@ -1546,12 +1546,18 @@
     <property name="title">
      <string>File</string>
     </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
     <addaction name="act_set_pcd_folder"/>
     <addaction name="act_set_label_folder"/>
    </widget>
    <widget class="QMenu" name="menuLabels">
     <property name="title">
      <string>Labels</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
     </property>
     <widget class="QMenu" name="act_set_default_class">
      <property name="title">
@@ -1560,10 +1566,14 @@
     </widget>
     <addaction name="act_set_default_class"/>
     <addaction name="act_delete_all_labels"/>
+    <addaction name="act_propagate_labels"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
     </property>
     <addaction name="act_z_rotation_only"/>
     <addaction name="act_show_floor"/>
@@ -1602,6 +1612,9 @@
    </property>
    <property name="text">
     <string>Z-Rotation Only Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Only allows bounding box rotation around the z-axis.</string>
    </property>
   </action>
   <action name="act_color_with_label">
@@ -1642,6 +1655,9 @@
    <property name="text">
     <string>Show Floor</string>
    </property>
+   <property name="toolTip">
+    <string>Shows a grid along the x-y-plane (z=0).</string>
+   </property>
   </action>
   <action name="act_show_orientation">
    <property name="checkable">
@@ -1664,6 +1680,10 @@
    <property name="text">
     <string>Keep Perspective</string>
    </property>
+   <property name="toolTip">
+    <string>Saves the last perspective and reuses it,
+when opening that point cloud again.</string>
+   </property>
   </action>
   <action name="act_align_pcd">
    <property name="checkable">
@@ -1675,6 +1695,9 @@
    <property name="text">
     <string>Align Point Cloud</string>
    </property>
+   <property name="toolTip">
+    <string>Transforms the point cloud so that the floor is the x-y-plane.</string>
+   </property>
   </action>
   <action name="act_change_settings">
    <property name="text">
@@ -1684,6 +1707,18 @@
   <action name="actiontest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="act_propagate_labels">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Propagate Labels</string>
+   </property>
+   <property name="toolTip">
+    <string>Propagate Labels to the next Point Cloud
+if it does not have labels yet.</string>
    </property>
   </action>
  </widget>

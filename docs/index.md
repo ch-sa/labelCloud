@@ -7,10 +7,12 @@ labelCloud is a lightweight tool for labeling 3D bounding boxes in point clouds.
 It is written in Python and can be installed via `pip` (see [Setup](setup.md)).
 
 ## Labeling
-labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple mouse and keyboard options for subsequent correction.
+labelCloud supports two different ways of labeling (*picking* & *spanning*) as well as multiple
+mouse and keyboard options for subsequent correction.
 
 ![Screencast of the Labeling Methods](assets/screencast_small.gif)
-(There is also a [short YouTube-Video](https://www.youtube.com/watch?v=8GF9n1WeR8A) that introduces the tool.)
+(There is also a [short YouTube-Video](https://www.youtube.com/watch?v=8GF9n1WeR8A) that introduces
+the tool.)
 
 ### Picking Mode
 
@@ -24,16 +26,23 @@ labelCloud supports two different ways of labeling (*picking* & *spanning*) as w
 
 ### Correction
 
-* Use the buttons on the left-hand side or shortcuts to correct the *translation*, *dimension* and *rotation* of the bounding box
+* Use the buttons on the left-hand side or shortcuts to correct the *translation*, *dimension* and
+  *rotation* of the bounding box
 * Resize the bounding box by holding your cursor above one side and scrolling with the mouse wheel
 
 By default the x- and y-rotation of bounding boxes will be prohibited.
-For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode` in the menu, settings or `config.ini` file.
-Now you will be free to rotate around all three axes.
+For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode` in the menu, settings or
+`config.ini` file.
+Now you will be able to rotate around all three axes.
+
+If you have a point clouds with objects that keep their positions over multiple frames, you can
+activate the *Propagate Labels* feature in the Labels menu or `config.ini`.
 
 ## Import & Export Options
-labelCloud is built for a versatile use and aims at supporting all common point cloud file formats and label formats for storing 3D bounding boxes.
-The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply edit the corresponding line in the `config.ini` (see [Configuration](configuration.md)) for a description of all parameters).
+labelCloud is built for a versatile use and aims at supporting all common point cloud file formats
+and label formats for storing 3D bounding boxes.
+The tool is designed to be easily adaptable to multiple use cases. To change the settings, simply
+edit the corresponding line in the `config.ini` (see [Configuration](configuration.md)) for a description of all parameters).
 
 ### Supported Point Cloud Formats
 
@@ -44,13 +53,13 @@ The tool is designed to be easily adaptable to multiple use cases. To change the
 
 ### Supported Label Formats
 
-| Label Format          | Description                                                                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]`                 |
-| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`                  |
-| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [Conventions](conventions.md) for order) |
-| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt))                 |
-| `kitti_untransformed` | See above, but without transformations.                                                                                                                        |
+| Label Format          | Description                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `centroid_rel`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Relative Rotations as Euler angles in radians (-pi..+pi) `[yaw, pitch, roll]` |
+| `centroid_abs`        | Centroid `[x, y, z]`; Dimensions `[length, width, height]`; <br> Absolute Rotations as Euler angles in degrees (0..360°) `[yaw, pitch, roll]`  |
+| `vertices`            | 8 Vertices of the bounding box each with `[x, y, z]` (see [Conventions](conventions.md) for order)                                             |
+| `kitti`               | Centroid; Dimensions; z-Rotation (See [specification](https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt)) |
+| `kitti_untransformed` | See above, but without transformations.                                                                                                        |
 
 You can easily create your own exporter by subclassing the abstract [BaseLabelFormat](https://github.com/ch-sa/labelCloud/blob/master/labelCloud/label_formats/base.py#L10).
 All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the positive x- to the negative y-axis!).
@@ -58,7 +67,8 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 
 
 ## Usage & Attribution
-When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
+When using the tool feel free to drop me a mail with feedback or a description of your use case
+(christoph.sager[at]tu-dresden.de).
 If you are using the tool for a scientific project please consider citing our publications:
 
 
@@ -104,5 +114,10 @@ If you are using the tool for a scientific project please consider citing our pu
     ```
 
 ## Acknowledgment
-I would like to thank the [Robotron RCV-Team](https://www.robotron.de/rcv) for the support in the preparation and user evaluation of the software.
-The software was developed as part of my diploma thesis titled "labelCloud: Development of a Labeling Tool for 3D Object Detection in Point Clouds" at the [Chair for Business Informatics, especially Intelligent Systems](https://tu-dresden.de/bu/wirtschaft/winf/isd) of the TU Dresden. The ongoing research can be followed in our [project on ResearchGate](https://www.researchgate.net/project/Development-of-a-Point-Cloud-Labeling-Tool-to-Generate-Training-Data-for-3D-Object-Detection-and-6D-Pose-Estimation).
+I would like to thank the [Robotron RCV-Team](https://www.robotron.de/rcv) for the support in the
+preparation and user evaluation of the software.
+The software was developed as part of my diploma thesis titled "labelCloud: Development of a
+Labeling Tool for 3D Object Detection in Point Clouds" at the
+[Chair for Business Informatics, especially Intelligent Systems](https://tu-dresden.de/bu/wirtschaft/winf/isd)
+of the TU Dresden. The ongoing research can be followed in our
+[project on ResearchGate](https://www.researchgate.net/project/Development-of-a-Point-Cloud-Labeling-Tool-to-Generate-Training-Data-for-3D-Object-Detection-and-6D-Pose-Estimation).
