@@ -80,6 +80,9 @@ class SettingsDialog(QDialog):
         self.doubleSpinBox_stdbboxscaling.setValue(
             config.getfloat("LABEL", "std_scaling")
         )
+        self.checkBox_propagatelabels.setChecked(
+            config.getboolean("LABEL", "propagate_labels")
+        )
 
         # User Interface
         self.checkBox_zrotationonly.setChecked(
@@ -143,6 +146,9 @@ class SettingsDialog(QDialog):
             self.doubleSpinBox_stdbboxrotation.value()
         )
         config["LABEL"]["std_scaling"] = str(self.doubleSpinBox_stdbboxscaling.value())
+        config["LABEL"]["propagate_labels"] = str(
+            self.checkBox_propagatelabels.isChecked()
+        )
 
         # User Interface
         config["USER_INTERFACE"]["z_rotation_only"] = str(

@@ -64,9 +64,15 @@ class Controller:
         if save:
             self.save()
         if self.pcd_manager.pcds_left():
+            previous_bboxes = self.bbox_controller.bboxes
             self.pcd_manager.get_next_pcd()
             self.reset()
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
+
+            if not self.bbox_controller.bboxes and config.getboolean(
+                "LABEL", "propagate_labels"
+            ):
+                self.bbox_controller.set_bboxes(previous_bboxes)
         else:
             self.view.update_progress(len(self.pcd_manager.pcds))
             self.view.button_next_pcd.setEnabled(False)

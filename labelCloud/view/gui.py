@@ -68,6 +68,10 @@ def set_keep_perspective(state: bool) -> None:
     config.set("USER_INTERFACE", "keep_perspective", str(state))
 
 
+def set_propagate_labels(state: bool) -> None:
+    config.set("LABEL", "propagate_labels", str(state))
+
+
 # CSS file paths need to be set dynamically
 STYLESHEET = """
     * {{
@@ -138,6 +142,7 @@ class GUI(QtWidgets.QMainWindow):
         self.act_delete_all_labels: QtWidgets.QAction
         self.act_set_default_class: QtWidgets.QMenu
         self.actiongroup_default_class = QActionGroup(self.act_set_default_class)
+        self.act_propagate_labels: QtWidgets.QAction
 
         # Settings
         self.act_z_rotation_only: QtWidgets.QAction
@@ -369,6 +374,7 @@ class GUI(QtWidgets.QMainWindow):
         self.act_delete_all_labels.triggered.connect(
             self.controller.bbox_controller.reset
         )
+        self.act_propagate_labels.toggled.connect(set_propagate_labels)
         self.act_z_rotation_only.toggled.connect(set_zrotation_only)
         self.act_color_with_label.toggled.connect(set_color_with_label)
         self.act_show_floor.toggled.connect(set_floor_visibility)
@@ -378,6 +384,9 @@ class GUI(QtWidgets.QMainWindow):
         self.act_change_settings.triggered.connect(self.show_settings_dialog)
 
     def set_checkbox_states(self) -> None:
+        self.act_propagate_labels.setChecked(
+            config.getboolean("LABEL", "propagate_labels")
+        )
         self.act_show_floor.setChecked(
             config.getboolean("USER_INTERFACE", "show_floor")
         )
