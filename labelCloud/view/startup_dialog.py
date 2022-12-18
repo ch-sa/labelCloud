@@ -250,7 +250,8 @@ class StartupDialog(QDialog):
 
             LabelConfig().classes = classes
             # If the default class is missing or invalid, set the first one.
-            if LabelConfig().get_default_class_name() is None:
+            if not LabelConfig().has_valid_default_class():
                 LabelConfig().default = classes[0].id
+
             LabelConfig().type = self.get_labeling_mode
             LabelConfig().save_config()

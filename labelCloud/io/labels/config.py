@@ -108,6 +108,12 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             )
             return hex_to_rgb("#FF0000")
 
+    def has_valid_default_class(self) -> bool:
+        for c in self.classes:
+            if c.id == self.default:
+                return True
+        return False
+
     def get_default_class_name(self) -> str:
         for c in self.classes:
             if c.id == self.default:
