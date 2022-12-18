@@ -235,7 +235,11 @@ class StartupDialog(QDialog):
         self.class_labels.removeItem(self.class_labels.itemAt(row_index))  # type: ignore
 
     def save_class_labels(self) -> None:
-        classes = []
+        if self.nb_of_labels == 0:
+            # TODO: Change to pop-up warning.
+            raise Exception("At least one label class is required.")
+
+        classes: List[ClassConfig] = []
         for i in range(self.nb_of_labels):
 
             row: QHBoxLayout = self.class_labels.itemAt(i)  # type: ignore
@@ -243,6 +247,10 @@ class StartupDialog(QDialog):
             class_name = row.itemAt(1).widget().text()  # type: ignore
             class_color = hex_to_rgb(row.itemAt(2).widget().color())  # type: ignore
             classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
-        LabelConfig().classes = classes
-        LabelConfig().type = self.get_labeling_mode
-        LabelConfig().save_config()
+
+            LabelConfig().classes = classes
+            # If the default class is missing or invalid, set the first one.
+            if LabelConfig().get_default_class_name() is None:
+                LabelConfig().default = classes[0].id
+            LabelConfig().type = self.get_labeling_mode
+            LabelConfig().save_config()

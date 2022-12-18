@@ -41,13 +41,17 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
     """Split an 1-d array of integers to a list of 1-d array where the elements are consecutive"""
     return np.split(data, np.where(np.diff(data) != stepsize)[0] + 1)
 
-def validate_segmentation_label(label_config: LabelConfig, labels: npt.NDArray[np.int8]) -> None:
+
+def validate_segmentation_label(
+    label_config: LabelConfig, labels: npt.NDArray[np.int8]
+) -> None:
     unique_label_ids = set(np.unique(labels))
     unique_class_ids = set(c.id for c in label_config.classes)
     if unique_class_ids != unique_label_ids:
         # TODO: define the fallback strategy
         # Ask users if they want to overwrite the labels with default or not.
         raise Exception("Segmentation labels don't match with the label config.")
+
 
 class PointCloud(object):
     def __init__(
