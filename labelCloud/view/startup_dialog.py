@@ -1,10 +1,10 @@
 import random
 import traceback
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import pkg_resources
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPixmap, QValidator
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QButtonGroup,
     QDesktopWidget,
@@ -265,18 +265,6 @@ class StartupDialog(QDialog):
             self.accept()
             return
 
-        except ZeroLabelException as e:
-            text = e.__class__.__name__
-            informative_text = str(e)
-
-        except LabelIdsNotUniqueException as e:
-            text = e.__class__.__name__
-            informative_text = str(e)
-
-        except LabelClassNameEmpty as e:
-            text = e.__class__.__name__
-            informative_text = str(e)
-
         except DefaultIdMismatchException as e:
             text = e.__class__.__name__
             informative_text = (
@@ -286,6 +274,14 @@ class StartupDialog(QDialog):
             icon = QMessageBox.Question
             buttons |= QMessageBox.Ok
             msg.accepted.connect(LabelConfig().set_first_as_default)
+
+        except (
+            ZeroLabelException,
+            LabelIdsNotUniqueException,
+            LabelClassNameEmpty,
+        ) as e:
+            text = e.__class__.__name__
+            informative_text = str(e)
 
         except Exception as e:
             text = e.__class__.__name__
