@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Set
 
 import pkg_resources
-from labelCloud.view.startup_dialog import StartupDialog
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap
@@ -19,6 +18,8 @@ from PyQt5.QtWidgets import (
     QLabel,
     QMessageBox,
 )
+
+from labelCloud.view.startup_dialog import StartupDialog
 
 from ..control.config_manager import config
 from ..definitions.types import Color3f, LabelingMode
@@ -235,7 +236,7 @@ class GUI(QtWidgets.QMainWindow):
         # Run startup dialog
         self.startup_dialog = StartupDialog()
         if self.startup_dialog.exec():
-            self.startup_dialog.save_class_labels()
+            pass
         else:
             sys.exit()
         # Segmentation only functionalities

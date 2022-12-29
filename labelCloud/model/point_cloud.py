@@ -43,14 +43,16 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
 
 
 def validate_segmentation_label(
-    label_config: LabelConfig, labels: npt.NDArray[np.int8]
+    label_config: LabelConfig, labels: npt.NDArray[np.int8], path: Path
 ) -> None:
     unique_label_ids = set(np.unique(labels))
     unique_class_ids = set(c.id for c in label_config.classes)
-    if unique_class_ids != unique_label_ids:
+    if not unique_class_ids.issuperset(unique_label_ids):
         # TODO: define the fallback strategy
         # Ask users if they want to overwrite the labels with default or not.
-        raise Exception("Segmentation labels don't match with the label config.")
+        raise Exception(
+            f"Segmentation labels {unique_label_ids} of `{Path}` don't match with the label config {unique_class_ids}."
+        )
 
 
 class PointCloud(object):
@@ -153,7 +155,7 @@ class PointCloud(object):
             label_path.suffix
         )()
         assert self.labels is not None
-        validate_segmentation_label(LabelConfig(), self.labels)
+        validate_segmentation_label(LabelConfig(), self.labels, self.path)
 
         seg_handler.overwrite_labels(label_path=label_path, labels=self.labels)
         logging.info(f"Writing segmentation labels to {label_path}")
@@ -184,7 +186,7 @@ class PointCloud(object):
             labels = seg_handler.read_or_create_labels(
                 label_path=label_path, num_points=points.shape[0]
             )
-            validate_segmentation_label(LabelConfig(), labels)
+            validate_segmentation_label(LabelConfig(), labels, path)
 
         return cls(
             path,

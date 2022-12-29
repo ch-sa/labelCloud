@@ -1,4 +1,5 @@
 import random
+import traceback
 from typing import List, Optional, Tuple
 
 import pkg_resources
@@ -12,6 +13,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -21,22 +23,19 @@ from PyQt5.QtWidgets import (
 )
 
 from ..definitions.types import LabelingMode
-from ..io.labels.config import ClassConfig, LabelConfig
+from ..io.labels.config import (
+    ClassConfig,
+    DefaultIdMismatchException,
+    LabelClassNameEmpty,
+    LabelConfig,
+    LabelIdsNotUniqueException,
+    ZeroLabelException,
+)
 from ..utils.color import get_distinct_colors, hex_to_rgb, rgb_to_hex
 from ..view.color_button import ColorButton
 
 
-class LabelNameValidator(QValidator):
-    def validate(self, a0: str, a1: int) -> Tuple["QValidator.State", str, int]:
-        if a0 != "":
-            return (QValidator.Acceptable, a0, a1)
-        return (QValidator.Invalid, a0, a1)
-
-
 class StartupDialog(QDialog):
-
-    NAME_VALIDATOR = LabelNameValidator()
-
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.parent_gui = parent
@@ -77,7 +76,7 @@ class StartupDialog(QDialog):
 
         # 4. Row: Buttons to save or cancel
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Save)
-        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.accepted.connect(self.save)
         self.buttonBox.rejected.connect(self.reject)
 
         main_layout.addWidget(self.buttonBox)
@@ -203,7 +202,6 @@ class StartupDialog(QDialog):
         row_label.addWidget(label_id)
 
         label_name = QLineEdit(name or f"label_{id}")
-        label_name.setValidator(self.NAME_VALIDATOR)
         row_label.addWidget(label_name, stretch=2)
 
         label_color = ColorButton(color=hex_color or self.distinct_color)
@@ -234,24 +232,70 @@ class StartupDialog(QDialog):
 
         self.class_labels.removeItem(self.class_labels.itemAt(row_index))  # type: ignore
 
-    def save_class_labels(self) -> None:
-        if self.nb_of_labels == 0:
-            # TODO: Change to pop-up warning.
-            raise Exception("At least one label class is required.")
+    def get_class_config(self, row_id: int) -> ClassConfig:
+        row: QHBoxLayout = self.class_labels.itemAt(row_id)  # type: ignore
+        class_id = int(row.itemAt(0).widget().text())  # type: ignore
+        class_name = row.itemAt(1).widget().text()  # type: ignore
+        class_color = hex_to_rgb(row.itemAt(2).widget().color())  # type: ignore
+        return ClassConfig(id=class_id, name=class_name, color=class_color)
 
+    def populate_label_config(self) -> None:
         classes: List[ClassConfig] = []
         for i in range(self.nb_of_labels):
+            classes.append(self.get_class_config(i))
+        LabelConfig().classes = classes
+        LabelConfig().type = self.get_labeling_mode
 
-            row: QHBoxLayout = self.class_labels.itemAt(i)  # type: ignore
-            class_id = int(row.itemAt(0).widget().text())  # type: ignore
-            class_name = row.itemAt(1).widget().text()  # type: ignore
-            class_color = hex_to_rgb(row.itemAt(2).widget().color())  # type: ignore
-            classes.append(ClassConfig(id=class_id, name=class_name, color=class_color))
+    def _save_class_labels(self) -> None:
+        LabelConfig().validate()
+        LabelConfig().save_config()
 
-            LabelConfig().classes = classes
-            # If the default class is missing or invalid, set the first one.
-            if not LabelConfig().has_valid_default_class():
-                LabelConfig().default = classes[0].id
+    def save(self):
+        self.populate_label_config()
 
-            LabelConfig().type = self.get_labeling_mode
-            LabelConfig().save_config()
+        title = "Something went wrong"
+        text = ""
+        informative_text = ""
+        icon = QMessageBox.Critical
+        buttons = QMessageBox.Cancel
+        msg = QMessageBox()
+
+        try:
+            self._save_class_labels()
+            self.accept()
+            return
+
+        except ZeroLabelException as e:
+            text = e.__class__.__name__
+            informative_text = str(e)
+
+        except LabelIdsNotUniqueException as e:
+            text = e.__class__.__name__
+            informative_text = str(e)
+
+        except LabelClassNameEmpty as e:
+            text = e.__class__.__name__
+            informative_text = str(e)
+
+        except DefaultIdMismatchException as e:
+            text = e.__class__.__name__
+            informative_text = (
+                str(e)
+                + f" Do you want to overwrite the default to the first label `{LabelConfig().classes[0].id}`?"
+            )
+            icon = QMessageBox.Question
+            buttons |= QMessageBox.Ok
+            msg.accepted.connect(LabelConfig().set_first_as_default)
+
+        except Exception as e:
+            text = e.__class__.__name__
+            informative_text = traceback.format_exc()
+
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        msg.setInformativeText(informative_text)
+        msg.setIcon(icon)
+        msg.setStandardButtons(buttons)
+        msg.setDefaultButton(QMessageBox.Cancel)
+
+        _ = msg.exec_()

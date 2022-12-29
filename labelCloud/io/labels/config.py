@@ -30,7 +30,19 @@ class ClassConfig:
         }
 
 
-class LabelConfigException(Exception):
+class ZeroLabelException(Exception):
+    pass
+
+
+class LabelIdsNotUniqueException(Exception):
+    pass
+
+
+class DefaultIdMismatchException(Exception):
+    pass
+
+
+class LabelClassNameEmpty(Exception):
     pass
 
 
@@ -52,18 +64,18 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
             self.classes = [ClassConfig.from_dict(c) for c in data["classes"]]
             self.default = data["default"]
-            self.type = data["type"]
+            self.type = LabelingMode(data["type"])
             self.format = data["format"]
         else:
             self.classes = [ClassConfig("cart", 0, color=Color3f(1, 0, 0))]
             self.default = 0
             self.type = LabelingMode.OBJECT_DETECTION
             self.format = ".bin"
-        self._validate()
+        self.validate()
         self._loaded = True
 
     def save_config(self) -> None:
-        self._validate()
+        self.validate()
         data = {
             "classes": [c.to_dict() for c in self.classes],
             "default": self.default,
@@ -118,7 +130,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         for c in self.classes:
             if c.id == self.default:
                 return c.name
-        raise LabelConfigException(
+        raise DefaultIdMismatchException(
             f"Default class id `{self.default}` doesn't present in the class list."
         )
 
@@ -132,13 +144,19 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         self.get_class(class_name).color = color
         self.save_config()
 
+    def set_first_as_default(self) -> None:
+        self.default = self.classes[0].id
+
     # VALIDATION
-    def _validate(self) -> None:
+    def validate(self) -> None:
+        if self.nb_of_classes == 0:
+            raise ZeroLabelException("At least one label required.")
         # validate the default id presents in the classes
         self.get_default_class_name()
         # validate the ids are unique
         if len({c.id for c in self.classes}) != self.nb_of_classes:
-            raise LabelConfigException("Class ids are not unique.")
+            raise LabelIdsNotUniqueException("Class ids are not unique.")
 
-        # TODO: validate the format against the mode
-        # TODO: validate the names are not empty
+        for label_class in self.classes:
+            if label_class.name == "":
+                raise LabelClassNameEmpty("At least one class name is empty.")
