@@ -326,7 +326,9 @@ class Controller:
         assert self.pcd_manager.pointcloud is not None
         points_inside = box.is_inside(self.pcd_manager.pointcloud.points)
         pointcloud = self.pcd_manager.pointcloud.get_filtered_pointcloud(points_inside)
-
+        if pointcloud is None:
+            logging.warning("No points found inside the box. Ignored.")
+            return
         extensions = BasePointCloudHandler.get_supported_extensions()
         make_filter = " ".join(["*" + extension for extension in extensions])
         file_filter = f"Point Cloud File ({make_filter})"

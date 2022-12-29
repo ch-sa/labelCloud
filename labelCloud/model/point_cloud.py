@@ -355,20 +355,24 @@ class PointCloud(object):
         self.trans_x, self.trans_y, self.trans_z = self.init_rotation
         self.rot_x, self.rot_y, self.rot_z = self.init_rotation
 
-    def get_filtered_pointcloud(self, indicies: npt.NDArray[np.bool_]) -> "PointCloud":
+    def get_filtered_pointcloud(
+        self, indicies: npt.NDArray[np.bool_]
+    ) -> Optional["PointCloud"]:
         assert self.points is not None
         assert self.colors is not None
         points = self.points[indicies]
-        colors = self.colors[indicies]
-        labels = self.labels[indicies] if self.labels is not None else None
-        path = self.path.parent / (self.path.stem + "_cropped" + self.path.suffix)
-        return PointCloud(
-            path=path,
-            points=points,
-            colors=colors,
-            segmentation_labels=labels,
-            write_buffer=False,
-        )
+        if points.shape[0] > 0:
+            colors = self.colors[indicies]
+            labels = self.labels[indicies] if self.labels is not None else None
+            path = self.path.parent / (self.path.stem + "_cropped" + self.path.suffix)
+            return PointCloud(
+                path=path,
+                points=points,
+                colors=colors,
+                segmentation_labels=labels,
+                write_buffer=False,
+            )
+        return None
 
     def print_details(self) -> None:
         print_column(
