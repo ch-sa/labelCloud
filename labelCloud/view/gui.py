@@ -19,6 +19,8 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
+from labelCloud.view.startup_dialog import StartupDialog
+
 from ..control.config_manager import config
 from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
@@ -201,7 +203,14 @@ class GUI(QtWidgets.QMainWindow):
         # self.act_rename_class = QtWidgets.QAction("Rename class") #TODO: Implement!
         self.act_change_class_color = QtWidgets.QAction("Change class color")
         self.act_delete_class = QtWidgets.QAction("Delete label")
-        self.label_list.addActions([self.act_change_class_color, self.act_delete_class])
+        self.act_crop_pointcloud_inside = QtWidgets.QAction("Save points inside as")
+        self.label_list.addActions(
+            [
+                self.act_change_class_color,
+                self.act_delete_class,
+                self.act_crop_pointcloud_inside,
+            ]
+        )
         self.label_list.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         # BOUNDING BOX PARAMETER EDITS
@@ -315,6 +324,9 @@ class GUI(QtWidgets.QMainWindow):
         # context menu
         self.act_delete_class.triggered.connect(
             self.controller.bbox_controller.delete_current_bbox
+        )
+        self.act_crop_pointcloud_inside.triggered.connect(
+            self.controller.crop_pointcloud_inside_active_bbox
         )
         self.act_change_class_color.triggered.connect(self.change_label_color)
 

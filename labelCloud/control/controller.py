@@ -1,12 +1,16 @@
 import logging
+import traceback
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from ..definitions import BBOX_SIDES, Colors, Context, LabelingMode
 from ..io.labels.config import LabelConfig
+from ..io.pointclouds import BasePointCloudHandler
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -315,3 +319,34 @@ class Controller:
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
             self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
+
+    def crop_pointcloud_inside_active_bbox(self) -> None:
+        box = self.bbox_controller.get_active_bbox()
+        assert box is not None
+        assert self.pcd_manager.pointcloud is not None
+        points_inside = box.is_inside(self.pcd_manager.pointcloud.points)
+        pointcloud = self.pcd_manager.pointcloud.get_filtered_pointcloud(points_inside)
+
+        extensions = BasePointCloudHandler.get_supported_extensions()
+        make_filter = " ".join(["*" + extension for extension in extensions])
+        file_filter = f"Point Cloud File ({make_filter})"
+        file_name, file_format = QFileDialog.getSaveFileName(
+            caption="Select a file name to save the cropped point cloud",
+            directory=str(pointcloud.path.parent),
+            filter=file_filter,
+            initialFilter=file_filter,
+        )
+        if file_name != "":
+            try:
+                path = Path(file_name)
+                handler = BasePointCloudHandler.get_handler(path.suffix)
+                print(path)
+                handler.write_point_cloud(path, pointcloud)
+            except Exception as e:
+                msg = QMessageBox()
+                msg.setWindowTitle("Failed to save cropped point cloud")
+                msg.setText(e.__class__.__name__)
+                msg.setInformativeText(traceback.format_exc())
+                msg.setIcon(QMessageBox.Critical)
+                msg.setStandardButtons(QMessageBox.Cancel)
+                msg.exec_()
