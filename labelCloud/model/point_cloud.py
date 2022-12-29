@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple, cast
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
+from PyQt5.QtWidgets import QMessageBox
 
 from labelCloud.io.labels.config import LabelConfig
 
@@ -42,19 +43,6 @@ def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.
     return np.split(data, np.where(np.diff(data) != stepsize)[0] + 1)
 
 
-def validate_segmentation_label(
-    label_config: LabelConfig, labels: npt.NDArray[np.int8], path: Path
-) -> None:
-    unique_label_ids = set(np.unique(labels))
-    unique_class_ids = set(c.id for c in label_config.classes)
-    if not unique_class_ids.issuperset(unique_label_ids):
-        # TODO: define the fallback strategy
-        # Ask users if they want to overwrite the labels with default or not.
-        raise Exception(
-            f"Segmentation labels {unique_label_ids} of `{Path}` don't match with the label config {unique_class_ids}."
-        )
-
-
 class PointCloud(object):
     def __init__(
         self,
@@ -74,6 +62,7 @@ class PointCloud(object):
         self.labels = None
         if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
             self.labels = segmentation_labels
+            self.validate_segmentation_label()
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
         self.vbo = None
@@ -155,8 +144,7 @@ class PointCloud(object):
             label_path.suffix
         )()
         assert self.labels is not None
-        validate_segmentation_label(LabelConfig(), self.labels, self.path)
-
+        self.validate_segmentation_label()
         seg_handler.overwrite_labels(label_path=label_path, labels=self.labels)
         logging.info(f"Writing segmentation labels to {label_path}")
 
@@ -186,7 +174,6 @@ class PointCloud(object):
             labels = seg_handler.read_or_create_labels(
                 label_path=label_path, num_points=points.shape[0]
             )
-            validate_segmentation_label(LabelConfig(), labels, path)
 
         return cls(
             path,
@@ -197,6 +184,35 @@ class PointCloud(object):
             init_rotation,
             write_buffer,
         )
+
+    def validate_segmentation_label(self) -> None:
+        unique_label_ids = set(np.unique(self.labels))  # type: ignore
+        unique_class_ids = set(c.id for c in LabelConfig().classes)
+        if not unique_class_ids.issuperset(unique_label_ids):
+            msg = QMessageBox()
+            msg.setWindowTitle("Invalid segmentation label")
+            msg.setText(
+                f"Segmentation labels {unique_label_ids} of `{self.path}` don't match with the label config {unique_class_ids}."
+            )
+            labels_to_replace = unique_label_ids.difference(unique_class_ids)
+            msg.setInformativeText(
+                f"""
+                Do you want to overwrite 
+                the mismatch labels {labels_to_replace} with 
+                default label `{LabelConfig().get_default_class_name()}` of id `{LabelConfig().default}`?
+                """
+            )
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
+
+            msg.accepted.connect(self.replace_missing_labels_with_default)
+            msg.exec_()
+
+    def replace_missing_labels_with_default(self):
+        unique_label_ids = set(np.unique(self.labels))
+        unique_class_ids = set(c.id for c in LabelConfig().classes)
+        labels_to_replace = list(unique_label_ids.difference(unique_class_ids))
+        self.labels[np.isin(self.labels, labels_to_replace)] = LabelConfig().default
 
     def to_file(self, path: Optional[Path] = None) -> None:
         if not path:

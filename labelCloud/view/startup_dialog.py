@@ -298,4 +298,4 @@ class StartupDialog(QDialog):
         msg.setStandardButtons(buttons)
         msg.setDefaultButton(QMessageBox.Cancel)
 
-        _ = msg.exec_()
+        msg.exec_()
