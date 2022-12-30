@@ -329,26 +329,4 @@ class Controller:
         if pointcloud is None:
             logging.warning("No points found inside the box. Ignored.")
             return
-        extensions = BasePointCloudHandler.get_supported_extensions()
-        make_filter = " ".join(["*" + extension for extension in extensions])
-        file_filter = f"Point Cloud File ({make_filter})"
-        file_name, file_format = QFileDialog.getSaveFileName(
-            caption="Select a file name to save the cropped point cloud",
-            directory=str(pointcloud.path.parent),
-            filter=file_filter,
-            initialFilter=file_filter,
-        )
-        if file_name != "":
-            try:
-                path = Path(file_name)
-                handler = BasePointCloudHandler.get_handler(path.suffix)
-                print(path)
-                handler.write_point_cloud(path, pointcloud)
-            except Exception as e:
-                msg = QMessageBox()
-                msg.setWindowTitle("Failed to save cropped point cloud")
-                msg.setText(e.__class__.__name__)
-                msg.setInformativeText(traceback.format_exc())
-                msg.setIcon(QMessageBox.Critical)
-                msg.setStandardButtons(QMessageBox.Cancel)
-                msg.exec_()
+        self.view.save_point_cloud_as(pointcloud)
