@@ -131,7 +131,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             if c.id == self.default:
                 return c.name
         raise DefaultIdMismatchException(
-            f"Default class id `{self.default}` doesn't present in the class list."
+            f"Default class id `{self.default}` is missing in the class list."
         )
 
     # SETTERS
