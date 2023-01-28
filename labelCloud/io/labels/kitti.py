@@ -1,8 +1,9 @@
 import logging
 import math
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
+import numpy as np
 from ...model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
@@ -19,11 +20,13 @@ class KittiFormat(BaseLabelFormat):
     ) -> None:
         super().__init__(label_folder, export_precision, relative_rotation)
         self.transformed = transformed
+        self.calib_folder = Path(*label_folder.parts[:-1])/"calib" # TODO: add folder selection to config.ini and GUI
 
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         labels = []
 
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
+        calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         if label_path.is_file():
             with label_path.open("r") as read_file:
                 label_lines = read_file.readlines()
@@ -32,10 +35,14 @@ class KittiFormat(BaseLabelFormat):
                 line_elements = line.split()
                 centroid = tuple([float(v) for v in line_elements[11:14]])
                 if self.transformed:
-                    centroid = centroid[2], -centroid[0], centroid[1] - 2.3
+                    T_c2l = self.calc_cam2lidar(calib_path)
+                    xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
+                    xyz1 = T_c2l @ xyz1
+                    centroid = tuple([float(n) for n in xyz1[:-1]])
                 dimensions = tuple([float(v) for v in line_elements[8:11]])
                 if self.transformed:
                     dimensions = dimensions[2], dimensions[1], dimensions[0]
+                    centroid = (centroid[0], centroid[1], centroid[2] + dimensions[2] / 2) # centroid in KITTI located on bottom face of bbox 
                 bbox = BBox(*centroid, *dimensions)
                 if self.transformed:
                     bbox.set_rotations(
@@ -89,3 +96,34 @@ class KittiFormat(BaseLabelFormat):
             f"Exported {len(bboxes)} labels to {path_to_file} "
             f"in {self.__class__.__name__} formatting!"
         )
+
+
+# ---------------------------------------------------------------------------- #
+#                               Helper Functions                               #
+# ---------------------------------------------------------------------------- #
+
+    def _read_calib(self, calib_path: Path) -> Dict[str, np.ndarray]:
+        lines = []
+        with open(calib_path, 'r') as f:
+            lines = f.readlines()
+        calib_dict = {}
+        for line in lines:
+            vals = line.split()
+            if not vals: continue
+            calib_dict[vals[0][:-1]] = np.array(vals[1:]).astype(np.float64)
+        return calib_dict
+
+    def calc_cam2lidar(self, calib_path: Path):
+        calib_dict = self._read_calib(calib_path)
+
+        T_rect = calib_dict["R0_rect"]
+        T_rect = T_rect.reshape(3, 3)
+        T_rect = np.insert(T_rect, 3, values=[0,0,0], axis=0)
+        T_rect = np.insert(T_rect, 3, values=[0,0,0,1], axis=1)
+
+        T_v2c = calib_dict["Tr_velo_to_cam"]
+        T_v2c = T_v2c.reshape(3, 4)
+        T_v2c = np.insert(T_v2c, 3, values=[0,0,0,1], axis=0)
+
+        T_c2v = np.linalg.inv(T_rect @ T_v2c)
+        return T_c2v
