@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Set
 
 import pkg_resources
-from labelCloud.view.startup_dialog import StartupDialog
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QPixmap
@@ -25,6 +24,7 @@ from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from .settings_dialog import SettingsDialog  # type: ignore
+from .startup_dialog import StartupDialog
 from .status_manager import StatusManager
 from .viewer import GLWidget
 
@@ -403,10 +403,10 @@ class GUI(QtWidgets.QMainWindow):
     # Collect, filter and forward events to viewer
     def eventFilter(self, event_object, event) -> bool:
         # Keyboard Events
-        # if (event.type() == QEvent.KeyPress) and (not self.line_edited_activated()):
-        if (event.type() == QEvent.KeyPress) and (
-            event_object == self
-        ):  # TODO: Cleanup old filter
+        if (event.type() == QEvent.KeyPress) and event_object in [
+            self,
+            self.label_list,  # otherwise steals focus for keyboard shortcuts
+        ]:
             self.controller.key_press_event(event)
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
             return True  # TODO: Recheck pyqt behaviour
