@@ -1,9 +1,10 @@
 import logging
 import math
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 import numpy as np
+
 from ...model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
@@ -20,7 +21,9 @@ class KittiFormat(BaseLabelFormat):
     ) -> None:
         super().__init__(label_folder, export_precision, relative_rotation)
         self.transformed = transformed
-        self.calib_folder = Path(*label_folder.parts[:-1])/"calib" # TODO: add folder selection to config.ini and GUI
+        self.calib_folder = (
+            Path(*label_folder.parts[:-1]) / "calib"
+        )  # TODO: add folder selection to config.ini and GUI
 
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         labels = []
@@ -42,7 +45,11 @@ class KittiFormat(BaseLabelFormat):
                 dimensions = tuple([float(v) for v in line_elements[8:11]])
                 if self.transformed:
                     dimensions = dimensions[2], dimensions[1], dimensions[0]
-                    centroid = (centroid[0], centroid[1], centroid[2] + dimensions[2] / 2) # centroid in KITTI located on bottom face of bbox 
+                    centroid = (
+                        centroid[0],
+                        centroid[1],
+                        centroid[2] + dimensions[2] / 2,
+                    )  # centroid in KITTI located on bottom face of bbox
                 bbox = BBox(*centroid, *dimensions)
                 if self.transformed:
                     bbox.set_rotations(
@@ -97,19 +104,19 @@ class KittiFormat(BaseLabelFormat):
             f"in {self.__class__.__name__} formatting!"
         )
 
-
-# ---------------------------------------------------------------------------- #
-#                               Helper Functions                               #
-# ---------------------------------------------------------------------------- #
+    # ---------------------------------------------------------------------------- #
+    #                               Helper Functions                               #
+    # ---------------------------------------------------------------------------- #
 
     def _read_calib(self, calib_path: Path) -> Dict[str, np.ndarray]:
         lines = []
-        with open(calib_path, 'r') as f:
+        with open(calib_path, "r") as f:
             lines = f.readlines()
         calib_dict = {}
         for line in lines:
             vals = line.split()
-            if not vals: continue
+            if not vals:
+                continue
             calib_dict[vals[0][:-1]] = np.array(vals[1:]).astype(np.float64)
         return calib_dict
 
@@ -118,12 +125,12 @@ class KittiFormat(BaseLabelFormat):
 
         T_rect = calib_dict["R0_rect"]
         T_rect = T_rect.reshape(3, 3)
-        T_rect = np.insert(T_rect, 3, values=[0,0,0], axis=0)
-        T_rect = np.insert(T_rect, 3, values=[0,0,0,1], axis=1)
+        T_rect = np.insert(T_rect, 3, values=[0, 0, 0], axis=0)
+        T_rect = np.insert(T_rect, 3, values=[0, 0, 0, 1], axis=1)
 
         T_v2c = calib_dict["Tr_velo_to_cam"]
         T_v2c = T_v2c.reshape(3, 4)
-        T_v2c = np.insert(T_v2c, 3, values=[0,0,0,1], axis=0)
+        T_v2c = np.insert(T_v2c, 3, values=[0, 0, 0, 1], axis=0)
 
         T_c2v = np.linalg.inv(T_rect @ T_v2c)
         return T_c2v
