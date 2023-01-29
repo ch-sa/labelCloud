@@ -5,6 +5,7 @@ from typing import Dict, List
 
 import numpy as np
 
+from ...control.config_manager import config
 from ...model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
@@ -21,9 +22,8 @@ class KittiFormat(BaseLabelFormat):
     ) -> None:
         super().__init__(label_folder, export_precision, relative_rotation)
         self.transformed = transformed
-        self.calib_folder = (
-            Path(*label_folder.parts[:-1]) / "calib"
-        )  # TODO: add folder selection to config.ini and GUI
+
+        self.calib_folder = config.getpath("FILE", "calib_folder")
 
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         labels = []
@@ -31,19 +31,29 @@ class KittiFormat(BaseLabelFormat):
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         if label_path.is_file():
+
             with label_path.open("r") as read_file:
                 label_lines = read_file.readlines()
 
             for line in label_lines:
                 line_elements = line.split()
                 centroid = tuple([float(v) for v in line_elements[11:14]])
+                dimensions = tuple([float(v) for v in line_elements[8:11]])
                 if self.transformed:
+
+                    if not calib_path.is_file():
+                        logging.exception(
+                            f"There is no calibration file for point cloud {pcd_path.name}."
+                            " If you want to load labels in lidar frame without transformation"
+                            " use the label format 'kitti_untransformed'."
+                            " Skipping the loading of labels for this point cloud ..."
+                        )
+                        return []
+
                     T_c2l = self.calc_cam2lidar(calib_path)
                     xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                     xyz1 = T_c2l @ xyz1
                     centroid = tuple([float(n) for n in xyz1[:-1]])
-                dimensions = tuple([float(v) for v in line_elements[8:11]])
-                if self.transformed:
                     dimensions = dimensions[2], dimensions[1], dimensions[0]
                     centroid = (
                         centroid[0],
