@@ -10,6 +10,12 @@ from ...control.config_manager import config
 from ...definitions.types import Color3f, LabelingMode
 from ...utils.color import hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
+from .exceptions import (
+    DefaultIdMismatchException,
+    LabelClassNameEmpty,
+    LabelIdsNotUniqueException,
+    ZeroLabelException,
+)
 
 
 @dataclass
@@ -41,16 +47,25 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             self.load_config()
 
     def load_config(self) -> None:
-        with config.getpath("FILE", "class_definitions").open("r") as stream:
-            data = json.load(stream)
+        class_definition_path = config.getpath("FILE", "class_definitions")
+        if class_definition_path.exists():
+            with config.getpath("FILE", "class_definitions").open("r") as stream:
+                data = json.load(stream)
 
-        self.classes = [ClassConfig.from_dict(c) for c in data["classes"]]
-        self.default = data["default"]
-        self.type = data["type"]
-        self.format = data["format"]
+            self.classes = [ClassConfig.from_dict(c) for c in data["classes"]]
+            self.default = data["default"]
+            self.type = LabelingMode(data["type"])
+            self.format = data["format"]
+        else:
+            self.classes = [ClassConfig("cart", 0, color=Color3f(1, 0, 0))]
+            self.default = 0
+            self.type = LabelingMode.OBJECT_DETECTION
+            self.format = ".bin"
+        self.validate()
         self._loaded = True
 
     def save_config(self) -> None:
+        self.validate()
         data = {
             "classes": [c.to_dict() for c in self.classes],
             "default": self.default,
@@ -95,8 +110,19 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             )
             return hex_to_rgb("#FF0000")
 
+    def has_valid_default_class(self) -> bool:
+        for c in self.classes:
+            if c.id == self.default:
+                return True
+        return False
+
     def get_default_class_name(self) -> str:
-        return next((c.name for c in self.classes if c.id == self.default))
+        for c in self.classes:
+            if c.id == self.default:
+                return c.name
+        raise DefaultIdMismatchException(
+            f"Default class id `{self.default}` is missing in the class list."
+        )
 
     # SETTERS
 
@@ -107,3 +133,20 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
     def set_class_color(self, class_name: str, color: Color3f) -> None:
         self.get_class(class_name).color = color
         self.save_config()
+
+    def set_first_as_default(self) -> None:
+        self.default = self.classes[0].id
+
+    # VALIDATION
+    def validate(self) -> None:
+        if self.nb_of_classes == 0:
+            raise ZeroLabelException("At least one label required.")
+        # validate the default id presents in the classes
+        self.get_default_class_name()
+        # validate the ids are unique
+        if len({c.id for c in self.classes}) != self.nb_of_classes:
+            raise LabelIdsNotUniqueException("Class ids are not unique.")
+
+        for label_class in self.classes:
+            if label_class.name == "":
+                raise LabelClassNameEmpty("At least one class name is empty.")

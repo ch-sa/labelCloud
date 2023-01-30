@@ -240,7 +240,7 @@ class GUI(QtWidgets.QMainWindow):
         # Run startup dialog
         self.startup_dialog = StartupDialog()
         if self.startup_dialog.exec():
-            self.startup_dialog.save_class_labels()
+            pass
         else:
             sys.exit()
         # Segmentation only functionalities
