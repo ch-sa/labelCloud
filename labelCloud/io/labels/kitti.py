@@ -1,13 +1,51 @@
 import logging
 import math
+from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
+import numpy.typing as npt
 
 from ...control.config_manager import config
 from ...model import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
+
+
+def _read_calibration_file(calib_path: Path) -> Dict[str, np.ndarray]:
+    lines = []
+    with open(calib_path, "r") as f:
+        lines = f.readlines()
+    calib_dict = {}
+    for line in lines:
+        vals = line.split()
+        if not vals:
+            continue
+        calib_dict[vals[0][:-1]] = np.array(vals[1:]).astype(np.float64)
+    return calib_dict
+
+
+class CalibrationFileNotFound(Exception):
+    def __init__(self, calib_path: Path, pcd_name: str) -> None:
+        self.calib_path = calib_path
+        self.pcd_name = pcd_name
+        super().__init__(
+            f"There is no calibration file at {self.calib_path.name} for point cloud"
+            f" {self.pcd_name}. If you want to load labels in lidar frame without"
+            " transformation use the label format 'kitti_untransformed'."
+        )
+
+
+TEMPLATE_META = {
+    "type": "",
+    "truncated": "0",
+    "occluded": "0",
+    "alpha": "0",
+    "bbox": "0 0 0 0",
+    "dimensions": "0 0 0",
+    "location": "0 0 0",
+    "rotation_y": "0",
+}
 
 
 class KittiFormat(BaseLabelFormat):
@@ -24,11 +62,15 @@ class KittiFormat(BaseLabelFormat):
         self.transformed = transformed
 
         self.calib_folder = config.getpath("FILE", "calib_folder")
-        self.bboxes_meta: List[Dict] = []
+        self.T_v2c: Optional[npt.ArrayLike] = None
+        self.T_c2v: Optional[npt.ArrayLike] = None
+
+        self.bboxes_meta: Dict[int, Dict] = defaultdict(
+            lambda: TEMPLATE_META
+        )  # id: meta
 
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         bboxes = []
-        self.bboxes_meta = []
 
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
@@ -49,20 +91,18 @@ class KittiFormat(BaseLabelFormat):
                     "location": " ".join(line_elements[11:14]),
                     "rotation_y": line_elements[14],
                 }
-                self.bboxes_meta.append(meta)
                 centroid = tuple([float(v) for v in meta["location"].split()])
                 dimensions = tuple([float(v) for v in meta["dimensions"].split()])
                 if self.transformed:
-                    if not calib_path.is_file():
-                        logging.exception(
-                            f"There is no calibration file for point cloud {pcd_path.name}."
-                            " If you want to load labels in lidar frame without transformation"
-                            " use the label format 'kitti_untransformed'."
-                            " Skipping the loading of labels for this point cloud ..."
+                    try:
+                        self._get_transforms(pcd_path)
+                    except CalibrationFileNotFound as exc:
+                        logging.exception("Calibration file not found")
+                        logging.warning(
+                            "Skipping loading of labels for this point cloud"
                         )
                         return []
 
-                    self._calc_transforms(calib_path)
                     xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                     xyz1 = self.T_c2v @ xyz1
                     centroid = tuple([float(n) for n in xyz1[:-1]])
@@ -73,6 +113,7 @@ class KittiFormat(BaseLabelFormat):
                         centroid[2] + dimensions[2] / 2,
                     )  # centroid in KITTI located on bottom face of bbox
                 bbox = BBox(*centroid, *dimensions)
+                self.bboxes_meta[id(bbox)] = meta
                 rotation = (
                     -float(meta["rotation_y"]) + math.pi / 2
                     if self.transformed
@@ -93,6 +134,13 @@ class KittiFormat(BaseLabelFormat):
             centroid = bbox.get_center()
             dimensions = bbox.get_dimensions()
             if self.transformed:
+                try:
+                    self._get_transforms(pcd_path)
+                except CalibrationFileNotFound as exc:
+                    logging.exception("Calibration file not found")
+                    logging.warning("Skipping writing of labels for this point cloud")
+                    return
+
                 centroid = (
                     centroid[0],
                     centroid[1],
@@ -109,8 +157,9 @@ class KittiFormat(BaseLabelFormat):
             rotation = -(rotation - math.pi / 2) if self.transformed else rotation
             rotation = str(self.round_dec(rotation))  # type: ignore
 
-            out_str = list(self.bboxes_meta[i].values())
+            out_str = list(self.bboxes_meta[id(bbox)].values())
             if obj_type != "DontCare":
+                out_str[0] = obj_type
                 out_str[5] = dimensions_str
                 out_str[6] = location_str
                 out_str[7] = rotation
@@ -128,29 +177,26 @@ class KittiFormat(BaseLabelFormat):
     #                               Helper Functions                               #
     # ---------------------------------------------------------------------------- #
 
-    def _read_calib(self, calib_path: Path) -> Dict[str, np.ndarray]:
-        lines = []
-        with open(calib_path, "r") as f:
-            lines = f.readlines()
-        calib_dict = {}
-        for line in lines:
-            vals = line.split()
-            if not vals:
-                continue
-            calib_dict[vals[0][:-1]] = np.array(vals[1:]).astype(np.float64)
-        return calib_dict
+    def _get_transforms(self, pcd_path: Path) -> None:
+        if self.T_v2c is None or self.T_c2v is None:
+            calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
 
-    def _calc_transforms(self, calib_path: Path) -> None:
-        calib_dict = self._read_calib(calib_path)
+            if not calib_path.is_file():
+                logging.exception(
+                    " Skipping the loading of labels for this point cloud ..."
+                )
+                raise CalibrationFileNotFound(calib_path, pcd_path.name)
 
-        T_rect = calib_dict["R0_rect"]
-        T_rect = T_rect.reshape(3, 3)
-        T_rect = np.insert(T_rect, 3, values=[0, 0, 0], axis=0)
-        T_rect = np.insert(T_rect, 3, values=[0, 0, 0, 1], axis=1)
+            calib_dict = _read_calibration_file(calib_path)
 
-        T_v2c = calib_dict["Tr_velo_to_cam"]
-        T_v2c = T_v2c.reshape(3, 4)
-        T_v2c = np.insert(T_v2c, 3, values=[0, 0, 0, 1], axis=0)
+            T_rect = calib_dict["R0_rect"]
+            T_rect = T_rect.reshape(3, 3)
+            T_rect = np.insert(T_rect, 3, values=[0, 0, 0], axis=0)
+            T_rect = np.insert(T_rect, 3, values=[0, 0, 0, 1], axis=1)
 
-        self.T_v2c = T_rect @ T_v2c
-        self.T_c2v = np.linalg.inv(self.T_v2c)
+            T_v2c = calib_dict["Tr_velo_to_cam"]
+            T_v2c = T_v2c.reshape(3, 4)
+            T_v2c = np.insert(T_v2c, 3, values=[0, 0, 0, 1], axis=0)
+
+            self.T_v2c = T_rect @ T_v2c
+            self.T_c2v = np.linalg.inv(self.T_v2c)  # type: ignore
