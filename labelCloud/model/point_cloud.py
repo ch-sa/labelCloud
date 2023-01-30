@@ -198,7 +198,7 @@ class PointCloud(object):
             msg.setInformativeText(
                 f"""
                 Do you want to overwrite 
-                the mismatch labels {labels_to_replace} with 
+                the undefined labels {labels_to_replace} with 
                 default label `{LabelConfig().get_default_class_name()}` of id `{LabelConfig().default}`?
                 """
             )
