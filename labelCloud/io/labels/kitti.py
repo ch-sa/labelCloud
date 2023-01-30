@@ -73,7 +73,11 @@ class KittiFormat(BaseLabelFormat):
                         centroid[2] + dimensions[2] / 2,
                     )  # centroid in KITTI located on bottom face of bbox
                 bbox = BBox(*centroid, *dimensions)
-                rotation = -float(meta["rotation_y"]) + math.pi / 2 if self.transformed else float(meta["rotation_y"])
+                rotation = (
+                    -float(meta["rotation_y"]) + math.pi / 2
+                    if self.transformed
+                    else float(meta["rotation_y"])
+                )
                 bbox.set_rotations(0, 0, rel2abs_rotation(rotation))
                 bbox.set_classname(meta["type"])
                 bboxes.append(bbox)
@@ -97,13 +101,13 @@ class KittiFormat(BaseLabelFormat):
                 dimensions = dimensions[2], dimensions[1], dimensions[0]
                 xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                 xyz1 = self.T_v2c @ xyz1
-                centroid = tuple([float(n) for n in xyz1[:-1]])
+                centroid = tuple([float(n) for n in xyz1[:-1]])  # type: ignore
             location_str = " ".join([str(self.round_dec(v)) for v in centroid])
             dimensions_str = " ".join([str(self.round_dec(v)) for v in dimensions])
             rotation = bbox.get_z_rotation()
             rotation = abs2rel_rotation(rotation)
             rotation = -(rotation - math.pi / 2) if self.transformed else rotation
-            rotation = str(self.round_dec(rotation))
+            rotation = str(self.round_dec(rotation))  # type: ignore
 
             out_str = list(self.bboxes_meta[i].values())
             if obj_type != "DontCare":
@@ -111,7 +115,7 @@ class KittiFormat(BaseLabelFormat):
                 out_str[6] = location_str
                 out_str[7] = rotation
 
-            data += (" ".join(out_str) + "\n")
+            data += " ".join(out_str) + "\n"
 
         # Save to TXT
         path_to_file = self.save_label_to_file(pcd_path, data)
