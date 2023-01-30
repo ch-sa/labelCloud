@@ -20,8 +20,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
-from labelCloud.view.startup_dialog import StartupDialog
-
 from ..control.config_manager import config
 from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
