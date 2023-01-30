@@ -1,16 +1,12 @@
 import logging
-import traceback
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from ..definitions import BBOX_SIDES, Colors, Context, LabelingMode
 from ..io.labels.config import LabelConfig
-from ..io.pointclouds import BasePointCloudHandler
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
