@@ -11,6 +11,7 @@ from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
+from .config_manager import config
 from .drawing_manager import DrawingManager
 from .pcd_manager import PointCloudManger
 
