@@ -23,11 +23,10 @@ from PyQt5.QtWidgets import (
 )
 
 from ..definitions.types import LabelingMode
-from ..io.labels.config import (
-    ClassConfig,
+from ..io.labels.config import ClassConfig, LabelConfig
+from ..io.labels.exceptions import (
     DefaultIdMismatchException,
     LabelClassNameEmpty,
-    LabelConfig,
     LabelIdsNotUniqueException,
     ZeroLabelException,
 )

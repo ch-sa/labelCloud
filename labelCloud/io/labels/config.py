@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import numpy.typing as npt
@@ -10,6 +10,12 @@ from ...control.config_manager import config
 from ...definitions.types import Color3f, LabelingMode
 from ...utils.color import hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
+from .exceptions import (
+    DefaultIdMismatchException,
+    LabelClassNameEmpty,
+    LabelIdsNotUniqueException,
+    ZeroLabelException,
+)
 
 
 @dataclass
@@ -28,22 +34,6 @@ class ClassConfig:
             "id": self.id,
             "color": rgb_to_hex(self.color),
         }
-
-
-class ZeroLabelException(Exception):
-    pass
-
-
-class LabelIdsNotUniqueException(Exception):
-    pass
-
-
-class DefaultIdMismatchException(Exception):
-    pass
-
-
-class LabelClassNameEmpty(Exception):
-    pass
 
 
 class LabelConfig(object, metaclass=SingletonABCMeta):
