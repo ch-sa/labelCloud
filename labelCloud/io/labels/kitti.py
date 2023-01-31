@@ -73,7 +73,6 @@ class KittiFormat(BaseLabelFormat):
         bboxes = []
 
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
-        calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         if label_path.is_file():
 
             with label_path.open("r") as read_file:
@@ -129,7 +128,7 @@ class KittiFormat(BaseLabelFormat):
         data = str()
 
         # Labels
-        for i, bbox in enumerate(bboxes):
+        for bbox in bboxes:
             obj_type = bbox.get_classname()
             centroid = bbox.get_center()
             dimensions = bbox.get_dimensions()
@@ -172,6 +171,8 @@ class KittiFormat(BaseLabelFormat):
             f"Exported {len(bboxes)} labels to {path_to_file} "
             f"in {self.__class__.__name__} formatting!"
         )
+        self.T_v2c = None
+        self.T_c2v = None
 
     # ---------------------------------------------------------------------------- #
     #                               Helper Functions                               #
