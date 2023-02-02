@@ -74,7 +74,6 @@ class KittiFormat(BaseLabelFormat):
 
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
         if label_path.is_file():
-
             with label_path.open("r") as read_file:
                 label_lines = read_file.readlines()
 

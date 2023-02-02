@@ -19,7 +19,6 @@ def pytest_configure(config):
 
 @pytest.fixture
 def startup_pyqt(qtbot, qapp, monkeypatch):
-
     # Setup Model-View-Control structure
     control = Controller()
 
@@ -39,5 +38,4 @@ def startup_pyqt(qtbot, qapp, monkeypatch):
 
 @pytest.fixture
 def bbox():
-
     return BBox(cx=0, cy=0, cz=0, length=3, width=2, height=1)
