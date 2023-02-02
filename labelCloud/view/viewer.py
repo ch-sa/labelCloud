@@ -1,12 +1,11 @@
 import logging
 from typing import Optional, Tuple, Union
 
-from PyQt5 import QtGui, QtOpenGL
-
 import numpy as np
 import numpy.typing as npt
 import OpenGL.GL as GL
 from OpenGL import GLU
+from PyQt5 import QtGui, QtOpenGL
 
 from ..control.alignmode import AlignMode
 from ..control.bbox_controller import BoundingBoxController

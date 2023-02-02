@@ -66,7 +66,6 @@ def test_create_labels(handler: NumpySegmentationHandler) -> None:
 
 
 def test_write_labels(handler: NumpySegmentationHandler) -> None:
-
     labels = np.random.randint(low=0, high=4, size=(420,), dtype=np.int8)
     with tempfile.TemporaryDirectory() as tempdir:
         label_path = Path(tempdir) / Path("foo.bin")

@@ -315,3 +315,14 @@ class Controller:
         if a0.key() == QtCore.Qt.Key_Control:
             self.ctrl_pressed = False
             self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
+
+    def crop_pointcloud_inside_active_bbox(self) -> None:
+        bbox = self.bbox_controller.get_active_bbox()
+        assert bbox is not None
+        assert self.pcd_manager.pointcloud is not None
+        points_inside = bbox.is_inside(self.pcd_manager.pointcloud.points)
+        pointcloud = self.pcd_manager.pointcloud.get_filtered_pointcloud(points_inside)
+        if pointcloud is None:
+            logging.warning("No points found inside the box. Ignored.")
+            return
+        self.view.save_point_cloud_as(pointcloud)

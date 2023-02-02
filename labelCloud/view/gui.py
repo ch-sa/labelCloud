@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+import traceback
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Set
 
@@ -22,7 +23,9 @@ from PyQt5.QtWidgets import (
 from ..control.config_manager import config
 from ..definitions.types import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
+from ..io.pointclouds import BasePointCloudHandler
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
+from ..model.point_cloud import PointCloud
 from .settings_dialog import SettingsDialog  # type: ignore
 from .startup_dialog import StartupDialog
 from .status_manager import StatusManager
@@ -201,7 +204,14 @@ class GUI(QtWidgets.QMainWindow):
         # self.act_rename_class = QtWidgets.QAction("Rename class") #TODO: Implement!
         self.act_change_class_color = QtWidgets.QAction("Change class color")
         self.act_delete_class = QtWidgets.QAction("Delete label")
-        self.label_list.addActions([self.act_change_class_color, self.act_delete_class])
+        self.act_crop_pointcloud_inside = QtWidgets.QAction("Save points inside as")
+        self.label_list.addActions(
+            [
+                self.act_change_class_color,
+                self.act_delete_class,
+                self.act_crop_pointcloud_inside,
+            ]
+        )
         self.label_list.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         # BOUNDING BOX PARAMETER EDITS
@@ -315,6 +325,9 @@ class GUI(QtWidgets.QMainWindow):
         # context menu
         self.act_delete_class.triggered.connect(
             self.controller.bbox_controller.delete_current_bbox
+        )
+        self.act_crop_pointcloud_inside.triggered.connect(
+            self.controller.crop_pointcloud_inside_active_bbox
         )
         self.act_change_class_color.triggered.connect(self.change_label_color)
 
@@ -658,3 +671,31 @@ class GUI(QtWidgets.QMainWindow):
         LabelConfig().set_class_color(
             bbox.classname, Color3f.from_qcolor(QColorDialog.getColor())
         )
+
+    @staticmethod
+    def save_point_cloud_as(pointcloud: PointCloud) -> None:
+        extensions = BasePointCloudHandler.get_supported_extensions()
+        make_filter = " ".join(["*" + extension for extension in extensions])
+        file_filter = f"Point Cloud File ({make_filter})"
+        file_name, _ = QFileDialog.getSaveFileName(
+            caption="Select a file name to save the point cloud",
+            directory=str(pointcloud.path.parent),
+            filter=file_filter,
+            initialFilter=file_filter,
+        )
+        if file_name == "":
+            logging.warning("No file path provided. Ignored.")
+            return
+
+        try:
+            path = Path(file_name)
+            handler = BasePointCloudHandler.get_handler(path.suffix)
+            handler.write_point_cloud(path, pointcloud)
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Failed to save a point cloud")
+            msg.setText(e.__class__.__name__)
+            msg.setInformativeText(traceback.format_exc())
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Cancel)
+            msg.exec_()
