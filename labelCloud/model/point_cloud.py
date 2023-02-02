@@ -362,7 +362,7 @@ class PointCloud(object):
         assert self.colors is not None
         points = self.points[indicies]
         if points.shape[0] == 0:
-            return
+            return None
         colors = self.colors[indicies]
         labels = self.labels[indicies] if self.labels is not None else None
         path = self.path.parent / (self.path.stem + "_cropped" + self.path.suffix)

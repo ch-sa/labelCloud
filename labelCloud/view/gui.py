@@ -683,18 +683,19 @@ class GUI(QtWidgets.QMainWindow):
             filter=file_filter,
             initialFilter=file_filter,
         )
-        if file_name != "":
-            try:
-                path = Path(file_name)
-                handler = BasePointCloudHandler.get_handler(path.suffix)
-                handler.write_point_cloud(path, pointcloud)
-            except Exception as e:
-                msg = QMessageBox()
-                msg.setWindowTitle("Failed to save a point cloud")
-                msg.setText(e.__class__.__name__)
-                msg.setInformativeText(traceback.format_exc())
-                msg.setIcon(QMessageBox.Critical)
-                msg.setStandardButtons(QMessageBox.Cancel)
-                msg.exec_()
-        else:
+        if file_name == "":
             logging.warning("No file path provided. Ignored.")
+            return
+
+        try:
+            path = Path(file_name)
+            handler = BasePointCloudHandler.get_handler(path.suffix)
+            handler.write_point_cloud(path, pointcloud)
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Failed to save a point cloud")
+            msg.setText(e.__class__.__name__)
+            msg.setInformativeText(traceback.format_exc())
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Cancel)
+            msg.exec_()
