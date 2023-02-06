@@ -96,8 +96,8 @@ def start_gui():
 
     app.setStyle("Fusion")
     desktop = QDesktopWidget().availableGeometry()
-    width = (desktop.width() - view.width()) / 2
-    height = (desktop.height() - view.height()) / 2
+    width = (desktop.width() - view.width()) // 2
+    height = (desktop.height() - view.height()) // 2
     view.move(width, height)
 
     logging.info("Showing GUI...")
