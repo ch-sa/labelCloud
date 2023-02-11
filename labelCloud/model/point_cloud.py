@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QMessageBox
 from labelCloud.io.labels.config import LabelConfig
 
 from ..control.config_manager import config
-from ..definitions.types import LabelingMode, Point3D, Rotations3D, Translation3D
+from ..definitions import LabelingMode, Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
 from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height

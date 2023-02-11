@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from labelCloud.control.controller import Controller
 from labelCloud.model.bbox import BBox
 from labelCloud.view.gui import GUI
-from labelCloud.view.startup_dialog import StartupDialog
+from labelCloud.view.startup.dialog import StartupDialog
 
 
 def pytest_configure(config):

@@ -21,13 +21,13 @@ from PyQt5.QtWidgets import (
 )
 
 from ..control.config_manager import config
-from ..definitions.types import Color3f, LabelingMode
+from ..definitions import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from ..model.point_cloud import PointCloud
 from .settings_dialog import SettingsDialog  # type: ignore
-from .startup_dialog import StartupDialog
+from .startup.dialog import StartupDialog
 from .status_manager import StatusManager
 from .viewer import GLWidget
 
