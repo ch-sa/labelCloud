@@ -115,20 +115,26 @@ class StartupDialog(QDialog):
 
         parent_layout.addLayout(row)
 
-    def _on_class_list_changed(self, class_name: str, add: bool):
-        if add:
-            self.default_label.addItem(class_name)
+    def _on_class_list_changed(self):
+        old_index = self.default_label.currentIndex()
+        old_text = self.default_label.currentText()
+        old_count = self.default_label.count()
+
+        self.default_label.clear()
+        self.default_label.addItems(
+            [class_label.name for class_label in self.label_list.get_class_configs()]
+        )
+
+        if old_count == self.default_label.count():  # only renaming
+            self.default_label.setCurrentIndex(old_index)
         else:
-            index = self.default_label.findText(class_name)
-            self.default_label.removeItem(index)
+            self.default_label.setCurrentText(old_text)
 
     def add_class_definition_rows(self, parent_layout: QVBoxLayout) -> None:
         scroll_area = QScrollArea()
         self.label_list = ClassList(scroll_area)
 
-        self.label_list.changed.connect(
-            lambda class_name, add: self._on_class_list_changed(class_name, add)
-        )
+        self.label_list.changed.connect(self._on_class_list_changed)
 
         parent_layout.addWidget(QLabel("Change class labels:"))
 

@@ -20,7 +20,7 @@ from .color_button import ColorButton
 
 
 class ClassList(QWidget):
-    changed = pyqtSignal(str, bool)  # class_name, was_added
+    changed = pyqtSignal()
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -85,6 +85,8 @@ class ClassList(QWidget):
         label_name = QLineEdit(name)
         row_label.addWidget(label_name, stretch=2)
 
+        label_name.editingFinished.connect(self.changed.emit)
+
         label_color = ColorButton(color=hex_color)
         row_label.addWidget(label_color)
 
@@ -103,7 +105,7 @@ class ClassList(QWidget):
 
         self.class_labels.insertLayout(self.nb_of_labels, row_label)
 
-        self.changed.emit(name, True)
+        self.changed.emit()
 
     def _delete_label(self, delete_button: QPushButton) -> None:
         row_label: QHBoxLayout
@@ -117,7 +119,7 @@ class ClassList(QWidget):
 
         self.class_labels.removeItem(self.class_labels.itemAt(row_index))  # type: ignore
 
-        self.changed.emit(class_name, False)
+        self.changed.emit()
 
     def _get_class_config(self, row_id: int) -> ClassConfig:
         row: QHBoxLayout = self.class_labels.itemAt(row_id)  # type: ignore
