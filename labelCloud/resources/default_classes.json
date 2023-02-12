@@ -18,5 +18,5 @@
     ],
     "default": 0,
     "type": "object_detection",
-    "format": "centroid_abs"
+    "format": "centroid_rel"
 }

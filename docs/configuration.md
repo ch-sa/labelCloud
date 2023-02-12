@@ -10,6 +10,8 @@ The following parameters can be changed:
 |       `label_folder`        | Folder where the label files will be saved.                                                     |       *labels/*        |
 |     `class_definitions`     | Definition file for class names and colors as well as the default class and export format.      | *labels/_classes.json* |
 |       `image_folder`        | Folder from which related images can be loaded (OPTIONAL).                                      |     *pointclouds/*     |
+|       `calib_folder`        | Folder with calibration files (OPTIONAL, only required for KITTI format).                       |        *calib/*        |
+|    `segmentation_folder`    | Folder where the segmentation labels are saved (OPTIONAL, only for semantic segmentation).      | *labels/segmentation/* |
 |      **[POINTCLOUD]**       |
 |        `point_size`         | Drawing size for points in point cloud (rasterized diameter).                                   |          *4*           |
 |      `colorless_color`      | Point color for colorless point clouds (r,g,b).                                                 |    *0.9, 0.9, 0.9*     |
@@ -17,7 +19,6 @@ The following parameters can be changed:
 |      `std_translation`      | Standard step for point cloud translation (with mouse move).                                    |         *0.03*         |
 |         `std_zoom`          | Standard step for zooming (with mouse scroll).                                                  |        *0.0025*        |
 |         **[LABEL]**         |
-|       `label_format`        | Format for exporting labels, choose from `vertices`, `centroid_rel`, `centroid_abs` or `kitti`. |     *centroid_abs*     |
 |     `export_precision`      | Number of decimal places for exporting the bounding box parameters.                             |          *8*           |
 |  `std_boundingbox_length`   | Default length of the bounding box (for picking mode).                                          |         *0.75*         |
 |   `std_boundingbox_width`   | Default width of the bounding box (for picking mode).                                           |         *0.55*         |

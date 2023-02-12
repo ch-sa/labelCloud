@@ -4,7 +4,13 @@
 !!! info Python Support
     Currently labelCloud supports Python 3.7 to 3.9.
 
-### via pip (PyPI)
+There are two options for installing labelCloud:
+* Installation of the package via pip (PyPI).
+* Cloning the source files from the GitHub repository.
+
+The version in the repository tends to be newer, while the pip version is likely more stable.
+
+### A) via pip (PyPI)
 
 Simply install the latest version using pip.
 
@@ -15,7 +21,7 @@ labelCloud --example  # start labelCloud with example point cloud
 
 The `labelCloud` command is now globally available.
 
-### via git (manually)
+### B) via git (manually)
 
 Clone this repository and run labelCloud with Python.
 
@@ -46,4 +52,23 @@ my_project/                 # project folder
     └── ...
 ```
 
-Configure the software to your needs by editing the `config.ini` file or settings (see [Configuration](configuration.md)).
+
+## Label Configuration
+
+On startup labelCloud will welcome you with a dialog to configure the most important parameters:
+
+1. Labeling mode (default is *object detection*).
+2. Label classes with their color and id (just relevant for *semantic segmentation*).
+3. Default class (new bounding boxes will be added with this class).
+4. Export format (the format in which the labels will be saved).
+
+![Welcome dialog to configure basic labeling settings](assets/welcome_dialog.png)
+
+You should add here all class names that you expect to label in the point clouds.
+Nevertheless, new classes can still be added while labeling. Also you can still edit their colors.
+
+labelCloud will also automatically add classes that it finds in existing label files for you point
+clouds.
+
+This should cover the setup for most situations. If you need more adaptions, check how to configure
+the software to your needs in the [Configuration](configuration.md) page.
