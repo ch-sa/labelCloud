@@ -49,13 +49,14 @@ class SettingsDialog(QDialog):
         )
 
         # Label
-        self.comboBox_labelformat.addItems(
-            LabelManager.LABEL_FORMATS
-        )  # TODO: Fix visualization
+        self.comboBox_labelformat.addItems(LabelConfig().type.get_available_formats())
         self.comboBox_labelformat.setCurrentText(LabelConfig().format)
-        self.lineEdit_standardobjectclass.setText(
+
+        self.comboBox_defaultobjectclass.addItems(LabelConfig().get_classes().keys())
+        self.comboBox_defaultobjectclass.setCurrentText(
             LabelConfig().get_default_class_name()
-        )  # TODO: Make dropdown
+        )
+
         self.spinBox_exportprecision.setValue(
             config.getint("LABEL", "export_precision")
         )
@@ -124,8 +125,8 @@ class SettingsDialog(QDialog):
         config["POINTCLOUD"]["std_zoom"] = str(self.doubleSpinBox_standardzoom.value())
 
         # Label
-        LabelConfig().format = self.comboBox_labelformat.currentText()
-        LabelConfig().set_default_class(self.lineEdit_standardobjectclass.text())
+        LabelConfig().set_label_format(self.comboBox_labelformat.currentText())
+        LabelConfig().set_default_class(self.comboBox_defaultobjectclass.currentText())
         config["LABEL"]["export_precision"] = str(self.spinBox_exportprecision.value())
         config["LABEL"]["min_boundingbox_dimension"] = str(
             self.doubleSpinBox_minbboxdimensions.value()

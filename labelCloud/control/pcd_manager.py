@@ -11,7 +11,7 @@ import numpy as np
 import open3d as o3d
 import pkg_resources
 
-from ..definitions.types import LabelingMode, Point3D
+from ..definitions import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud

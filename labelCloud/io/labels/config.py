@@ -1,19 +1,26 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import numpy as np
 import numpy.typing as npt
 
 from ...control.config_manager import config
-from ...definitions.types import Color3f, LabelingMode
+from ...definitions import (
+    Color3f,
+    LabelingMode,
+    ObjectDetectionFormat,
+    SemanticSegmentationFormat,
+)
+from ...definitions.label_formats.base import BaseLabelFormat
 from ...utils.color import hex_to_rgb, rgb_to_hex
 from ...utils.singleton import SingletonABCMeta
 from .exceptions import (
     DefaultIdMismatchException,
     LabelClassNameEmpty,
     LabelIdsNotUniqueException,
+    UnknownLabelFormat,
     ZeroLabelException,
 )
 
@@ -41,7 +48,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         self.classes: List[ClassConfig]
         self.default: int
         self.type: LabelingMode
-        self.format: str
+        self.format: BaseLabelFormat
 
         if getattr(self, "_loaded", False) != True:
             self.load_config()
@@ -60,7 +67,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             self.classes = [ClassConfig("cart", 0, color=Color3f(1, 0, 0))]
             self.default = 0
             self.type = LabelingMode.OBJECT_DETECTION
-            self.format = ".bin"
+            self.format = ObjectDetectionFormat.CENTROID_REL
         self.validate()
         self._loaded = True
 
@@ -126,6 +133,9 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
 
     # SETTERS
 
+    def set_first_as_default(self) -> None:
+        self.default = self.classes[0].id
+
     def set_default_class(self, class_name: str) -> None:
         self.default = next((c.id for c in self.classes if c.name == class_name))
         self.save_config()
@@ -134,8 +144,14 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         self.get_class(class_name).color = color
         self.save_config()
 
-    def set_first_as_default(self) -> None:
-        self.default = self.classes[0].id
+    def set_label_format(self, label_format: Union[BaseLabelFormat, str]) -> None:
+        if label_format not in {
+            *ObjectDetectionFormat.list(),
+            *SemanticSegmentationFormat.list(),
+        }:
+            raise UnknownLabelFormat(label_format)
+
+        self.format = label_format  # type: ignore
 
     # VALIDATION
     def validate(self) -> None:

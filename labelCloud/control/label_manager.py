@@ -36,12 +36,6 @@ def get_label_strategy(export_format: str, label_folder: Path) -> "BaseLabelForm
 
 
 class LabelManager(object):
-    LABEL_FORMATS = [
-        "vertices",
-        "centroid_rel",
-        "centroid_abs",
-        "kitti",
-    ]
     STD_LABEL_FORMAT = LabelConfig().format
     EXPORT_PRECISION = config.getint("LABEL", "export_precision")
 
