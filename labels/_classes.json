@@ -1,26 +1,16 @@
 {
     "classes": [
         {
-            "name": "unassigned",
-            "id": 0,
-            "color": "#9da2ab"
-        },
-        {
             "name": "cart",
-            "id": 1,
-            "color": "#ffbf35"
-        },
-        {
-            "name": "box",
-            "id": 2,
+            "id": 0,
             "color": "#f156ff"
         }
     ],
     "default": 0,
     "type": "object_detection",
-    "format": "centroid_rel",
+    "format": "centroid_abs",
     "created_with": {
         "name": "labelCloud",
-        "version": "0.7.9"
+        "version": "1.0.0"
     }
 }
