@@ -1,8 +1,18 @@
 {
     "classes": [
         {
-            "name": "cart",
+            "name": "unassigned",
             "id": 0,
+            "color": "#9da2ab"
+        },
+        {
+            "name": "cart",
+            "id": 1,
+            "color": "#f156ff"
+        },
+        {
+            "name": "box",
+            "id": 2,
             "color": "#f156ff"
         }
     ],
@@ -11,6 +21,6 @@
     "format": "centroid_abs",
     "created_with": {
         "name": "labelCloud",
-        "version": "1.0.0"
+        "version": "1.0.1"
     }
 }
