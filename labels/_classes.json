@@ -18,5 +18,9 @@
     ],
     "default": 0,
     "type": "object_detection",
-    "format": "centroid_rel"
+    "format": "centroid_rel",
+    "created_with": {
+        "name": "labelCloud",
+        "version": "0.7.9"
+    }
 }

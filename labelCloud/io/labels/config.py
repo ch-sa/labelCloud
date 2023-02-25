@@ -5,6 +5,7 @@ from typing import Dict, List, Union
 import numpy as np
 import numpy.typing as npt
 
+from ... import __version__
 from ...control.config_manager import config
 from ...definitions import (
     Color3f,
@@ -78,6 +79,7 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
             "default": self.default,
             "type": self.type.value,
             "format": self.format,
+            "created_with": {"name": "labelCloud", "version": __version__},
         }
         with config.getpath("FILE", "class_definitions").open("w") as stream:
             json.dump(data, stream, indent=4)
