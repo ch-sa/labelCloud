@@ -1,5 +1,4 @@
 import json
-import logging
 from dataclasses import dataclass
 from typing import Dict, List, Union
 
@@ -15,6 +14,7 @@ from ...definitions import (
 )
 from ...definitions.label_formats.base import BaseLabelFormat
 from ...utils.color import hex_to_rgb, rgb_to_hex
+from ...utils.logger import warn_once
 from ...utils.singleton import SingletonABCMeta
 from .exceptions import (
     DefaultIdMismatchException,
@@ -112,8 +112,8 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
         try:
             return self.get_classes()[class_name].color
         except KeyError:
-            logging.warning(
-                f"No color defined for class '{class_name}'!" "Proceeding with red."
+            warn_once(
+                "No color defined for class '%s'!" "Proceeding with red.", class_name
             )
             return hex_to_rgb("#FF0000")
 

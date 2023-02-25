@@ -2,6 +2,7 @@ import logging
 import re
 import shutil
 from enum import Enum
+from functools import lru_cache
 from typing import List
 
 # --------------------------------- FORMATTING -------------------------------- #
@@ -118,3 +119,8 @@ def print_column(column_values: List[str], last: bool = False) -> None:
         for row in ROWS:
             logging.info("".join(str(word).ljust(col_width) for word in row))
         ROWS = []
+
+
+@lru_cache(maxsize=None)
+def warn_once(*args, **kwargs):
+    logging.warning(*args, **kwargs)
