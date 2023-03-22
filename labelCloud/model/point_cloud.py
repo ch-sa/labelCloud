@@ -208,7 +208,6 @@ class PointCloud(object):
         points_move_away: Optional[npt.NDArray[np.bool_]],
         points_move_back: Optional[npt.NDArray[np.bool_]],
     ):
-
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.position_vbo)
         # Move points to super far away
         if points_move_away is not None and np.any(points_move_away):

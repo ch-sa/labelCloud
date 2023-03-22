@@ -34,7 +34,6 @@ class LabelNameValidator(QValidator):
 
 
 class StartupDialog(QDialog):
-
     NAME_VALIDATOR = LabelNameValidator()
 
     def __init__(self, parent=None) -> None:
@@ -237,7 +236,6 @@ class StartupDialog(QDialog):
     def save_class_labels(self) -> None:
         classes = []
         for i in range(self.nb_of_labels):
-
             row: QHBoxLayout = self.class_labels.itemAt(i)  # type: ignore
             class_id = int(row.itemAt(0).widget().text())  # type: ignore
             class_name = row.itemAt(1).widget().text()  # type: ignore

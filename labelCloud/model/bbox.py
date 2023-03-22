@@ -20,7 +20,6 @@ from ..utils import math3d, oglhelper
 
 
 class BBox(object):
-
     MIN_DIMENSION: float = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
     HIGHLIGHTED_COLOR: Color3f = Color3f(0, 1, 0)
 
@@ -255,7 +254,6 @@ class BBox(object):
             self.translate_side(0, 4, distance)
 
     def is_inside(self, points: npt.NDArray[np.float32]) -> npt.NDArray[np.bool_]:
-
         vertices = self.get_vertices().copy()
 
         #        .------------.
