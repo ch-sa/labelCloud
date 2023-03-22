@@ -14,12 +14,13 @@ class ColorButton(QtWidgets.QPushButton):
 
     colorChanged = pyqtSignal(object)
 
-    def __init__(self, *args, color="#FF0000", **kwargs):
+    def __init__(self, *args, color="#FF0000", changeable: bool = True, **kwargs):
         super(ColorButton, self).__init__(*args, **kwargs)
 
         self._color = None
         self._default = color
-        self.pressed.connect(self.onColorPicker)
+        if changeable:
+            self.pressed.connect(self.onColorPicker)
 
         # Set the initial/default state.
         self.setColor(self._default)

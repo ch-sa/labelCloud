@@ -63,6 +63,8 @@ class PointCloud(object):
             self.labels = segmentation_labels
             self.mix_ratio = config.getfloat("POINTCLOUD", "label_color_mix_ratio")
 
+        self.visible = np.ones((self.points.shape[0],), dtype=np.bool_)
+
         self.vbo = None
         self.center: Point3D = tuple(np.sum(points[:, i]) / len(points) for i in range(3))  # type: ignore
         self.pcd_mins: npt.NDArray[np.float32] = np.amin(points, axis=0)
@@ -201,11 +203,52 @@ class PointCloud(object):
     def has_label(self) -> bool:
         return self.labels is not None
 
+    def update_position_vbo(
+        self,
+        points_move_away: Optional[npt.NDArray[np.bool_]],
+        points_move_back: Optional[npt.NDArray[np.bool_]],
+    ):
+
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.position_vbo)
+        # Move points to super far away
+        if points_move_away is not None and np.any(points_move_away):
+            move_away_idxs = np.where(points_move_away)[0]
+            self.visible[move_away_idxs] = False
+            arrays = consecutive(move_away_idxs)
+            stride = self.points.shape[1] * SIZE_OF_FLOAT
+            for arr in arrays:
+                super_far: npt.NDArray[np.float32] = (
+                    np.ones((arr.shape[0], 3), dtype=np.float32)
+                    * np.finfo(np.float32).max
+                )
+                # partially update label_vbo from positions arr[0] to arr[-1]
+                GL.glBufferSubData(
+                    GL.GL_ARRAY_BUFFER,
+                    offset=arr[0] * stride,
+                    size=super_far.nbytes,
+                    data=super_far,
+                )
+        # Move points back
+        if points_move_back is not None and np.any(points_move_back):
+            move_back_idxs = np.where(points_move_back)[0]
+            self.visible[move_back_idxs] = True
+            arrays = consecutive(move_back_idxs)
+            stride = self.points.shape[1] * SIZE_OF_FLOAT
+
+            for arr in arrays:
+                points: npt.NDArray[np.float32] = self.points[arr]
+                GL.glBufferSubData(
+                    GL.GL_ARRAY_BUFFER,
+                    offset=arr[0] * stride,
+                    size=points.nbytes,
+                    data=points,
+                )
+
     def update_selected_points_in_label_vbo(
         self, points_inside: npt.NDArray[np.bool_]
     ) -> None:
-        """Send the selected updated label colors to label vbo. This function
-        assumes the `self.label_colors[points_inside]` have been altered.
+        """Send the selected updated label colors to `self.label_vbo`. This
+        function assumes the `self.label_colors[points_inside]` have been altered.
         This function only partially updates the label vbo to minimise the
         data sent to gpu. It leverages `glBufferSubData` method to perform
         partial update and `consecutive` method to find consecutive indexes

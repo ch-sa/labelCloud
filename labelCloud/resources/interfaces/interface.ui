@@ -1461,6 +1461,97 @@
        </layout>
       </item>
       <item>
+       <widget class="QGroupBox" name="segmentation_list_group">
+        <property name="font">
+         <font>
+          <family>DejaVu Sans,Arial</family>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="title">
+          <string>Segmentation Controls</string>
+        </property>
+        <layout class="QGridLayout" name="segmentation_list">
+        <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="topMargin">
+        <number>0</number>
+        </property>
+        <property name="verticalSpacing">
+        <number>6</number>
+        </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="segmentation_control_class_list">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <family>DejaVu Sans,Arial</family>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Class Name</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="segmentation_control_color">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <family>DejaVu Sans,Arial</family>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Color</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="segmentation_control_checked">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <family>DejaVu Sans,Arial</family>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Visible</string>
+           </property>
+          </widget>
+         </item>
+
+        </layout>
+       </widget>
+
+      </item>
+
+      <item>
        <widget class="QListWidget" name="label_list">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Ignored" vsizetype="Maximum">

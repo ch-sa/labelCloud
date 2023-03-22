@@ -8,15 +8,18 @@ from shutil import copyfile
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 import numpy as np
-import pkg_resources
-
 import open3d as o3d
+import pkg_resources
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QCheckBox, QLabel
 
 from ..definitions.types import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
+from ..utils.color import rgb_to_hex
 from ..utils.logger import blue, green, print_column
+from ..view.color_button import ColorButton
 from .config_manager import config
 from .label_manager import LabelManager
 
@@ -264,7 +267,8 @@ class PointCloudManger(object):
 
     def assign_point_label_in_box(self, box: BBox) -> None:
         assert self.pointcloud is not None
-        points = self.pointcloud.points
+        points = self.pointcloud.points.copy()
+        points[~self.pointcloud.visible] = np.finfo(np.float32).max
         points_inside = box.is_inside(points)
 
         # Relabel the points if its inside the box
@@ -307,3 +311,53 @@ class PointCloudManger(object):
         else:
             self.view.button_next_pcd.setEnabled(True)
             self.view.button_prev_pcd.setEnabled(True)
+
+    def populate_segmentation_list(self) -> None:
+        assert self.pointcloud is not None
+        assert self.pointcloud.labels is not None
+        self.seg_list_label: List[QLabel] = []
+        self.seg_list_check_box: List[QCheckBox] = []
+        self.seg_list_check_state: List[QtCore.Qt.CheckState] = []
+        for idx, label_class in enumerate(LabelConfig().classes, start=1):
+            self.seg_list_label.append(QLabel(label_class.name))
+            check_box = QCheckBox()
+            check_box.setCheckState(QtCore.Qt.Checked)
+            color_button = ColorButton(
+                color=rgb_to_hex(label_class.color), changeable=False
+            )
+            self.seg_list_check_box.append(check_box)
+            self.seg_list_check_state.append(self.seg_list_check_box[-1].checkState())
+            self.view.segmentation_list.addWidget(self.seg_list_label[-1], idx, 0)
+            self.view.segmentation_list.addWidget(color_button, idx, 1)
+            self.view.segmentation_list.addWidget(self.seg_list_check_box[-1], idx, 2)
+
+    def loop_seg_list_check_state(self):
+        curr_checked_status = self.seg_list_check_state.copy()
+        any_changed = False
+
+        move_back = []
+        move_away = []
+        for idx, (box, prev_status) in enumerate(
+            zip(
+                self.seg_list_check_box,
+                self.seg_list_check_state,
+            )
+        ):
+            if box.checkState() != prev_status:
+                any_changed = True
+                curr_checked_status[idx] = box.checkState()
+                changed_id = LabelConfig().classes[idx].id
+                if box.checkState() == QtCore.Qt.Checked:
+                    move_back.append(changed_id)
+                else:
+                    move_away.append(changed_id)
+
+        if any_changed:
+            points_move_away = (
+                np.isin(self.pointcloud.labels, move_away) if move_away else None
+            )
+            points_move_back = (
+                np.isin(self.pointcloud.labels, move_back) if move_back else None
+            )
+            self.pointcloud.update_position_vbo(points_move_away, points_move_back)
+            self.seg_list_check_state = curr_checked_status
