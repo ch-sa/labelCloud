@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from ..definitions.types import LabelingMode
+from ..definitions.labeling_mode import LabelingMode
 from ..io.labels.config import ClassConfig, LabelConfig
 from ..utils.color import get_distinct_colors, hex_to_rgb, rgb_to_hex
 from ..view.color_button import ColorButton
