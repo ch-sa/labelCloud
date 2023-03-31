@@ -1,11 +1,14 @@
 import logging
 import os
+import shutil
 import time
+from pathlib import Path
 from typing import Tuple
 
 import pytest
 from PyQt5 import QtCore
 
+from labelCloud.control.config_manager import config
 from labelCloud.control.controller import Controller
 from labelCloud.model.bbox import BBox
 from labelCloud.view.gui import GUI
@@ -19,6 +22,12 @@ def pytest_configure(config):
 
 @pytest.fixture
 def startup_pyqt(qtbot, qapp, monkeypatch):
+    # Backup label
+    pathToLabel = config.getpath("FILE", "label_folder") / "exemplary.json"
+    pathToBackup = Path().cwd() / pathToLabel.name
+
+    shutil.copy(pathToLabel, pathToBackup)
+
     # Setup Model-View-Control structure
     control = Controller()
 
@@ -33,7 +42,9 @@ def startup_pyqt(qtbot, qapp, monkeypatch):
 
     # Start GUI
     view.show()
-    return view, control
+    yield view, control
+
+    shutil.move(pathToBackup, pathToLabel)
 
 
 @pytest.fixture
