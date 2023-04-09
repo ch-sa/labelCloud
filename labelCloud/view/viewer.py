@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -12,8 +13,17 @@ from ..control.bbox_controller import BoundingBoxController
 from ..control.config_manager import config
 from ..control.drawing_manager import DrawingManager
 from ..control.pcd_manager import PointCloudManger
-from ..definitions.types import Color4f, Point2D, Point3D
+from ..definitions.types import Color4f, Point2D
 from ..utils import oglhelper
+
+
+@contextmanager
+def ignore_depth_mask():
+    GL.glDepthMask(GL.GL_FALSE)
+    try:
+        yield
+    finally:
+        GL.glDepthMask(GL.GL_TRUE)
 
 
 # Main widget for presenting the point cloud
@@ -36,14 +46,14 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.DEVICE_PIXEL_RATIO
         )  # set for helper functions
 
-        self.pcd_manager: Optional[PointCloudManger] = None
-        self.bbox_controller: Optional[BoundingBoxController] = None
+        self.pcd_manager: PointCloudManger = None  # type: ignore
+        self.bbox_controller: BoundingBoxController = None  # type: ignore
 
         # Objects to be drawn
         self.crosshair_pos: Point2D = (0, 0)
         self.crosshair_col: Color4f = (0, 1, 0, 1)
         self.selected_side_vertices: npt.NDArray = np.array([])
-        self.drawing_mode: Union[DrawingManager, None] = None
+        self.drawing_mode: DrawingManager = None  # type: ignore
         self.align_mode: Union[AlignMode, None] = None
 
     def set_pointcloud_controller(self, pcd_manager: PointCloudManger) -> None:
@@ -89,32 +99,30 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.modelview = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
         self.projection = GL.glGetDoublev(GL.GL_PROJECTION_MATRIX)
 
-        # Do not write decoration and preview elements in depth buffer
-        GL.glDepthMask(GL.GL_FALSE)
+        with ignore_depth_mask():  # Do not write decoration and preview elements in depth buffer
+            if config.getboolean("USER_INTERFACE", "show_floor"):
+                oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)  # type: ignore
 
-        if config.getboolean("USER_INTERFACE", "show_floor"):
-            oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)  # type: ignore
+            # Draw crosshair/ cursor in 3D world
+            if self.crosshair_pos:
+                cx, cy, cz = self.get_world_coords(*self.crosshair_pos, correction=True)
+                oglhelper.draw_crosshair(cx, cy, cz, color=self.crosshair_col)
 
-        # Draw crosshair/ cursor in 3D world
-        if self.crosshair_pos:
-            cx, cy, cz = self.get_world_coords(*self.crosshair_pos, correction=True)  # type: ignore
-            oglhelper.draw_crosshair(cx, cy, cz, color=self.crosshair_col)
+            if self.drawing_mode.has_preview():
+                self.drawing_mode.draw_preview()
 
-        if self.drawing_mode.has_preview():  # type: ignore
-            self.drawing_mode.draw_preview()  # type: ignore
+            if self.align_mode is not None:
+                if self.align_mode.is_active:
+                    self.align_mode.draw_preview()
 
-        if self.align_mode is not None:
-            if self.align_mode.is_active:
-                self.align_mode.draw_preview()
-
-        # Highlight selected side with filled rectangle
-        if len(self.selected_side_vertices) == 4:
-            oglhelper.draw_rectangles(self.selected_side_vertices, color=(0, 1, 0, 0.3))
-
-        GL.glDepthMask(GL.GL_TRUE)
+            # Highlight selected side with filled rectangle
+            if len(self.selected_side_vertices) == 4:
+                oglhelper.draw_rectangles(
+                    self.selected_side_vertices, color=(0, 1, 0, 0.3)
+                )
 
         # Draw active bbox
-        if self.bbox_controller.has_active_bbox():  # type: ignore
+        if self.bbox_controller.has_active_bbox():
             self.bbox_controller.get_active_bbox().draw_bbox(highlighted=True)  # type: ignore
             if config.getboolean("USER_INTERFACE", "show_orientation"):
                 self.bbox_controller.get_active_bbox().draw_orientation()  # type: ignore
