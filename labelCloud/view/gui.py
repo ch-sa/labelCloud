@@ -7,12 +7,7 @@ from typing import Optional, Set
 import pkg_resources
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QEvent, pyqtSignal
-from PyQt5.QtWidgets import (
-    QAction,
-    QActionGroup,
-    QFileDialog,
-    QMessageBox,
-)
+from PyQt5.QtWidgets import QAction, QActionGroup, QFileDialog, QMessageBox
 
 from ..control.config_manager import config
 from ..definitions import Color3f, LabelingMode
@@ -23,7 +18,6 @@ from .settings_dialog import SettingsDialog  # type: ignore
 from .startup.dialog import StartupDialog
 from .status_manager import StatusManager
 from .viewer import GLWidget
-
 
 
 def set_floor_visibility(state: bool) -> None:
@@ -220,7 +214,7 @@ class GUI(QtWidgets.QMainWindow):
         self.edit_rot_y: QtWidgets.QLineEdit
         self.edit_rot_z: QtWidgets.QLineEdit
 
-        self.all_line_edits = [
+        self.all_bbox_line_edits = [
             self.edit_pos_x,
             self.edit_pos_y,
             self.edit_pos_z,
@@ -359,26 +353,36 @@ class GUI(QtWidgets.QMainWindow):
 
     def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
-        if bbox and not self.line_edited_activated():
-            self.edit_pos_x.setText(str(round(bbox.get_center()[0], viewing_precision)))
-            self.edit_pos_y.setText(str(round(bbox.get_center()[1], viewing_precision)))
-            self.edit_pos_z.setText(str(round(bbox.get_center()[2], viewing_precision)))
 
-            self.edit_length.setText(
-                str(round(bbox.get_dimensions()[0], viewing_precision))
-            )
-            self.edit_width.setText(
-                str(round(bbox.get_dimensions()[1], viewing_precision))
-            )
-            self.edit_height.setText(
-                str(round(bbox.get_dimensions()[2], viewing_precision))
-            )
+        if not bbox:
+            for line_edit in self.all_bbox_line_edits:
+                line_edit.clear()
 
-            self.edit_rot_x.setText(str(round(bbox.get_x_rotation(), 1)))
-            self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
-            self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
+            self.volume_value_label.clear()
+            return
 
-            self.volume_value_label.setText(str(round(bbox.get_volume(), viewing_precision)))
+        if self.line_edited_activated():  # no update while editing
+            return
+        
+        self.edit_pos_x.setText(str(round(bbox.get_center()[0], viewing_precision)))
+        self.edit_pos_y.setText(str(round(bbox.get_center()[1], viewing_precision)))
+        self.edit_pos_z.setText(str(round(bbox.get_center()[2], viewing_precision)))
+
+        self.edit_length.setText(
+            str(round(bbox.get_dimensions()[0], viewing_precision))
+        )
+        self.edit_width.setText(
+            str(round(bbox.get_dimensions()[1], viewing_precision))
+        )
+        self.edit_height.setText(
+            str(round(bbox.get_dimensions()[2], viewing_precision))
+        )
+
+        self.edit_rot_x.setText(str(round(bbox.get_x_rotation(), 1)))
+        self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
+        self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
+
+        self.volume_value_label.setText(str(round(bbox.get_volume(), viewing_precision)))
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
@@ -386,7 +390,7 @@ class GUI(QtWidgets.QMainWindow):
         self.button_span_bbox.setEnabled(state)
 
     def line_edited_activated(self) -> bool:
-        for line_edit in self.all_line_edits:
+        for line_edit in self.all_bbox_line_edits:
             if line_edit.hasFocus():
                 return True
         return False
