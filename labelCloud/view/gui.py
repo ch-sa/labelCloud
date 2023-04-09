@@ -10,7 +10,7 @@ from PyQt5.QtCore import QEvent, pyqtSignal
 from PyQt5.QtWidgets import QAction, QActionGroup, QFileDialog, QMessageBox
 
 from ..control.config_manager import config
-from ..definitions import Color3f, LabelingMode
+from ..definitions import LabelingMode
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler
 from ..model.point_cloud import PointCloud
@@ -245,7 +245,6 @@ class GUI(QtWidgets.QMainWindow):
 
     # Event connectors
     def connect_to_signals(self) -> None:
-
         # MENU BAR
         self.act_set_pcd_folder.triggered.connect(self.change_pointcloud_folder)
         self.act_set_label_folder.triggered.connect(self.change_label_folder)
@@ -320,8 +319,6 @@ class GUI(QtWidgets.QMainWindow):
         dialog = SettingsDialog(self)
         dialog.exec()
 
-
-
     def show_no_pointcloud_dialog(
         self, pcd_folder: Path, pcd_extensions: Set[str]
     ) -> None:
@@ -363,7 +360,7 @@ class GUI(QtWidgets.QMainWindow):
 
         if self.line_edited_activated():  # no update while editing
             return
-        
+
         self.edit_pos_x.setText(str(round(bbox.get_center()[0], viewing_precision)))
         self.edit_pos_y.setText(str(round(bbox.get_center()[1], viewing_precision)))
         self.edit_pos_z.setText(str(round(bbox.get_center()[2], viewing_precision)))
@@ -371,9 +368,7 @@ class GUI(QtWidgets.QMainWindow):
         self.edit_length.setText(
             str(round(bbox.get_dimensions()[0], viewing_precision))
         )
-        self.edit_width.setText(
-            str(round(bbox.get_dimensions()[1], viewing_precision))
-        )
+        self.edit_width.setText(str(round(bbox.get_dimensions()[1], viewing_precision)))
         self.edit_height.setText(
             str(round(bbox.get_dimensions()[2], viewing_precision))
         )
@@ -382,7 +377,9 @@ class GUI(QtWidgets.QMainWindow):
         self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
         self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
 
-        self.volume_value_label.setText(str(round(bbox.get_volume(), viewing_precision)))
+        self.volume_value_label.setText(
+            str(round(bbox.get_volume(), viewing_precision))
+        )
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
@@ -445,8 +442,6 @@ class GUI(QtWidgets.QMainWindow):
     def change_default_object_class(self, action: QAction) -> None:
         LabelConfig().set_default_class(action.text())
         logging.info("Changed default object class to %s.", action.text())
-
-
 
     @staticmethod
     def save_point_cloud_as(pointcloud: PointCloud) -> None:

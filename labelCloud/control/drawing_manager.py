@@ -2,14 +2,14 @@ import logging
 from typing import TYPE_CHECKING, Union
 
 from ..labeling_strategies import BaseLabelingStrategy
-from .bbox_controller import BoundingBoxController
 
 if TYPE_CHECKING:
     from ..view.gui import GUI
+    from .bbox_controller import BoundingBoxController  # FIXME: Remove dependency
 
 
 class DrawingManager(object):
-    def __init__(self, bbox_controller: BoundingBoxController) -> None:
+    def __init__(self, bbox_controller: "BoundingBoxController") -> None:
         self.view: "GUI"
         self.bbox_controller = bbox_controller
         self.drawing_strategy: Union[BaseLabelingStrategy, None] = None

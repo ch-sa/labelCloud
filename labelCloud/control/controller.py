@@ -1,20 +1,16 @@
 import logging
-import os
-import re
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QColorDialog, QInputDialog, QLabel, QMessageBox
+from PyQt5.QtWidgets import QColorDialog
 
 from ..definitions import BBOX_SIDES, Color3f, Colors, Context, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from ..utils import oglhelper
-from ..utils.validation import string_is_float
 from ..view.gui import GUI
 from .alignmode import AlignMode
 from .bbox_controller import BoundingBoxController
@@ -29,8 +25,8 @@ class Controller:
     def __init__(self, view: GUI) -> None:
         """Initializes all controllers and managers."""
         self.view = view
-        self.pcd_manager = PointCloudManger()
-        self.bbox_controller = BoundingBoxController()
+        self.pcd_manager = PointCloudManger(view)
+        self.bbox_controller = BoundingBoxController(view, self.pcd_manager)
 
         # Drawing states
         self.drawing_mode = DrawingManager(self.bbox_controller)
@@ -53,62 +49,11 @@ class Controller:
         # POINTCLOUD CONTROL
         self.view.button_next_pcd.clicked.connect(lambda: self.next_pcd(save=True))
         self.view.button_prev_pcd.clicked.connect(self.prev_pcd)
-
-        # BBOX CONTROL
-        self.view.button_bbox_up.pressed.connect(
-            lambda: self.bbox_controller.translate_along_z()
-        )
-        self.view.button_bbox_down.pressed.connect(
-            lambda: self.bbox_controller.translate_along_z(down=True)
-        )
-        self.view.button_bbox_left.pressed.connect(
-            lambda: self.bbox_controller.translate_along_x(left=True)
-        )
-        self.view.button_bbox_right.pressed.connect(
-            self.bbox_controller.translate_along_x
-        )
-        self.view.button_bbox_forward.pressed.connect(
-            lambda: self.bbox_controller.translate_along_y(forward=True)
-        )
-        self.view.button_bbox_backward.pressed.connect(
-            lambda: self.bbox_controller.translate_along_y()
-        )
-
-        self.view.dial_bbox_z_rotation.valueChanged.connect(
-            lambda x: self.bbox_controller.rotate_around_z(x, absolute=True)
-        )
-        self.view.button_bbox_decrease_dimension.clicked.connect(
-            lambda: self.bbox_controller.scale(decrease=True)
-        )
-        self.view.button_bbox_increase_dimension.clicked.connect(
-            lambda: self.bbox_controller.scale()
-        )
-        self.view.button_set_pcd.pressed.connect(lambda: self.ask_custom_index())
-
-        # OPEN 2D IMAGE
-        self.view.button_show_image.pressed.connect(lambda: self.show_2d_image())
-
-        # LABELING CONTROL
-        self.view.current_class_dropdown.currentTextChanged.connect(
-            self.bbox_controller.set_classname
-        )
-        self.view.button_deselect_label.clicked.connect(
-            self.bbox_controller.deselect_bbox
-        )
-        self.view.button_delete_label.clicked.connect(
-            self.bbox_controller.delete_current_bbox
-        )
-        self.view.label_list.currentRowChanged.connect(
-            self.bbox_controller.set_active_bbox
-        )
-        self.view.button_assign_label.clicked.connect(
-            self.bbox_controller.assign_point_label_in_active_box
+        self.view.button_set_pcd.pressed.connect(
+            lambda: self.pcd_manager.ask_for_pcd_index(self.go_to_pcd)
         )
 
         # CONTEXT MENU
-        self.view.act_delete_class.triggered.connect(
-            self.bbox_controller.delete_current_bbox
-        )
         self.view.act_crop_pointcloud_inside.triggered.connect(
             self.crop_pointcloud_inside_active_bbox
         )
@@ -123,39 +68,7 @@ class Controller:
         )
         self.view.button_save_label.clicked.connect(self.save)
 
-        # BOUNDING BOX PARAMETER
-        self.view.edit_pos_x.editingFinished.connect(
-            lambda: self.update_bbox_parameter("pos_x")
-        )
-        self.view.edit_pos_y.editingFinished.connect(
-            lambda: self.update_bbox_parameter("pos_y")
-        )
-        self.view.edit_pos_z.editingFinished.connect(
-            lambda: self.update_bbox_parameter("pos_z")
-        )
-
-        self.view.edit_length.editingFinished.connect(
-            lambda: self.update_bbox_parameter("length")
-        )
-        self.view.edit_width.editingFinished.connect(
-            lambda: self.update_bbox_parameter("width")
-        )
-        self.view.edit_height.editingFinished.connect(
-            lambda: self.update_bbox_parameter("height")
-        )
-
-        self.view.edit_rot_x.editingFinished.connect(
-            lambda: self.update_bbox_parameter("rot_x")
-        )
-        self.view.edit_rot_y.editingFinished.connect(
-            lambda: self.update_bbox_parameter("rot_y")
-        )
-        self.view.edit_rot_z.editingFinished.connect(
-            lambda: self.update_bbox_parameter("rot_z")
-        )
-
         # MENU BAR
-        self.view.act_delete_all_labels.triggered.connect(self.bbox_controller.reset)
         self.view.act_align_pcd.toggled.connect(self.align_mode.change_activation)
         self.view.on_change_point_cloud_folder.connect(self.change_point_cloud_folder)
 
@@ -170,104 +83,13 @@ class Controller:
         self.view.on_mouse_clicked.connect(self.mouse_clicked)
         self.view.on_mouse_double_clicked.connect(self.mouse_double_clicked)
 
-        self.view.exit_event
-
-        # UPDATE BBOX STATS
-        update_bbox_stats = lambda: self.view.update_bbox_stats(
-            self.bbox_controller.get_active_bbox()
-        )
-        self.view.on_key_press.connect(update_bbox_stats)
-        self.view.on_mouse_move.connect(update_bbox_stats)
-        self.view.on_mouse_scroll.connect(update_bbox_stats)
-        self.view.on_mouse_clicked.connect(update_bbox_stats)
-
-    def ask_custom_index(self):  # TODO: Refactor
-        input_d = QInputDialog(self)
-        self.input_pcd = input_d
-        input_d.setInputMode(QInputDialog.IntInput)
-        input_d.setWindowTitle("labelCloud")
-        input_d.setLabelText("Insert Point Cloud number: ()")
-        input_d.setIntMaximum(len(self.pcd_manager.pcds) - 1)
-        input_d.intValueChanged.connect(lambda val: self.update_dialog_pcd(val))
-        input_d.intValueSelected.connect(lambda val: self.custom_pcd(val))
-        input_d.open()
-        self.update_dialog_pcd(0)
-
-    def update_dialog_pcd(self, value: int) -> None:
-        pcd_path = self.pcd_manager.pcds[value]
-        self.input_pcd.setLabelText(f"Insert Point Cloud number: {pcd_path.name}")
-
-    def show_2d_image(self):  # TODO: Refactor
-        """Searches for a 2D image with the point cloud name and displays it in a new window."""
-        image_folder = config.getpath("FILE", "image_folder")
-
-        # Look for image files with the name of the point cloud
-        pcd_name = self.pcd_manager.pcd_path.stem
-        image_file_pattern = re.compile(
-            f"{pcd_name}+(\\.(?i:(jpe?g|png|gif|bmp|tiff)))"
-        )
-
-        try:
-            image_name = next(
-                filter(image_file_pattern.search, os.listdir(image_folder))
-            )
-        except StopIteration:
-            QMessageBox.information(
-                self,
-                "No 2D Image File",
-                (
-                    f"Could not find a related image in the image folder ({image_folder}).\n"
-                    "Check your path to the folder or if an image for this point cloud exists."
-                ),
-                QMessageBox.Ok,
-            )
-        else:
-            image_path = image_folder.joinpath(image_name)
-            image = QtGui.QImage(QtGui.QImageReader(str(image_path)).read())
-            self.imageLabel = QLabel()
-            self.imageLabel.setWindowTitle(f"2D Image ({image_name})")
-            self.imageLabel.setPixmap(QPixmap.fromImage(image))
-            self.imageLabel.show()
+        self.view.exit_event.connect(self.exit)
 
     def change_label_color(self):
         bbox = self.bbox_controller.get_active_bbox()
         LabelConfig().set_class_color(
             bbox.classname, Color3f.from_qcolor(QColorDialog.getColor())
         )
-
-    def update_bbox_parameter(self, parameter: str) -> None:
-        str_value = None
-        self.view.setFocus()  # Changes the focus from QLineEdit to the window
-
-        if parameter == "pos_x":
-            str_value = self.view.edit_pos_x.text()
-        if parameter == "pos_y":
-            str_value = self.view.edit_pos_y.text()
-        if parameter == "pos_z":
-            str_value = self.view.edit_pos_z.text()
-        if str_value and string_is_float(str_value):
-            self.bbox_controller.update_position(parameter, float(str_value))
-            return
-
-        if parameter == "length":
-            str_value = self.view.edit_length.text()
-        if parameter == "width":
-            str_value = self.view.edit_width.text()
-        if parameter == "height":
-            str_value = self.view.edit_height.text()
-        if str_value and string_is_float(str_value, recect_negative=True):
-            self.bbox_controller.update_dimension(parameter, float(str_value))
-            return
-
-        if parameter == "rot_x":
-            str_value = self.view.edit_rot_x.text()
-        if parameter == "rot_y":
-            str_value = self.view.edit_rot_y.text()
-        if parameter == "rot_z":
-            str_value = self.view.edit_rot_z.text()
-        if str_value and string_is_float(str_value):
-            self.bbox_controller.update_rotation(parameter, float(str_value))
-            return
 
     def change_point_cloud_folder(self, path_to_folder: Path) -> None:
         self.pcd_manager.pcd_folder = path_to_folder
@@ -288,12 +110,8 @@ class Controller:
 
     def startup(self) -> None:
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
-        self.bbox_controller.set_view(self.view)
-        self.pcd_manager.set_view(self.view)
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
-        self.view.gl_widget.set_bbox_controller(self.bbox_controller)
-        self.bbox_controller.pcd_manager = self.pcd_manager
 
         # Read labels from folders
         self.pcd_manager.read_pointcloud_folder()
@@ -336,9 +154,10 @@ class Controller:
             self.reset()
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
-    def custom_pcd(self, custom: int) -> None:
+    def go_to_pcd(self, index: int) -> None:
+        """Go to a specific point cloud by index (0 = first in folder)."""
         self.save()
-        self.pcd_manager.get_custom_pcd(custom)
+        self.pcd_manager.get_custom_pcd(index)
         self.reset()
         self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 

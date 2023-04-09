@@ -6,18 +6,17 @@ Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
 import logging
 from functools import wraps
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 import numpy as np
 
 from ..definitions import Mode
 from ..model.bbox import BBox
 from ..utils import oglhelper
+from ..utils.validation import string_is_float
+from ..view.gui import GUI
 from .config_manager import config
 from .pcd_manager import PointCloudManger
-
-if TYPE_CHECKING:
-    from ..view.gui import GUI
 
 
 # DECORATORS
@@ -55,11 +54,124 @@ def only_zrotation_decorator(func):
 class BoundingBoxController(object):
     STD_SCALING = config.getfloat("LABEL", "std_scaling")
 
-    def __init__(self) -> None:
-        self.view: GUI
-        self.pcd_manager: PointCloudManger
+    def __init__(self, view: GUI, pcd_manager: PointCloudManger) -> None:
+        self.view = view
+        self.pcd_manager = pcd_manager
         self.bboxes: List[BBox] = []
         self.active_bbox_id = -1  # -1 means zero bboxes
+
+        self.view.gl_widget.set_bbox_controller(self)
+        self.connect_to_signals()
+
+    # ------------------------------ HANDLE SIGNALS ------------------------------ #
+
+    def connect_to_signals(self) -> None:
+        # BOUNDING BOX CONTROL
+        self.view.button_bbox_up.pressed.connect(self.translate_along_z)
+        self.view.button_bbox_down.pressed.connect(
+            lambda: self.translate_along_z(down=True)
+        )
+        self.view.button_bbox_left.pressed.connect(
+            lambda: self.translate_along_x(left=True)
+        )
+        self.view.button_bbox_right.pressed.connect(self.translate_along_x)
+        self.view.button_bbox_forward.pressed.connect(
+            lambda: self.translate_along_y(forward=True)
+        )
+        self.view.button_bbox_backward.pressed.connect(self.translate_along_y)
+
+        self.view.dial_bbox_z_rotation.valueChanged.connect(
+            lambda x: self.rotate_around_z(x, absolute=True)
+        )
+        self.view.button_bbox_decrease_dimension.clicked.connect(
+            lambda: self.scale(decrease=True)
+        )
+        self.view.button_bbox_increase_dimension.clicked.connect(self.scale)
+
+        # LABEL CONTROL
+        self.view.current_class_dropdown.currentTextChanged.connect(self.set_classname)
+        self.view.label_list.currentRowChanged.connect(self.set_active_bbox)
+
+        self.view.button_deselect_label.clicked.connect(self.deselect_bbox)
+        self.view.button_delete_label.clicked.connect(self.delete_current_bbox)
+        self.view.act_delete_all_labels.triggered.connect(self.reset)
+
+        self.view.act_delete_class.triggered.connect(self.delete_current_bbox)
+
+        self.view.button_assign_label.clicked.connect(
+            self.assign_point_label_in_active_box
+        )
+
+        # BOUNDING BOX PARAMETER EDITS
+        self.view.edit_pos_x.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_x")
+        )
+        self.view.edit_pos_y.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_y")
+        )
+        self.view.edit_pos_z.editingFinished.connect(
+            lambda: self.update_bbox_parameter("pos_z")
+        )
+
+        self.view.edit_length.editingFinished.connect(
+            lambda: self.update_bbox_parameter("length")
+        )
+        self.view.edit_width.editingFinished.connect(
+            lambda: self.update_bbox_parameter("width")
+        )
+        self.view.edit_height.editingFinished.connect(
+            lambda: self.update_bbox_parameter("height")
+        )
+
+        self.view.edit_rot_x.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_x")
+        )
+        self.view.edit_rot_y.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_y")
+        )
+        self.view.edit_rot_z.editingFinished.connect(
+            lambda: self.update_bbox_parameter("rot_z")
+        )
+
+        # UPDATE BBOX STATS
+        update_bbox_stats = lambda: self.view.update_bbox_stats(self.get_active_bbox())
+        self.view.on_key_press.connect(update_bbox_stats)
+        self.view.on_mouse_move.connect(update_bbox_stats)
+        self.view.on_mouse_scroll.connect(update_bbox_stats)
+        self.view.on_mouse_clicked.connect(update_bbox_stats)
+
+    def update_bbox_parameter(self, parameter: str) -> None:
+        str_value = None
+        self.view.setFocus()  # Changes the focus from QLineEdit to the window
+
+        if parameter == "pos_x":
+            str_value = self.view.edit_pos_x.text()
+        if parameter == "pos_y":
+            str_value = self.view.edit_pos_y.text()
+        if parameter == "pos_z":
+            str_value = self.view.edit_pos_z.text()
+        if str_value and string_is_float(str_value):
+            self.update_position(parameter, float(str_value))
+            return
+
+        if parameter == "length":
+            str_value = self.view.edit_length.text()
+        if parameter == "width":
+            str_value = self.view.edit_width.text()
+        if parameter == "height":
+            str_value = self.view.edit_height.text()
+        if str_value and string_is_float(str_value, recect_negative=True):
+            self.update_dimension(parameter, float(str_value))
+            return
+
+        if parameter == "rot_x":
+            str_value = self.view.edit_rot_x.text()
+        if parameter == "rot_y":
+            str_value = self.view.edit_rot_y.text()
+        if parameter == "rot_z":
+            str_value = self.view.edit_rot_z.text()
+        if str_value and string_is_float(str_value):
+            self.update_rotation(parameter, float(str_value))
 
     # GETTERS
     def has_active_bbox(self) -> bool:
@@ -76,9 +188,6 @@ class BoundingBoxController(object):
         return self.get_active_bbox().get_classname()  # type: ignore
 
     # SETTERS
-
-    def set_view(self, view: "GUI") -> None:
-        self.view = view
 
     def add_bbox(self, bbox: BBox) -> None:
         if isinstance(bbox, BBox):

@@ -87,7 +87,7 @@ def start_gui():
     # Setup Model-View-Control structure
     view = GUI()
     app.installEventFilter(view)
-    
+
     control = Controller(view)
 
     # Install event filter to catch user interventions

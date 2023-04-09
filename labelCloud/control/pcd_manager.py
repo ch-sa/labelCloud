@@ -3,24 +3,30 @@ Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
 import logging
+import os
+import re
 from pathlib import Path
 from shutil import copyfile
-from typing import TYPE_CHECKING, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Set, Tuple
 
 import numpy as np
 import open3d as o3d
 import pkg_resources
+from PyQt5 import QtGui
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel, QMessageBox
 
 from ..definitions import LabelingMode, Point3D
 from ..io.labels.config import LabelConfig
 from ..io.pointclouds import BasePointCloudHandler, Open3DHandler
 from ..model import BBox, Perspective, PointCloud
 from ..utils.logger import blue, green, print_column
+from ..view.point_cloud_index_selector import PointCloudIndexSelector
 from .config_manager import config
 from .label_manager import LabelManager
 
 if TYPE_CHECKING:
-    from ..view.gui import GUI
+    from ..view.gui import GUI  # FIXME
 
 
 class PointCloudManger(object):
@@ -30,13 +36,13 @@ class PointCloudManger(object):
     ZOOM_FACTOR = config.getfloat("POINTCLOUD", "STD_ZOOM")
     SEGMENTATION = LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION
 
-    def __init__(self) -> None:
+    def __init__(self, view: "GUI") -> None:
         # Point cloud management
         self.pcd_folder = config.getpath("FILE", "pointcloud_folder")
         self.pcds: List[Path] = []
         self.current_id = -1
 
-        self.view: GUI
+        self.view = view
         self.label_manager = LabelManager()
 
         # Point cloud control
@@ -45,6 +51,62 @@ class PointCloudManger(object):
             str
         ] = set()  # TODO: this should integrate with the new label definition setup.
         self.saved_perspective: Optional[Perspective] = None
+
+        self.view.gl_widget.set_pointcloud_controller(self)
+        self.view.update_default_object_class_menu(
+            set(LabelConfig().get_classes().keys())
+        )  # TODO: Move to better location
+
+    # ------------------------------ SIGNAL HANDLING ----------------------------- #
+
+    def connect_to_signals(self) -> None:
+        # OPEN 2D IMAGE
+        self.view.button_show_image.pressed.connect(lambda: self.show_2d_image())
+
+    def show_2d_image(self):  # FIXME: Create GUI component for this
+        """Searches for a 2D image with the point cloud name and displays it in a new window."""
+        image_folder = config.getpath("FILE", "image_folder")
+
+        # Look for image files with the name of the point cloud
+        pcd_name = self.pcd_path.stem
+        image_file_pattern = re.compile(
+            f"{pcd_name}+(\\.(?i:(jpe?g|png|gif|bmp|tiff)))"
+        )
+
+        try:
+            image_name = next(
+                filter(image_file_pattern.search, os.listdir(image_folder))
+            )
+        except StopIteration:
+            QMessageBox.information(
+                self,
+                "No 2D Image File",
+                (
+                    f"Could not find a related image in the image folder ({image_folder}).\n"
+                    "Check your path to the folder or if an image for this point cloud exists."
+                ),
+                QMessageBox.Ok,
+            )
+        else:
+            image_path = image_folder.joinpath(image_name)
+            image = QtGui.QImage(QtGui.QImageReader(str(image_path)).read())
+            self.imageLabel = QLabel()
+            self.imageLabel.setWindowTitle(f"2D Image ({image_name})")
+            self.imageLabel.setPixmap(QPixmap.fromImage(image))
+            self.imageLabel.show()
+
+    def ask_for_pcd_index(self, go_to_pcd: Callable[[int], None]) -> None:
+        """
+        Opens a dialog that asks for the index of the next point cloud.
+        """
+        pcd_index, ok = PointCloudIndexSelector(
+            parent=self.view,
+            point_cloud_paths=self.pcds,
+            start_index=self.current_id,
+        ).get_index()
+
+        if ok:
+            go_to_pcd(pcd_index)
 
     @property
     def pcd_path(self) -> Path:
@@ -150,13 +212,6 @@ class PointCloudManger(object):
         return bboxes
 
     # SETTER
-    def set_view(self, view: "GUI") -> None:
-        self.view = view
-        self.view.gl_widget.set_pointcloud_controller(self)
-        self.view.update_default_object_class_menu(
-            set(LabelConfig().get_classes().keys())
-        )  # TODO: Move to better location
-
     def save_labels_into_file(self, bboxes: List[BBox]) -> None:
         if self.pcds:
             self.label_manager.export_labels(self.pcd_path, bboxes)
