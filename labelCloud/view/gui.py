@@ -232,7 +232,7 @@ class GUI(QtWidgets.QMainWindow):
             self.edit_rot_z,
         ]
 
-        self.label_volume: QtWidgets.QLabel
+        self.volume_value_label: QtWidgets.QLabel
 
         # Connect all events to functions
         self.connect_to_signals()
@@ -378,7 +378,7 @@ class GUI(QtWidgets.QMainWindow):
             self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
             self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
 
-            self.label_volume.setText(str(round(bbox.get_volume(), viewing_precision)))
+            self.volume_value_label.setText(str(round(bbox.get_volume(), viewing_precision)))
 
     # Enables, disables the draw mode
     def activate_draw_modes(self, state: bool) -> None:
