@@ -1,12 +1,15 @@
 import logging
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
+from PyQt5.QtWidgets import QColorDialog
 
-from ..definitions import BBOX_SIDES, Colors, Context, LabelingMode
+from ..definitions import BBOX_SIDES, Color3f, Colors, Context, LabelingMode
 from ..io.labels.config import LabelConfig
+from ..labeling_strategies import PickingStrategy, SpanningStrategy
 from ..utils import oglhelper
 from ..view.gui import GUI
 from .alignmode import AlignMode
@@ -19,11 +22,11 @@ from .pcd_manager import PointCloudManger
 class Controller:
     MOVEMENT_THRESHOLD = 0.1
 
-    def __init__(self) -> None:
+    def __init__(self, view: GUI) -> None:
         """Initializes all controllers and managers."""
-        self.view: "GUI"
-        self.pcd_manager = PointCloudManger()
-        self.bbox_controller = BoundingBoxController()
+        self.view = view
+        self.pcd_manager = PointCloudManger(view)
+        self.bbox_controller = BoundingBoxController(view, self.pcd_manager)
 
         # Drawing states
         self.drawing_mode = DrawingManager(self.bbox_controller)
@@ -39,19 +42,86 @@ class Controller:
         self.side_mode = False
         self.selected_side: Optional[str] = None
 
-    def startup(self, view: "GUI") -> None:
+        self.connect_to_signals()
+        self.startup()
+
+    def connect_to_signals(self) -> None:
+        # POINTCLOUD CONTROL
+        self.view.button_next_pcd.clicked.connect(lambda: self.next_pcd(save=True))
+        self.view.button_prev_pcd.clicked.connect(self.prev_pcd)
+        self.view.button_set_pcd.pressed.connect(
+            lambda: self.pcd_manager.ask_for_pcd_index(self.go_to_pcd)
+        )
+
+        # CONTEXT MENU
+        self.view.act_crop_pointcloud_inside.triggered.connect(
+            self.crop_pointcloud_inside_active_bbox
+        )
+        self.view.act_change_class_color.triggered.connect(self.change_label_color)
+
+        # LABEL CONTROL
+        self.view.button_pick_bbox.clicked.connect(
+            lambda: self.drawing_mode.set_drawing_strategy(PickingStrategy(self.view))
+        )
+        self.view.button_span_bbox.clicked.connect(
+            lambda: self.drawing_mode.set_drawing_strategy(SpanningStrategy(self.view))
+        )
+        self.view.button_save_label.clicked.connect(self.save)
+
+        # MENU BAR
+        self.view.act_align_pcd.toggled.connect(self.align_mode.change_activation)
+        self.view.on_change_point_cloud_folder.connect(self.change_point_cloud_folder)
+
+        # KEY EVENTS
+        self.view.on_key_press.connect(self.key_press_event)
+        self.view.on_key_release.connect(self.key_release_event)
+
+        # MOUSE EVENTS
+        self.view.on_mouse_move.connect(self.mouse_move_event)
+        self.view.on_mouse_scroll.connect(self.mouse_scroll_event)
+
+        self.view.on_mouse_clicked.connect(self.mouse_clicked)
+        self.view.on_mouse_double_clicked.connect(self.mouse_double_clicked)
+
+        self.view.exit_event.connect(self.exit)
+
+    def change_label_color(self):
+        bbox = self.bbox_controller.get_active_bbox()
+        LabelConfig().set_class_color(
+            bbox.classname, Color3f.from_qcolor(QColorDialog.getColor())
+        )
+
+    def change_point_cloud_folder(self, path_to_folder: Path) -> None:
+        self.pcd_manager.pcd_folder = path_to_folder
+        self.pcd_manager.read_pointcloud_folder()
+        self.pcd_manager.get_next_pcd()
+        logging.info("Changed point cloud folder to %s!" % path_to_folder)
+
+    def change_label_folder(self, path_to_folder: Path) -> None:
+        self.pcd_manager.label_manager.label_folder = path_to_folder
+        self.pcd_manager.label_manager.label_strategy.update_label_folder(
+            path_to_folder
+        )
+        logging.info("Changed label folder to %s!" % path_to_folder)
+
+    def exit(self) -> None:
+        self.save()
+        self.timer.stop()
+
+    def startup(self) -> None:
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
-        self.view = view
-        self.bbox_controller.set_view(self.view)
-        self.pcd_manager.set_view(self.view)
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
-        self.view.gl_widget.set_bbox_controller(self.bbox_controller)
-        self.bbox_controller.pcd_manager = self.pcd_manager
 
         # Read labels from folders
         self.pcd_manager.read_pointcloud_folder()
         self.next_pcd(save=False)
+
+        # Start event cycle
+        self.timer = QtCore.QTimer(self.view)
+        self.timer.setInterval(20)  # period, in milliseconds
+        self.timer.timeout.connect(self.loop_gui)
+        self.timer.start()
 
     def loop_gui(self) -> None:
         """Function collection called during each event loop iteration."""
@@ -84,9 +154,10 @@ class Controller:
             self.reset()
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
-    def custom_pcd(self, custom: int) -> None:
+    def go_to_pcd(self, index: int) -> None:
+        """Go to a specific point cloud by index (0 = first in folder)."""
         self.save()
-        self.pcd_manager.get_custom_pcd(custom)
+        self.pcd_manager.get_custom_pcd(index)
         self.reset()
         self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 

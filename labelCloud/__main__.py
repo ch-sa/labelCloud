@@ -85,11 +85,12 @@ def start_gui():
     app = QApplication(sys.argv)
 
     # Setup Model-View-Control structure
-    control = Controller()
-    view = GUI(control)
+    view = GUI()
+    app.installEventFilter(view)
+
+    control = Controller(view)
 
     # Install event filter to catch user interventions
-    app.installEventFilter(view)
 
     # Start GUI
     view.show()

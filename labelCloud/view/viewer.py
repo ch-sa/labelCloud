@@ -1,6 +1,6 @@
 import logging
 from contextlib import contextmanager
-from typing import Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -9,12 +9,14 @@ from OpenGL import GLU
 from PyQt5 import QtGui, QtOpenGL
 
 from ..control.alignmode import AlignMode
-from ..control.bbox_controller import BoundingBoxController
 from ..control.config_manager import config
 from ..control.drawing_manager import DrawingManager
 from ..control.pcd_manager import PointCloudManger
 from ..definitions.types import Color4f, Point2D
 from ..utils import oglhelper
+
+if TYPE_CHECKING:  # FIXME: Remove dependency
+    from ..control.bbox_controller import BoundingBoxController
 
 
 @contextmanager
@@ -47,7 +49,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         )  # set for helper functions
 
         self.pcd_manager: PointCloudManger = None  # type: ignore
-        self.bbox_controller: BoundingBoxController = None  # type: ignore
+        self.bbox_controller: "BoundingBoxController" = None  # type: ignore
 
         # Objects to be drawn
         self.crosshair_pos: Point2D = (0, 0)
@@ -59,7 +61,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     def set_pointcloud_controller(self, pcd_manager: PointCloudManger) -> None:
         self.pcd_manager = pcd_manager
 
-    def set_bbox_controller(self, bbox_controller: BoundingBoxController) -> None:
+    def set_bbox_controller(self, bbox_controller: "BoundingBoxController") -> None:
         self.bbox_controller = bbox_controller
 
     # QGLWIDGET METHODS
