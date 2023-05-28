@@ -110,6 +110,19 @@ class LabelConfig(object, metaclass=SingletonABCMeta):
     def get_class(self, class_name: str) -> ClassConfig:
         return self.get_classes()[class_name]
 
+    def get_relative_class(self, current_class: str, step: int) -> str:
+        """Get class, relative to current by id according to given step"""
+        if step == 0:
+            return current_class
+        id2name = {cc.id: cc.name for cc in self.classes}
+        name2id = {v: k for k, v in id2name.items()}
+        ids = name2id.values()
+        corner_case_id = max(ids) if step < 0 else min(ids)
+        current_id = name2id[current_class]
+        result_id = current_id + step
+        result_id = result_id if result_id in ids else corner_case_id
+        return id2name[result_id]
+
     def get_class_color(self, class_name: str) -> Color3f:
         try:
             return self.get_classes()[class_name].color
