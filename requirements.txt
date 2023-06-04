@@ -1,16 +1,16 @@
-numpy~=1.23.2
-open3d~=0.15.1
-PyOpenGL~=3.1.6
+numpy>=1.21.6
+open3d>=0.15.2
+PyOpenGL==3.1.6  # prevents 'NoneType' object has no attribute 'glGetError'
 PyOpenGL-accelerate~=3.1.5
 PyQt5~=5.15.7
 
 # Testing
-pytest~=7.1.2
-pytest-qt~=4.1.0
+pytest~=7.3.1
+pytest-qt~=4.2.0
 
 # Development
 black~=23.1.0
-mypy~=0.971
+mypy~=1.3.0
 PyQt5-stubs~=5.15.6
-types-setuptools~=57.4.17
+types-setuptools~=67.8.0
 types-pkg-resources~=0.1.3
