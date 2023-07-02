@@ -121,7 +121,7 @@ class KittiFormat(BaseLabelFormat):
                         centroid[2] + height / 2,
                     )  # centroid in KITTI located on bottom face of bbox
 
-                bbox = BBox(*centroid, length, width, height)
+                bbox = BBox(*centroid, length, width, height)  # type: ignore
                 self.bboxes_meta[id(bbox)] = meta
 
                 rotation = (
