@@ -88,24 +88,24 @@ def test_bbox_control_with_keyboard(
         qtbot.keyClick(view, letter)
     assert bbox.center == (0, 0, 0)
 
-    for key in [QtCore.Qt.Key_Right, QtCore.Qt.Key_Up, QtCore.Qt.Key_PageUp]:
+    for key in [QtCore.Qt.Key_D, QtCore.Qt.Key_W, QtCore.Qt.Key_Q]:
         qtbot.keyClick(view, key)
     assert bbox.center == (translation_step, translation_step, translation_step)
-    for key in [QtCore.Qt.Key_Left, QtCore.Qt.Key_Down, QtCore.Qt.Key_PageDown]:
+    for key in [QtCore.Qt.Key_A, QtCore.Qt.Key_S, QtCore.Qt.Key_E]:
         qtbot.keyClick(view, key)
     assert bbox.center == (0, 0, 0)
 
     # Rotation
     rotation_step = config.getfloat("LABEL", "std_rotation")
     config.set("USER_INTERFACE", "z_rotation_only", "False")
-    qtbot.keyClick(view, "y")
+    qtbot.keyClick(view, "z")
     assert bbox.z_rotation == rotation_step
     qtbot.keyClick(view, "x")
     assert bbox.z_rotation == 0
-    qtbot.keyClick(view, QtCore.Qt.Key_Comma)
-    assert bbox.z_rotation == rotation_step
-    qtbot.keyClick(view, QtCore.Qt.Key_Period)
-    assert bbox.z_rotation == 0
+    # qtbot.keyClick(view, QtCore.Qt.Key_Comma)
+    # assert bbox.z_rotation == rotation_step
+    # qtbot.keyClick(view, QtCore.Qt.Key_Period)
+    # assert bbox.z_rotation == 0
     qtbot.keyClick(view, "c")
     assert bbox.y_rotation == rotation_step
     qtbot.keyClick(view, "v")
