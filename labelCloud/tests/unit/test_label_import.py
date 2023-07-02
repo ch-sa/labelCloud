@@ -84,7 +84,7 @@ def test_kitti(label_kitti, tmppath):
     # Check label content
     assert bbox.get_classname() == "cart"
     assert bbox.get_center() == (-0.409794, -0.012696, 0.076757)
-    assert bbox.get_dimensions() == (0.75, 0.55, 0.15)
+    assert bbox.get_dimensions() == (0.15, 0.55, 0.75)
     assert bbox.get_rotations() == pytest.approx(
         (0, 0, 25)
     )  # apply for rounding errors
