@@ -1,3 +1,9 @@
+#
+# Implementation according to:
+# https://github.com/bostondiditeam/kitti/blob/master/resources/devkit_object/readme.txt
+#
+
+
 import logging
 import math
 from collections import defaultdict
@@ -89,8 +95,13 @@ class KittiFormat(BaseLabelFormat):
                     "location": " ".join(line_elements[11:14]),
                     "rotation_y": line_elements[14],
                 }
+
                 centroid = tuple([float(v) for v in meta["location"].split()])
-                dimensions = tuple([float(v) for v in meta["dimensions"].split()])
+
+                height, width, length = tuple(
+                    [float(v) for v in meta["dimensions"].split()]
+                )
+
                 if self.transformed:
                     try:
                         self._get_transforms(pcd_path)
@@ -104,22 +115,25 @@ class KittiFormat(BaseLabelFormat):
                     xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                     xyz1 = self.T_c2v @ xyz1
                     centroid = tuple([float(n) for n in xyz1[:-1]])
-                    dimensions = dimensions[2], dimensions[1], dimensions[0]
                     centroid = (
                         centroid[0],
                         centroid[1],
-                        centroid[2] + dimensions[2] / 2,
+                        centroid[2] + height / 2,
                     )  # centroid in KITTI located on bottom face of bbox
-                bbox = BBox(*centroid, *dimensions)
+
+                bbox = BBox(*centroid, length, width, height)  # type: ignore
                 self.bboxes_meta[id(bbox)] = meta
+
                 rotation = (
                     -float(meta["rotation_y"]) + math.pi / 2
                     if self.transformed
                     else float(meta["rotation_y"])
                 )
+
                 bbox.set_rotations(0, 0, rel2abs_rotation(rotation))
                 bbox.set_classname(meta["type"])
                 bboxes.append(bbox)
+
             logging.info("Imported %s labels from %s." % (len(label_lines), label_path))
         return bboxes
 
@@ -131,6 +145,10 @@ class KittiFormat(BaseLabelFormat):
             obj_type = bbox.get_classname()
             centroid = bbox.get_center()
             dimensions = bbox.get_dimensions()
+
+            # invert sequence to height, width, length
+            dimensions = dimensions[2], dimensions[1], dimensions[0]
+
             if self.transformed:
                 try:
                     self._get_transforms(pcd_path)
@@ -144,16 +162,17 @@ class KittiFormat(BaseLabelFormat):
                     centroid[1],
                     centroid[2] - dimensions[2] / 2,
                 )  # centroid in KITTI located on bottom face of bbox
-                dimensions = dimensions[2], dimensions[1], dimensions[0]
                 xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                 xyz1 = self.T_v2c @ xyz1
                 centroid = tuple([float(n) for n in xyz1[:-1]])  # type: ignore
-            location_str = " ".join([str(self.round_dec(v)) for v in centroid])
-            dimensions_str = " ".join([str(self.round_dec(v)) for v in dimensions])
+
             rotation = bbox.get_z_rotation()
             rotation = abs2rel_rotation(rotation)
             rotation = -(rotation - math.pi / 2) if self.transformed else rotation
             rotation = str(self.round_dec(rotation))  # type: ignore
+
+            location_str = " ".join([str(self.round_dec(v)) for v in centroid])
+            dimensions_str = " ".join([str(self.round_dec(v)) for v in dimensions])
 
             out_str = list(self.bboxes_meta[id(bbox)].values())
             if obj_type != "DontCare":
