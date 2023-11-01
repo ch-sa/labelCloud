@@ -19,7 +19,13 @@ class CentroidFormat(BaseLabelFormat):
                 data = json.load(read_file)
 
             for label in data["objects"]:
-                bbox = BBox(*label["centroid"].values(), *label["dimensions"].values())
+                x = label["centroid"]["x"]
+                y = label["centroid"]["y"]
+                z = label["centroid"]["z"]
+                length = label["dimensions"]["length"]
+                width = label["dimensions"]["width"]
+                height = label["dimensions"]["height"]
+                bbox = BBox(x, y, z, length, width, height)
                 rotations = label["rotations"].values()
                 if self.relative_rotation:
                     rotations = map(rel2abs_rotation, rotations)
