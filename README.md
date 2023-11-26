@@ -2,7 +2,7 @@
     <img src="https://img.shields.io/badge/contributions-welcome!-green" alt="Contributions welcome!"/>
     <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
     <img src="https://img.shields.io/pypi/pyversions/labelCloud" />
-    <img src="https://github.com/ch-sa/labelCloud/workflows/Tests/badge.svg" />
+    <img src="https://github.com/ch-sa/labelCloud/actions/workflows/unit-tests.yml/badge.svg" />
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg" />
 </p>
 
