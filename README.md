@@ -42,24 +42,24 @@ labelCloud supports two different ways of labeling (*picking* & *spanning*) as w
 
 ### Picking Mode
 
-* Pick the location of the bounding box (front-top edge)
-* Adjust the z-rotation by scrolling with your mouse wheel
+* Pick the location of the bounding box (front-top edge).
+* Adjust the z-rotation by scrolling with your mouse wheel.
 
 ### Spanning Mode
 
-* Subsequently span the length, width and height of the bounding box by selecting four vertices
-* The layers for for the last two vertices (width & height) will be locked to allow easy selection
+* Subsequently span the length, width and height of the bounding box by selecting four vertices.
+* The layers for the last two vertices (width & height) will be locked to allow easy selection.
 
 ### Correction
 
 * Use the buttons on the left-hand side or shortcuts to correct the *translation*, *dimension* and
-  *rotation* of the bounding box
-* Resize the bounding box by holding your cursor above one side and scrolling with the mouse wheel
+  *rotation* of the bounding box.
+* Resize the bounding box by holding your cursor above one side and scrolling with the mouse wheel.
 
 By default the x- and y-rotation of bounding boxes will be prohibited.
 For labeling **9 DoF-Bounding Boxes** deactivate `z-Rotation Only Mode` in the menu, settings or
 `config.ini` file.
-Now you will be free to rotate around all three axes.
+The bouding boxes can then be freely rotated around all three axes.
 
 ### Semantic Segmentation (bounding box-based)
 
@@ -69,12 +69,12 @@ Then label as usual and push the *Assign* button whenever all points inside the 
 should be labeled with the current class.
 
 The resulting labels will be stored as `*.bin` files inside `labels/segmentation/`.
-Each `*.bin` file contains an array of shape of (number of points, ) with dtype `np.int8` and each
-entry represents the index of the label of the corresponding points in the original point cloud.
+Each `*.bin` file contains an array with the shape of (number of points, ) with dtype `np.int8`.
+Each entry represents the index of the label of the corresponding point in the original point cloud.
 
 
 ## Import & Export Options
-labelCloud is built for a versatile use and aims at supporting all common point cloud file formats
+labelCloud is built for a versatile use and aims at supporting all common point cloud file
 and label formats for storing 3D bounding boxes.
 The tool is designed to be easily adaptable to multiple use cases. The welcome dialog will ask for
 the most common parameters (mode, classes, export format).
@@ -134,7 +134,7 @@ See [Conventions](https://ch-sa.github.io/labelCloud/conventions/) for the princ
 software is built.
 
 ## Usage & Attribution
-When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]tu-dresden.de).
+When using the tool feel free to drop me a mail with feedback or a description of your use case (christoph.sager[at]gmail.com).
 If you are using the tool for a scientific project please consider citing our [publication](http://cad-journal.net/files/vol_19/CAD_19(6)_2022_1191-1206.pdf):
 
     # CAD Journal
