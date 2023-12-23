@@ -20,6 +20,8 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
+from labelCloud.view.startup.dialog import StartupDialog
+
 from ..control.config_manager import config
 from ..definitions import Color3f, LabelingMode
 from ..io.labels.config import LabelConfig
@@ -194,6 +196,8 @@ class GUI(QtWidgets.QMainWindow):
         self.button_save_label: QtWidgets.QPushButton
 
         # RIGHT PANEL
+        self.segmentation_list_group: QtWidgets.QGroupBox
+        self.segmentation_list: QtWidgets.QGridLayout
         self.label_list: QtWidgets.QListWidget
         self.current_class_dropdown: QtWidgets.QComboBox
         self.button_deselect_label: QtWidgets.QPushButton
@@ -257,6 +261,7 @@ class GUI(QtWidgets.QMainWindow):
         if LabelConfig().type == LabelingMode.OBJECT_DETECTION:
             self.button_assign_label.setVisible(False)
             self.act_color_with_label.setVisible(False)
+            self.segmentation_list_group.setVisible(False)
 
         # Connect with controller
         self.controller.startup(self)
@@ -520,9 +525,6 @@ class GUI(QtWidgets.QMainWindow):
 
     def update_progress(self, value) -> None:
         self.progressbar_pcds.setValue(value)
-
-    def update_current_class_dropdown(self) -> None:
-        self.controller.pcd_manager.populate_class_dropdown()
 
     def update_bbox_stats(self, bbox) -> None:
         viewing_precision = config.getint("USER_INTERFACE", "viewing_precision")
