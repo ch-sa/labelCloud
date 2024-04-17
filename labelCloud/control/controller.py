@@ -311,6 +311,27 @@ class Controller:
         elif a0.key() == Keys.Key_E:
             # move down
             self.bbox_controller.translate_along_z(down=True)
+
+        # BBOX Scaling
+        elif a0.key() == Keys.Key_I:
+            # increase length
+            self.bbox_controller.scale_along_length()
+        elif a0.key() == Keys.Key_O:
+            # decrease length
+            self.bbox_controller.scale_along_length(decrease=True)
+        elif a0.key() == Keys.Key_K:
+            # increase width
+            self.bbox_controller.scale_along_width()
+        elif a0.key() == Keys.Key_L:
+            # decrease width
+            self.bbox_controller.scale_along_width(decrease=True)
+        elif a0.key() == Keys.Key_Comma:
+            # increase height
+            self.bbox_controller.scale_along_height()
+        elif a0.key() == Keys.Key_Period:
+            # decrease height
+            self.bbox_controller.scale_along_height(decrease=True)
+
         elif a0.key() in [Keys.Key_R, Keys.Key_Left]:
             # load previous sample
             self.prev_pcd()
