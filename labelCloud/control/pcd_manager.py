@@ -60,7 +60,7 @@ class PointCloudManger(object):
         """Checks point cloud folder and sets self.pcds to all valid point cloud file names."""
         if self.pcd_folder.is_dir():
             self.pcds = []
-            for file in sorted(self.pcd_folder.iterdir()):
+            for file in sorted(self.pcd_folder.rglob("*")):
                 if file.suffix in PointCloudManger.PCD_EXTENSIONS:
                     self.pcds.append(file)
         else:
