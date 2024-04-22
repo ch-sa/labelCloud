@@ -119,8 +119,9 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 |                               `Z`, `X`                               | Rotates the Bounding Box around z-Axis               |
 |                               `C`, `V`                               | Rotates the Bounding Box around y-Axis               |
 |                               `B`, `N`                               | Rotates the Bounding Box around x-Axis               |
-|                          `I`, `K`, `,`                               | Increase the Bounding Box length/width/height        |
-|                          `O`, `L`, `.`                               | Decrease the Bounding Box length/width/height        |
+|                               `I`/ `O`                               | Increase/Decrease the Bounding Box length            |
+|                               `K`/ `L`                               | Increase/Decrease the Bounding Box width             |
+|                               `,`/ `.`                               | Increase/Decrease the Bounding Box height            |
 | Scrolling with the Cursor above a Bounding Box Side ("Side Pulling") | Changes the Dimension of the Bounding Box            |
 |                         `R`/`Left`, `F`/`Right`                      | Previous/Next sample                                 |
 |                           `T`/`Up`, `G`/`Down`                       | Previous/Next bbox                                   |
