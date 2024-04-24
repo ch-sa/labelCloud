@@ -298,41 +298,41 @@ class BoundingBoxController(object):
 
     @has_active_bbox_decorator
     def scale_along_length(
-        self, size_increase: Optional[float] = None, decrease: bool = False
+        self, step: Optional[float] = None, decrease: bool = False
     ) -> None:
-        size_increase = size_increase or config.getfloat("LABEL", "std_scaling")
+        step = step or config.getfloat("LABEL", "std_scaling")
         if decrease:
-            size_increase *= -1
+            step *= -1
 
         active_bbox: Bbox = self.get_active_bbox()  # type: ignore
         length, width, height = active_bbox.get_dimensions()
-        new_length = length + size_increase
+        new_length = length + step
         active_bbox.set_dimensions(new_length, width, height)
 
     @has_active_bbox_decorator
     def scale_along_width(
-        self, size_increase: Optional[float] = None, decrease: bool = False
+        self, step: Optional[float] = None, decrease: bool = False
     ) -> None:
-        size_increase = size_increase or config.getfloat("LABEL", "std_scaling")
+        step = step or config.getfloat("LABEL", "std_scaling")
         if decrease:
-            size_increase *= -1
+            step *= -1
 
         active_bbox: Bbox = self.get_active_bbox()  # type: ignore
         length, width, height = active_bbox.get_dimensions()
-        new_width = width + size_increase
+        new_width = width + step
         active_bbox.set_dimensions(length, new_width, height)
 
     @has_active_bbox_decorator
     def scale_along_height(
-        self, size_increase: Optional[float] = None, decrease: bool = False
+        self, step: Optional[float] = None, decrease: bool = False
     ) -> None:
-        size_increase = size_increase or config.getfloat("LABEL", "std_scaling")
+        step = step or config.getfloat("LABEL", "std_scaling")
         if decrease:
-            size_increase *= -1
+            step *= -1
 
         active_bbox: Bbox = self.get_active_bbox()  # type: ignore
         length, width, height = active_bbox.get_dimensions()
-        new_height = height + size_increase
+        new_height = height + step
         active_bbox.set_dimensions(length, width, new_height)
 
     def select_bbox_by_ray(self, x: int, y: int) -> None:
