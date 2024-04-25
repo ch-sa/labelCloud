@@ -1,4 +1,5 @@
 """Load configuration from .ini file."""
+
 import configparser
 from pathlib import Path
 from typing import List, Union

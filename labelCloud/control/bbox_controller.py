@@ -4,6 +4,7 @@ settings in one place.
 Bounding Box Management: adding, selecting updating, deleting bboxes;
 Possible Active Bounding Box Manipulations: rotation, translation, scaling
 """
+
 import logging
 from functools import wraps
 from typing import TYPE_CHECKING, List, Optional

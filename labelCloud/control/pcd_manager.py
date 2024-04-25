@@ -2,6 +2,7 @@
 Module to manage the point clouds (loading, navigation, floor alignment).
 Sets the point cloud and original point cloud path. Initiate the writing to the virtual object buffer.
 """
+
 import logging
 from pathlib import Path
 from shutil import copyfile
@@ -41,9 +42,8 @@ class PointCloudManger(object):
 
         # Point cloud control
         self.pointcloud: Optional[PointCloud] = None
-        self.collected_object_classes: Set[
-            str
-        ] = set()  # TODO: this should integrate with the new label definition setup.
+        # TODO: this should integrate with the new label definition setup.
+        self.collected_object_classes: Set[str] = set()
         self.saved_perspective: Optional[Perspective] = None
 
     @property

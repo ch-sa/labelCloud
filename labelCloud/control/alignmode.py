@@ -3,6 +3,7 @@ A module for aligning point clouds with the floor. The user has to span a triang
 three points on the plane that serves as the ground. Then the old point cloud will be
 saved up and the aligned current will overwrite the old.
 """
+
 import logging
 from typing import TYPE_CHECKING, Optional
 
