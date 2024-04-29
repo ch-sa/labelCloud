@@ -394,9 +394,9 @@ class PointCloud(object):
                     else (
                         green(len(self.colors))  # type: ignore
                         if len(self.colors) == len(self.points)  # type: ignore
-                        else red(len(self.colors))
+                        else red(len(self.colors))  # type: ignore
                     )
-                ),  # type: ignore
+                ),
             ]
         )
         print_column(["Point Cloud Center:", str(np.round(self.center, 2))])

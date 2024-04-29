@@ -344,10 +344,10 @@ class Controller:
         elif a0.key() in [Keys.Key_G, Keys.Key_Down]:
             # select previous bbox
             self.select_relative_bbox(1)
-        elif a0.key() in Keys.Key_Y:
+        elif a0.key() == Keys.Key_Y:
             # change bbox class to previous available class
             self.select_relative_class(-1)
-        elif a0.key() in Keys.Key_H:
+        elif a0.key() == Keys.Key_H:
             # change bbox class to next available class
             self.select_relative_class(1)
         elif a0.key() in list(range(49, 58)):
