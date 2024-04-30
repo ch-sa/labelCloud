@@ -13,9 +13,9 @@ if TYPE_CHECKING:
     from ..model import BBox, PointCloud
 
 
-DEVICE_PIXEL_RATIO: Optional[
-    float
-] = None  # is set once and for every window resize (retina display fix)
+DEVICE_PIXEL_RATIO: Optional[float] = (
+    None  # is set once and for every window resize (retina display fix)
+)
 
 
 def draw_points(
@@ -178,9 +178,9 @@ def get_intersected_sides(
     p0, p1 = get_pick_ray(x, y, modelview, projection)  # Calculate picking ray
     vertices = bbox.get_vertices()
 
-    intersections: List[
-        Tuple[list, str]
-    ] = list()  # (intersection_point, bounding box side)
+    intersections: List[Tuple[list, str]] = (
+        list()
+    )  # (intersection_point, bounding box side)
     for side, indices in BBOX_SIDES.items():
         # Calculate plane equation
         pl1 = vertices[indices[0]]  # point in plane

@@ -116,13 +116,16 @@ All rotations are counterclockwise (i.e. a z-rotation of 90°/π is from the pos
 |                          `W`, `A`, `S`, `D`                          | Translates the Bounding Box back, left, front, right |
 |                     `Ctrl` + Right Mouse Button                      | Translates the Bounding Box in all dimensions        |
 |                               `Q`, `E`                               | Lifts the Bounding Box up, down                      |
-|                               `Z`, `X`                               | Rotates the Boundign Box around z-Axis               |
-|                               `C`, `V`                               | Rotates the Boundign Box around y-Axis               |
-|                               `B`, `N`                               | Rotates the Boundign Box around x-Axis               |
+|                               `Z`, `X`                               | Rotates the Bounding Box around z-Axis               |
+|                               `C`, `V`                               | Rotates the Bounding Box around y-Axis               |
+|                               `B`, `N`                               | Rotates the Bounding Box around x-Axis               |
+|                               `I`/ `O`                               | Increase/Decrease the Bounding Box length            |
+|                               `K`/ `L`                               | Increase/Decrease the Bounding Box width             |
+|                               `,`/ `.`                               | Increase/Decrease the Bounding Box height            |
 | Scrolling with the Cursor above a Bounding Box Side ("Side Pulling") | Changes the Dimension of the Bounding Box            |
 |                         `R`/`Left`, `F`/`Right`                      | Previous/Next sample                                 |
 |                           `T`/`Up`, `G`/`Down`                       | Previous/Next bbox                                   |
-|                             `Y`/`,`,`H`/`.`                          | Change current bbox class to previous/next in list   |
+|                             `Y`, `H`                                 | Change current bbox class to previous/next in list   |
 |                                `1`-`9`                               | Select any of first 9 bboxes with number keys        |
 |                              *General*                               |                                                      |
 |                                `Del`                                 | Deletes Current Bounding Box                         |
@@ -150,11 +153,11 @@ If you are using the tool for a scientific project please consider citing our [p
         author = {Christoph Sager and Patrick Zschech and Niklas Kuhl},
         title = {{labelCloud}: A Lightweight Labeling Tool for Domain-Agnostic 3D Object Detection in Point Clouds},
         journal = {Computer-Aided Design and Applications}
-    } 
-   
+    }
+
     # CAD Conference
     @misc{sager2021labelcloud,
-      title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds}, 
+      title={labelCloud: A Lightweight Domain-Independent Labeling Tool for 3D Object Detection in Point Clouds},
       author={Christoph Sager and Patrick Zschech and Niklas Kühl},
       year={2021},
       eprint={2103.04970},
