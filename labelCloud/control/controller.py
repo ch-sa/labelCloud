@@ -53,12 +53,16 @@ class Controller:
         # Read labels from folders
         self.pcd_manager.read_pointcloud_folder()
         self.next_pcd(save=False)
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
+            self.pcd_manager.populate_segmentation_list()
 
     def loop_gui(self) -> None:
         """Function collection called during each event loop iteration."""
         self.set_crosshair()
         self.set_selected_side()
         self.view.gl_widget.updateGL()
+        if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
+            self.pcd_manager.loop_seg_list_check_state()
 
     # POINT CLOUD METHODS
     def next_pcd(self, save: bool = True) -> None:
