@@ -144,15 +144,15 @@ class KittiFormat(BaseLabelFormat):
         for bbox in bboxes:
             obj_type = bbox.get_classname()
             centroid = bbox.get_center()
-            dimensions = bbox.get_dimensions()
+            length, width, height = bbox.get_dimensions()
 
             # invert sequence to height, width, length
-            dimensions = dimensions[2], dimensions[1], dimensions[0]
+            dimensions = height, width, length
 
             if self.transformed:
                 try:
                     self._get_transforms(pcd_path)
-                except CalibrationFileNotFound as exc:
+                except CalibrationFileNotFound:
                     logging.exception("Calibration file not found")
                     logging.warning("Skipping writing of labels for this point cloud")
                     return
@@ -160,7 +160,7 @@ class KittiFormat(BaseLabelFormat):
                 centroid = (
                     centroid[0],
                     centroid[1],
-                    centroid[2] - dimensions[2] / 2,
+                    centroid[2] - height / 2,
                 )  # centroid in KITTI located on bottom face of bbox
                 xyz1 = np.insert(np.asarray(centroid), 3, values=[1])
                 xyz1 = self.T_v2c @ xyz1
