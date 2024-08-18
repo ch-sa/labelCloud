@@ -131,7 +131,7 @@ class GUI(QtWidgets.QMainWindow):
                     Path(__file__)
                     .resolve()
                     .parent.parent.joinpath("resources")
-                    .joinpath("icons")
+                    .joinpath("icons").as_posix()
                 )
             )
         )
