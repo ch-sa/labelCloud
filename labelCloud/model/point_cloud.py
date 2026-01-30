@@ -22,20 +22,15 @@ from . import Perspective
 SIZE_OF_FLOAT = ctypes.sizeof(ctypes.c_float)
 
 
-def calculate_init_translation(
-    center: Tuple[float, float, float], mins: npt.NDArray, maxs: npt.NDArray
-) -> Point3D:
-    """Calculates the initial translation (x, y, z) of the point cloud. Considers ...
-
-    - the point cloud center
-    - the point cloud extents
-    - the far plane setting (caps zoom)
-    """
-    zoom = min(  # type: ignore
-        np.linalg.norm(maxs - mins),
-        config.getfloat("USER_INTERFACE", "far_plane") * 0.9,
-    )
-    return tuple(-np.add(center, [0, 0, zoom]))  # type: ignore
+# Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+# Changed: for more flexible translation
+def calculate_init_translation(center: Tuple[float, float, float], 
+                            mins: npt.NDArray, 
+                            maxs: npt.NDArray) -> Point3D:
+    """Calculates reasonable initial translation"""
+    # Use fixed distance instead of cloud size
+    base_distance = config.getfloat("USER_INTERFACE", "far_plane") * 0.3
+    return (0, 0, -base_distance)  # Simple camera offset
 
 
 def consecutive(data: npt.NDArray[np.int64], stepsize=1) -> List[npt.NDArray[np.int64]]:
@@ -67,6 +62,7 @@ class PointCloud(object):
 
         self.vbo = None
         self.center: Point3D = tuple(np.sum(points[:, i]) / len(points) for i in range(3))  # type: ignore
+
         self.pcd_mins: npt.NDArray[np.float32] = np.amin(points, axis=0)
         self.pcd_maxs: npt.NDArray[np.float32] = np.amax(points, axis=0)
         self.init_translation: Point3D = init_translation or calculate_init_translation(
@@ -310,25 +306,14 @@ class PointCloud(object):
         self.trans_y = y
         self.trans_z = z
 
-    def set_gl_background(self) -> None:
-        GL.glTranslate(
-            self.trans_x, self.trans_y, self.trans_z
-        )  # third, pcd translation
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Added: get pcd center
+    def get_center(self):
+        return np.add(self.pcd_mins, (np.subtract(self.pcd_maxs, self.pcd_mins) / 2))
 
-        pcd_center = np.add(
-            self.pcd_mins, (np.subtract(self.pcd_maxs, self.pcd_mins) / 2)
-        )
-        GL.glTranslate(*pcd_center)  # move point cloud back
-
-        GL.glRotate(self.rot_x, 1.0, 0.0, 0.0)
-        GL.glRotate(self.rot_y, 0.0, 1.0, 0.0)  # second, pcd rotation
-        GL.glRotate(self.rot_z, 0.0, 0.0, 1.0)
-
-        GL.glTranslate(*(pcd_center * -1))  # move point cloud to center for rotation
+    def draw_pointcloud(self) -> None: 
+        #self.set_gl_background()
         GL.glPointSize(self.point_size)
-
-    def draw_pointcloud(self) -> None:
-        self.set_gl_background()
         stride = 3 * SIZE_OF_FLOAT
 
         # Bind position buffer
@@ -405,3 +390,13 @@ class PointCloud(object):
         print_column(
             ["Initial Translation:", str(np.round(self.init_translation, 2))], last=True
         )
+    
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Added: for adaptative zoom in / out
+    def get_scene_size(self) -> float:
+        """Returns the diagonal length of the point cloud's bounding box"""
+        return np.linalg.norm(self.pcd_maxs - self.pcd_mins)
+
+    def get_current_distance(self) -> float:
+        """Returns approximate camera distance from scene center"""
+        return np.linalg.norm([self.trans_x, self.trans_y, self.trans_z])

@@ -43,29 +43,58 @@ class BaseLabelFormat(ABC):
             decimal_places = self.export_precision
         return np.round(x, decimal_places).tolist()
 
-    def save_label_to_file(self, pcd_path: Path, data: Union[dict, str]) -> Path:
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Changed: for better saving - force save and automated saving
+    def save_label_to_file(
+        self, 
+        pcd_path: Path, 
+        data: Union[dict, str], 
+        force_overwrite: bool = False,  # New: Only overwrite if True
+        backup: bool = True            # New: Save to backup folder if True
+    ) -> Path:
+        # Original file path
         label_path = self.label_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
-
-        if label_path.is_file():
-            logging.info("File %s already exists, replacing file ..." % label_path)
-        if label_path.suffix == ".json":
-            with open(label_path, "w") as write_file:
-                json.dump(data, write_file, indent="\t")
-        elif label_path.suffix == ".txt" and isinstance(data, str):
-            with open(label_path, "w") as write_file:
-                write_file.write(data)
-        else:
-            raise ValueError("Received unknown label format/ type.")
-        return label_path
+        
+        # Backup folder logic
+        if backup:
+            autosave_dir = self.label_folder / "autosave"
+            autosave_dir.mkdir(exist_ok=True)  # Create folder if missing
+            backup_path = autosave_dir / f"{pcd_path.stem}_autosave{self.FILE_ENDING}"
+            
+            # Write to backup (silently)
+            if label_path.suffix == ".json":
+                with open(backup_path, "w") as f:
+                    json.dump(data, f, indent="\t")
+            elif label_path.suffix == ".txt" and isinstance(data, str):
+                with open(backup_path, "w") as f:
+                    f.write(data)
+        
+        # Only overwrite original if forced
+        if force_overwrite:
+            if label_path.is_file():
+                logging.info(f"Overwriting original file: {label_path}")
+            if label_path.suffix == ".json":
+                with open(label_path, "w") as f:
+                    json.dump(data, f, indent="\t")
+            elif label_path.suffix == ".txt" and isinstance(data, str):
+                with open(label_path, "w") as f:
+                    f.write(data)
+        
+        return label_path  # Return original path (even if backup was used)
 
     @abstractmethod
     def import_labels(self, pcd_path: Path) -> List[BBox]:
         raise NotImplementedError
 
     @abstractmethod
-    def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
+    def export_labels(
+        self, 
+        bboxes: List[BBox], 
+        pcd_path: Path, 
+        force_overwrite: bool = False, 
+        backup: bool = True
+    ) -> None:
         raise NotImplementedError
-
 
 # ---------------------------------------------------------------------------- #
 #                               Helper Functions                               #

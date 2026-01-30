@@ -10,3 +10,4 @@ class Context(IntEnum):
     DEFAULT = 1
     SIDE_HOVERED = 2
     CONTROL_PRESSED = 3
+    SHIFT_PRESSED = 4

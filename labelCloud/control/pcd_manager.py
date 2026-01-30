@@ -87,6 +87,7 @@ class PointCloudManger(object):
                     )
                 )
             )
+
             self.update_pcd_infos(pointcloud_label=" – (select folder!)")
 
         self.view.init_progress(min_value=0, max_value=len(self.pcds) - 1)
@@ -157,21 +158,33 @@ class PointCloudManger(object):
             set(LabelConfig().get_classes().keys())
         )  # TODO: Move to better location
 
-    def save_labels_into_file(self, bboxes: List[BBox]) -> None:
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Changed: for better saving
+    def save_labels_into_file(
+        self, 
+        bboxes: List[BBox], 
+        force_overwrite: bool = False, 
+        backup: bool = True
+    ) -> None:
         if self.pcds:
-            self.label_manager.export_labels(self.pcd_path, bboxes)
+            self.label_manager.export_labels(
+                self.pcd_path, 
+                bboxes, 
+                force_overwrite=force_overwrite, 
+                backup=backup
+            )
             self.collected_object_classes.update(
                 {bbox.get_classname() for bbox in bboxes}
             )
         else:
             logging.warning("No point clouds to save labels for!")
-
+            
     def save_current_perspective(self) -> None:
         if config.getboolean("USER_INTERFACE", "KEEP_PERSPECTIVE") and self.pointcloud:
             self.saved_perspective = Perspective.from_point_cloud(self.pointcloud)
             logging.info(f"Saved current perspective ({self.saved_perspective}).")
 
-    # MANIPULATOR
+    # # MANIPULATOR - original
     def rotate_around_x(self, dangle) -> None:
         assert self.pointcloud is not None
         self.pointcloud.set_rot_x(self.pointcloud.rot_x - dangle)
@@ -184,28 +197,23 @@ class PointCloudManger(object):
         assert self.pointcloud is not None
         self.pointcloud.set_rot_z(self.pointcloud.rot_z - dangle)
 
+    def zoom_into(self, distance) -> None:
+        """Now handled by camera_distance in GLWidget"""
+        pass  # No longer needed
+
     def translate_along_x(self, distance) -> None:
-        assert self.pointcloud is not None
-        self.pointcloud.set_trans_x(
-            self.pointcloud.trans_x - distance * PointCloudManger.TRANSLATION_FACTOR
-        )
+        """Now handled by camera_pan in GLWidget"""
+        pass
 
     def translate_along_y(self, distance) -> None:
-        assert self.pointcloud is not None
-        self.pointcloud.set_trans_y(
-            self.pointcloud.trans_y + distance * PointCloudManger.TRANSLATION_FACTOR
-        )
+        """Now handled by camera_pan in GLWidget"""
+        pass
 
     def translate_along_z(self, distance) -> None:
         assert self.pointcloud is not None
         self.pointcloud.set_trans_z(
             self.pointcloud.trans_z - distance * PointCloudManger.TRANSLATION_FACTOR
         )
-
-    def zoom_into(self, distance) -> None:
-        assert self.pointcloud is not None
-        zoom_distance = distance * PointCloudManger.ZOOM_FACTOR
-        self.pointcloud.set_trans_z(self.pointcloud.trans_z + zoom_distance)
 
     def reset_translation(self) -> None:
         assert self.pointcloud is not None
