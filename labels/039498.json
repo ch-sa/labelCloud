@@ -1,0 +1,25 @@
+{
+	"folder": "velodyne_dsor_ply",
+	"filename": "039498_dsor.ply",
+	"path": "/home/yiming/wads/data/11/velodyne_dsor_ply/039498_dsor.ply",
+	"objects": [
+		{
+			"name": "cart",
+			"centroid": {
+				"x": -0.1908196,
+				"y": -0.23602801,
+				"z": 0.08046184
+			},
+			"dimensions": {
+				"length": 0.75,
+				"width": 0.55,
+				"height": 0.15
+			},
+			"rotations": {
+				"x": 0,
+				"y": 0,
+				"z": 235
+			}
+		}
+	]
+}

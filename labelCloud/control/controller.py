@@ -2,10 +2,11 @@ import logging
 from typing import Optional
 
 import numpy as np
+import numpy.random as random
 from PyQt5 import QtGui
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import Qt as Keys
-
+from PyQt5.QtCore import Qt, QPoint
 from ..definitions import BBOX_SIDES, Colors, Context, LabelingMode
 from ..io.labels.config import LabelConfig
 from ..utils import oglhelper
@@ -24,7 +25,7 @@ class Controller:
         """Initializes all controllers and managers."""
         self.view: "GUI"
         self.pcd_manager = PointCloudManger()
-        self.bbox_controller = BoundingBoxController()
+        self.bbox_controller = BoundingBoxController(self)
 
         # Drawing states
         self.drawing_mode = DrawingManager(self.bbox_controller)
@@ -34,11 +35,29 @@ class Controller:
         self.curr_cursor_pos: Optional[QPoint] = None  # updated by mouse movement
         self.last_cursor_pos: Optional[QPoint] = None  # updated by mouse click
         self.ctrl_pressed = False
+        self.alt_pressed = False
         self.scroll_mode = False  # to enable the side-pulling
+
+        # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+        # Added: for group selection, copy, paste, State for new features
+        self.shift_pressed = False
+        self.is_marquee_selecting = False
+        self.marquee_start_pos = None
+        self.bbox_clipboard = [] # To store copied bounding boxes
 
         # Correction states
         self.side_mode = False
         self.selected_side: Optional[str] = None
+
+        # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+        # Added: for camera state / view change
+        self.camera_distance = 10.0  # Initial zoom level
+        self.camera_rotation = [0.0, 0.0]  # X and Z rotations
+        self.camera_translation = [0.0, 0.0, 0.0]
+
+        # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+        # Added: for tracking last saved time camera state / view change
+        self._last_save_time = None  # Track last save time
 
     def startup(self, view: "GUI") -> None:
         """Sets the view in all controllers and dependent modules; Loads labels from file."""
@@ -48,6 +67,11 @@ class Controller:
         self.drawing_mode.set_view(self.view)
         self.align_mode.set_view(self.view)
         self.view.gl_widget.set_bbox_controller(self.bbox_controller)
+
+        print("About to set controller in GLWidget")
+        self.view.gl_widget.set_controller(self)
+        print("Controller set completed")
+
         self.bbox_controller.pcd_manager = self.pcd_manager
 
         # Read labels from folders
@@ -60,7 +84,6 @@ class Controller:
         self.set_selected_side()
         self.view.gl_widget.updateGL()
 
-    # POINT CLOUD METHODS
     def next_pcd(self, save: bool = True) -> None:
         if save:
             self.save()
@@ -68,12 +91,23 @@ class Controller:
             previous_bboxes = self.bbox_controller.bboxes
             self.pcd_manager.get_next_pcd()
             self.reset()
-            self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
-            if not self.bbox_controller.bboxes and config.getboolean(
-                "LABEL", "propagate_labels"
-            ):
+            # Clear selection when changing frames
+            self.bbox_controller.deselect_all_bboxes()  # Add this line
+
+            # Check if propagation is enabled
+            should_propagate = config.getboolean("LABEL", "propagate_labels")
+            
+            # Propagate labels if enabled (regardless of next frame's labels)
+            if should_propagate:
                 self.bbox_controller.set_bboxes(previous_bboxes)
+                # Uncheck the box in the UI and update config
+                self.view.act_propagate_labels.setChecked(False)
+                config.set("LABEL", "propagate_labels", "False")
+            else:
+                # Load existing labels if no propagation
+                self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
+
             self.bbox_controller.set_active_bbox(0)
         else:
             self.view.update_progress(len(self.pcd_manager.pcds))
@@ -84,6 +118,8 @@ class Controller:
         if self.pcd_manager.current_id > 0:
             self.pcd_manager.get_prev_pcd()
             self.reset()
+            # Clear selection when changing frames
+            self.bbox_controller.deselect_all_bboxes()  # Add this line
             self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
             self.bbox_controller.set_active_bbox(0)
 
@@ -91,22 +127,35 @@ class Controller:
         self.save()
         self.pcd_manager.get_custom_pcd(custom)
         self.reset()
+        # Clear selection when changing frames
+        self.bbox_controller.deselect_all_bboxes()  # Add this line
         self.bbox_controller.set_bboxes(self.pcd_manager.get_labels_from_file())
 
-    # CONTROL METHODS
-    def save(self) -> None:
-        """Saves all bounding boxes and optionally segmentation labels in the label file."""
-        self.pcd_manager.save_labels_into_file(self.bbox_controller.bboxes)
-
+    def save(self, force_overwrite=False, backup=True) -> None:
+        """Save and update tracking"""
+        self.pcd_manager.save_labels_into_file(
+            self.bbox_controller.bboxes,
+            force_overwrite=force_overwrite,
+            backup=backup
+        )
+        # Always update saved state when saving (whether backup or overwrite)
+        self.bbox_controller.mark_as_saved()  
+        self._unsaved_changes = False  # Explicitly mark as saved
         if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
             assert self.pcd_manager.pointcloud is not None
             self.pcd_manager.pointcloud.save_segmentation_labels()
+                
+    def has_unsaved_changes(self) -> bool:
+        """Check both boxes and point cloud changes"""
+        return self.bbox_controller.has_unsaved_changes()
 
     def reset(self) -> None:
         """Resets the controllers and bounding boxes from the current screen."""
         self.bbox_controller.reset()
         self.drawing_mode.reset()
         self.align_mode.reset()
+        # Also clear selection
+        self.bbox_controller.deselect_all_bboxes()  # Add this line
 
     # CORRECTION METHODS
     def set_crosshair(self) -> None:
@@ -151,120 +200,177 @@ class Controller:
             self.view.gl_widget.selected_side_vertices = np.array([])
             self.view.status_manager.clear_message(Context.SIDE_HOVERED)
 
-    # EVENT PROCESSING
-    def mouse_clicked(self, a0: QtGui.QMouseEvent) -> None:
-        """Triggers actions when the user clicks the mouse."""
-        self.last_cursor_pos = a0.pos()
+    def mouse_double_clicked(self, a0: QtGui.QMouseEvent) -> None:
+        """Handle double click - select single bbox or deselect all"""
+        # Try to select bbox under cursor first
+        intersected_bbox_id = oglhelper.get_intersected_bboxes(
+            a0.x(),
+            a0.y(),
+            self.bbox_controller.bboxes,
+            self.view.gl_widget.modelview,
+            self.view.gl_widget.projection,
+        )
+        
+        if intersected_bbox_id is not None:
+            # Double-clicked on a bbox - select only this one (clear others)
+            print(f"Double-clicked on bbox {intersected_bbox_id} - clearing other selections")
+            self.bbox_controller.deselect_all_bboxes()
+            self.bbox_controller.set_active_bbox(intersected_bbox_id)
+            self.bbox_controller.selected_bbox_ids.add(intersected_bbox_id)
+        else:
+            # Double-clicked on empty space - deselect everything
+            print("Double-clicked on empty space - deselecting all boxes")
+            self.bbox_controller.deselect_all_bboxes()
+        
+        a0.accept()  # Prevent further processing
 
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Added: for group selection, copy, and paste
+    def mouse_clicked(self, a0: QtGui.QMouseEvent) -> None:
+        """Handle mouse clicks - only consume events we actually handle"""
+        self.last_cursor_pos = a0.pos()
+        
+        # Check for specific marquee selection combination
+        left_click = bool(a0.buttons() & Qt.LeftButton)
+        
+        # ONLY handle Shift + Left click for marquee selection
+        if self.shift_pressed and left_click:
+            self.is_marquee_selecting = True
+            self.marquee_start_pos = a0.pos()
+            self.view.gl_widget.start_marquee(self.marquee_start_pos)
+            a0.accept()  # Consume ONLY this specific combination
+            return
+
+        # Existing functionality - unchanged
         if (
             self.drawing_mode.is_active()
             and (a0.buttons() & Keys.LeftButton)
             and (not self.ctrl_pressed)
         ):
             self.drawing_mode.register_point(a0.x(), a0.y(), correction=True)
+            return  # Skip other handling when in drawing mode
 
         elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_point(
-                self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=False)
-            )
+                self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=False))
+            return  # Skip other handling when in alignment mode
 
         elif self.selected_side:
             self.side_mode = True
-
-    def mouse_double_clicked(self, a0: QtGui.QMouseEvent) -> None:
-        """Triggers actions when the user double clicks the mouse."""
-        self.bbox_controller.select_bbox_by_ray(a0.x(), a0.y())
-
+            return  # Skip other handling when correcting sides
+        
+            
     def mouse_move_event(self, a0: QtGui.QMouseEvent) -> None:
-        """Triggers actions when the user moves the mouse."""
-        self.curr_cursor_pos = a0.pos()  # Updates the current mouse cursor position
+        """Handle mouse movement - including marquee updates"""
+        self.curr_cursor_pos = a0.pos()
+        
+        # Marquee selection update
+        if self.is_marquee_selecting:
+            if self.shift_pressed:
+                self.view.gl_widget.update_marquee(a0.pos())
+            else:
+                self.is_marquee_selecting = False
+                self.view.gl_widget.end_marquee()
+            a0.accept()
+
+        # In your mouse move event handler:
+        try:
+            wx, wy, wz = self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=True)
+            self.pcd_manager.view.status_manager.set_coordinates(wx, wy, wz)
+            
+            # Send camera rotation data
+            rot_x = self.view.gl_widget.camera_rot_x
+            rot_y = self.view.gl_widget.camera_rot_y
+            self.pcd_manager.view.status_manager.set_camera_rotation(rot_x, rot_y)
+        except Exception as e:
+            if self.view.coord_label:
+                self.view.coord_label.setText(f"Cursor: (Invalid)")
+            if hasattr(self.view, 'rotation_label'):
+                self.view.rotation_label.setText(f"Camera: (Invalid)")
 
         # Methods that use absolute cursor position
         if self.drawing_mode.is_active() and (not self.ctrl_pressed):
             self.drawing_mode.register_point(
                 a0.x(), a0.y(), correction=True, is_temporary=True
             )
-
         elif self.align_mode.is_active and (not self.ctrl_pressed):
             self.align_mode.register_tmp_point(
                 self.view.gl_widget.get_world_coords(a0.x(), a0.y(), correction=False)
             )
 
-        if self.last_cursor_pos:
-            dx = (
-                self.last_cursor_pos.x() - a0.x()
-            ) / 5  # Calculate relative movement from last click position
-            dy = (self.last_cursor_pos.y() - a0.y()) / 5
+    def mouse_released(self, a0: QtGui.QMouseEvent) -> None:
+        """Handle mouse release - including marquee finalization"""
+        # Marquee selection finalization
+        if self.is_marquee_selecting and a0.button() == Keys.LeftButton:
+            self.is_marquee_selecting = False
+            marquee_end_pos = a0.pos()
+            self.view.gl_widget.end_marquee()
+            
+            # Perform the actual box selection
+            self.bbox_controller.select_bboxes_in_rectangle(
+                self.marquee_start_pos, marquee_end_pos
+            )
+            a0.accept()
+        elif self.is_marquee_selecting:
+            self.is_marquee_selecting = False
+            self.view.gl_widget.end_marquee()
+            a0.accept()
 
-            if (
-                self.ctrl_pressed
-                and (not self.drawing_mode.is_active())
-                and (not self.align_mode.is_active)
-            ):
-                if a0.buttons() & Keys.LeftButton:  # bbox rotation
-                    self.bbox_controller.rotate_with_mouse(-dx, -dy)
-                elif a0.buttons() & Keys.RightButton:  # bbox translation
-                    new_center = self.view.gl_widget.get_world_coords(
-                        a0.x(), a0.y(), correction=True
-                    )
-                    self.bbox_controller.set_center(*new_center)  # absolute positioning
-            else:
-                if a0.buttons() & Keys.LeftButton:  # pcd rotation
-                    self.pcd_manager.rotate_around_x(dy)
-                    self.pcd_manager.rotate_around_z(dx)
-                elif a0.buttons() & Keys.RightButton:  # pcd translation
-                    self.pcd_manager.translate_along_x(dx)
-                    self.pcd_manager.translate_along_y(dy)
 
-            # Reset scroll locks of "side scrolling" for significant cursor movements
-            if dx > Controller.MOVEMENT_THRESHOLD or dy > Controller.MOVEMENT_THRESHOLD:
-                if self.side_mode:
-                    self.side_mode = False
-                else:
-                    self.scroll_mode = False
-        self.last_cursor_pos = a0.pos()
-
+    # In controller.py
     def mouse_scroll_event(self, a0: QtGui.QWheelEvent) -> None:
-        """Triggers actions when the user scrolls the mouse wheel."""
-        if self.selected_side:
-            self.side_mode = True
-
-        if (
-            self.drawing_mode.is_active()
-            and (not self.ctrl_pressed)
-            and self.drawing_mode.drawing_strategy is not None
-        ):
-            self.drawing_mode.drawing_strategy.register_scrolling(a0.angleDelta().y())
-        elif self.side_mode and self.bbox_controller.has_active_bbox():
-            self.bbox_controller.get_active_bbox().change_side(  # type: ignore
-                self.selected_side, -a0.angleDelta().y() / 4000  # type: ignore
-            )  # ToDo implement method
+        """Handle scroll events with proper filtering"""
+        # Only handle special modes in controller
+        if self.selected_side or self.drawing_mode.is_active():
+            a0.accept()  # Consume the event - don't propagate
         else:
-            self.pcd_manager.zoom_into(a0.angleDelta().y())
-            self.scroll_mode = True
+            # Don't accept - let the event propagate to GLWidget's normal handling
+            a0.ignore()
 
     def key_press_event(self, a0: QtGui.QKeyEvent) -> None:
         """Triggers actions when the user presses a key."""
 
-        # Reset position to intial value
         if a0.key() == Keys.Key_Control:
             self.ctrl_pressed = True
             self.view.status_manager.set_message(
-                "Hold right mouse button to translate or left mouse button to rotate "
-                "the bounding box.",
+                "Ctrl pressed.",
                 context=Context.CONTROL_PRESSED,
             )
-        # Reset point cloud pose to intial rotation and translation
-        elif a0.key() in [Keys.Key_P, Keys.Key_Home]:
+
+        if a0.key() == Keys.Key_Shift:  # Add this
+            self.shift_pressed = True
+            self.view.status_manager.set_message(
+                "Shift pressed.",
+                context=Context.SHIFT_PRESSED,
+            )
+
+        if a0.key() == Keys.Key_Alt:
+            self.alt_pressed = True
+            
+        # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+        # Added: for copy, and paste
+        if self.ctrl_pressed and a0.key() == Keys.Key_C:
+            self.bbox_clipboard = self.bbox_controller.copy_selected_bboxes()
+            logging.info(f"Copied {len(self.bbox_clipboard)} bounding boxes to clipboard.")
+            return
+
+        if self.ctrl_pressed and a0.key() == Keys.Key_V:
+            if not self.bbox_clipboard:
+                logging.warning("Clipboard is empty. Nothing to paste.")
+                return
+            self.bbox_controller.paste_bboxes_from_clipboard(self.bbox_clipboard)
+            logging.info(f"Pasted {len(self.bbox_clipboard)} bounding boxes.")
+            return
+            
+        if a0.key() in [Keys.Key_P, Keys.Key_Home]:
             self.pcd_manager.reset_transformations()
             logging.info("Reseted position to default.")
 
-        elif a0.key() == Keys.Key_Delete:  # Delete active bbox
-            self.bbox_controller.delete_current_bbox()
+        elif a0.key() == Keys.Key_Delete:
+            self.bbox_controller.delete_selected_bboxes() # Changed to handle multiple
 
-        # Save labels to file
         elif a0.key() == Keys.Key_S and self.ctrl_pressed:
-            self.save()
+            self.save(force_overwrite=True)  
 
         elif a0.key() == Keys.Key_Escape:
             if self.drawing_mode.is_active():
@@ -273,86 +379,81 @@ class Controller:
             elif self.align_mode.is_active:
                 self.align_mode.reset()
                 logging.info("Resetted selected points!")
+            else:
+                self.bbox_controller.deselect_all_bboxes() # New function to clear selection
 
-        # BBOX MANIPULATION
+        # BBOX MANIPULATION (Now calls "group" methods)
         elif a0.key() == Keys.Key_Z:
-            # z rotate counterclockwise
-            self.bbox_controller.rotate_around_z()
+            self.bbox_controller.rotate_group_around_z(fine=not self.ctrl_pressed)
         elif a0.key() == Keys.Key_X:
-            # z rotate clockwise
-            self.bbox_controller.rotate_around_z(clockwise=True)
-        elif a0.key() == Keys.Key_C:
-            # y rotate counterclockwise
-            self.bbox_controller.rotate_around_y()
-        elif a0.key() == Keys.Key_V:
-            # y rotate clockwise
-            self.bbox_controller.rotate_around_y(clockwise=True)
-        elif a0.key() == Keys.Key_B:
-            # x rotate counterclockwise
-            self.bbox_controller.rotate_around_x()
-        elif a0.key() == Keys.Key_N:
-            # x rotate clockwise
-            self.bbox_controller.rotate_around_x(clockwise=True)
-        elif a0.key() == Keys.Key_W:
-            # move backward
-            self.bbox_controller.translate_along_y()
-        elif a0.key() == Keys.Key_S:
-            # move forward
-            self.bbox_controller.translate_along_y(forward=True)
-        elif a0.key() == Keys.Key_A:
-            # move left
-            self.bbox_controller.translate_along_x(left=True)
-        elif a0.key() == Keys.Key_D:
-            # move right
-            self.bbox_controller.translate_along_x()
-        elif a0.key() == Keys.Key_Q:
-            # move up
-            self.bbox_controller.translate_along_z()
-        elif a0.key() == Keys.Key_E:
-            # move down
-            self.bbox_controller.translate_along_z(down=True)
+            self.bbox_controller.rotate_group_around_z(fine=not self.ctrl_pressed, clockwise=True)
 
-        # BBOX Scaling
+        elif a0.key() == Keys.Key_D:
+            self.bbox_controller.translate_group_along_y(forward=True)
+        elif a0.key() == Keys.Key_A:
+            self.bbox_controller.translate_group_along_y()
+        elif a0.key() == Keys.Key_W:
+            self.bbox_controller.translate_group_along_x()
+        elif a0.key() == Keys.Key_S:
+            self.bbox_controller.translate_group_along_x(left=True)
+
+        elif a0.key() == Keys.Key_Q:
+            self.bbox_controller.translate_group_along_z()
+        elif a0.key() == Keys.Key_E:
+            self.bbox_controller.translate_group_along_z(down=True)
+
         elif a0.key() == Keys.Key_I:
-            # increase length
-            self.bbox_controller.scale_along_length()
+            self.bbox_controller.scale_group_along_length()
         elif a0.key() == Keys.Key_O:
-            # decrease length
-            self.bbox_controller.scale_along_length(decrease=True)
+            self.bbox_controller.scale_group_along_length(decrease=True)
         elif a0.key() == Keys.Key_K:
-            # increase width
-            self.bbox_controller.scale_along_width()
+            self.bbox_controller.scale_group_along_width()
         elif a0.key() == Keys.Key_L:
-            # decrease width
-            self.bbox_controller.scale_along_width(decrease=True)
+            self.bbox_controller.scale_group_along_width(decrease=True)
         elif a0.key() == Keys.Key_Comma:
-            # increase height
-            self.bbox_controller.scale_along_height()
+            self.bbox_controller.scale_group_along_height()
         elif a0.key() == Keys.Key_Period:
-            # decrease height
-            self.bbox_controller.scale_along_height(decrease=True)
+            self.bbox_controller.scale_group_along_height(decrease=True)
 
         elif a0.key() in [Keys.Key_R, Keys.Key_Left]:
-            # load previous sample
             self.prev_pcd()
         elif a0.key() in [Keys.Key_F, Keys.Key_Right]:
-            # load next sample
             self.next_pcd()
         elif a0.key() in [Keys.Key_T, Keys.Key_Up]:
-            # select previous bbox
             self.select_relative_bbox(-1)
         elif a0.key() in [Keys.Key_G, Keys.Key_Down]:
-            # select previous bbox
             self.select_relative_bbox(1)
         elif a0.key() == Keys.Key_Y:
-            # change bbox class to previous available class
             self.select_relative_class(-1)
         elif a0.key() == Keys.Key_H:
-            # change bbox class to next available class
             self.select_relative_class(1)
         elif a0.key() in list(range(49, 58)):
-            # select bboxes with 1-9 digit keys
             self.bbox_controller.set_active_bbox(int(a0.key()) - 49)
+
+        elif a0.key() == Keys.Key_V:
+            self.pcd_manager.view.gl_widget.cycle_view_mode()
+
+        elif a0.key() == Keys.Key_U:
+            self.bbox_controller.rotate_group_180_degrees() # Changed to handle group
+
+    def key_release_event(self, a0: QtGui.QKeyEvent) -> None:
+        """Triggers actions when the user releases a key."""
+        if a0.key() == Keys.Key_Control:
+            self.ctrl_pressed = False
+            self.view.status_manager.clear_message(context=Context.CONTROL_PRESSED)
+
+        if a0.key() == Keys.Key_Shift:  # Add this
+            self.shift_pressed = False
+            self.view.status_manager.clear_message(context=Context.SHIFT_PRESSED)
+
+            # CANCEL MARQUEE IMMEDIATELY when Shift is released
+            if self.is_marquee_selecting:
+                print("Shift released - immediately cancelling marquee")
+                self.is_marquee_selecting = False
+                self.view.gl_widget.end_marquee()
+
+        if a0.key() == Keys.Key_Alt:
+            self.alt_pressed = False
 
     def select_relative_class(self, step: int):
         if step == 0:
@@ -372,11 +473,6 @@ class Controller:
         new_id = new_id if new_id in range(max_id + 1) else corner_case_id
         self.bbox_controller.set_active_bbox(new_id)
 
-    def key_release_event(self, a0: QtGui.QKeyEvent) -> None:
-        """Triggers actions when the user releases a key."""
-        if a0.key() == Keys.Key_Control:
-            self.ctrl_pressed = False
-            self.view.status_manager.clear_message(Context.CONTROL_PRESSED)
 
     def crop_pointcloud_inside_active_bbox(self) -> None:
         bbox = self.bbox_controller.get_active_bbox()

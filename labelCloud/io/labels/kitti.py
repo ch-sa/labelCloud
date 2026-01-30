@@ -137,7 +137,13 @@ class KittiFormat(BaseLabelFormat):
             logging.info("Imported %s labels from %s." % (len(label_lines), label_path))
         return bboxes
 
-    def export_labels(self, bboxes: List[BBox], pcd_path: Path) -> None:
+    def export_labels(
+        self,
+        bboxes: List[BBox],
+        pcd_path: Path,
+        force_overwrite: bool = False,
+        backup: bool = True
+    ) -> None:
         data = str()
 
         # Labels
@@ -184,7 +190,12 @@ class KittiFormat(BaseLabelFormat):
             data += " ".join(out_str) + "\n"
 
         # Save to TXT
-        path_to_file = self.save_label_to_file(pcd_path, data)
+        path_to_file = self.save_label_to_file(
+            pcd_path,
+            data,
+            force_overwrite=force_overwrite,
+            backup=backup
+        )
         logging.info(
             f"Exported {len(bboxes)} labels to {path_to_file} "
             f"in {self.__class__.__name__} formatting!"
@@ -198,7 +209,8 @@ class KittiFormat(BaseLabelFormat):
 
     def _get_transforms(self, pcd_path: Path) -> None:
         if self.T_v2c is None or self.T_c2v is None:
-            calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
+            #calib_path = self.calib_folder.joinpath(pcd_path.stem + self.FILE_ENDING)
+            calib_path = self.calib_folder.joinpath(pcd_path.stem + "calib.txt")
 
             if not calib_path.is_file():
                 logging.exception(

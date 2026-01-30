@@ -143,7 +143,7 @@ class GUI(QtWidgets.QMainWindow):
         self.act_set_label_folder: QtWidgets.QAction
 
         # Labels
-        self.act_delete_all_labels: QtWidgets.QAction
+        # self.act_delete_all_labels: QtWidgets.QAction
         self.act_set_default_class: QtWidgets.QMenu
         self.actiongroup_default_class = QActionGroup(self.act_set_default_class)
         self.act_propagate_labels: QtWidgets.QAction
@@ -385,9 +385,9 @@ class GUI(QtWidgets.QMainWindow):
         self.actiongroup_default_class.triggered.connect(
             self.change_default_object_class
         )
-        self.act_delete_all_labels.triggered.connect(
-            self.controller.bbox_controller.reset
-        )
+        #self.act_delete_all_labels.triggered.connect(
+        #    self.controller.bbox_controller.reset
+        #)
         self.act_propagate_labels.toggled.connect(set_propagate_labels)
         self.act_z_rotation_only.toggled.connect(set_zrotation_only)
         self.act_color_with_label.toggled.connect(set_color_with_label)
@@ -451,11 +451,81 @@ class GUI(QtWidgets.QMainWindow):
             self.update_bbox_stats(self.controller.bbox_controller.get_active_bbox())
         return False
 
-    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        logging.info("Closing window after saving ...")
-        self.controller.save()
-        self.timer.stop()
-        a0.accept()
+    # def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+    #     logging.info("Closing window after saving ...")
+    #     self.controller.save()
+    #     self.timer.stop()
+    #     a0.accept()
+
+    # Yiming added
+    # def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+    #     try:
+    #         # Check for unsaved changes (using the new method)
+    #         if hasattr(self.controller, 'has_unsaved_changes') and self.controller.has_unsaved_changes():
+    #             reply = QtWidgets.QMessageBox.question(
+    #                 self,
+    #                 "Unsaved Changes",
+    #                 "Save changes before closing?",
+    #                 QtWidgets.QMessageBox.StandardButton.Save | 
+    #                 QtWidgets.QMessageBox.StandardButton.Discard |
+    #                 QtWidgets.QMessageBox.StandardButton.Cancel,
+    #                 QtWidgets.QMessageBox.StandardButton.Save
+    #             )
+                
+    #             if reply == QtWidgets.QMessageBox.StandardButton.Save:
+    #                 self.controller.save(force_overwrite=True)  # Save to original
+    #             elif reply == QtWidgets.QMessageBox.StandardButton.Discard:
+    #                 self.controller.save(force_overwrite=False, backup=True)  # Save backup only
+    #             elif reply == QtWidgets.QMessageBox.StandardButton.Cancel:
+    #                 a0.ignore()  # Cancel closing
+    #                 return
+    #         else:
+    #             # No unsaved changes, just create backup silently
+    #             self.controller.save(force_overwrite=False, backup=True)
+                
+    #         # Proceed with close
+    #         self.timer.stop()
+    #         a0.accept()
+            
+    #     except Exception as e:
+    #         logging.error(f"Error during close: {str(e)}")
+    #         a0.ignore()  # Prevent close if something went wrong
+
+
+    def closeEvent(self, event):
+        if self.controller.has_unsaved_changes():
+            reply = QtWidgets.QMessageBox.question(
+                self, "Unsaved Changes", "Save changes?",
+                QtWidgets.QMessageBox.Save |
+                QtWidgets.QMessageBox.Discard |
+                QtWidgets.QMessageBox.Cancel
+            )
+            
+            if reply == QtWidgets.QMessageBox.Save:
+                self.controller.save(force_overwrite=True)
+            elif reply == QtWidgets.QMessageBox.Cancel:
+                event.ignore()
+                return
+        else:
+            self.controller.save(force_overwrite=False, backup=True)
+        
+        # Always create backup
+        self.controller.save(force_overwrite=False, backup=True)
+        event.accept()
+
+    def show_save_prompt(self) -> QtWidgets.QMessageBox.StandardButton:
+        msg = QtWidgets.QMessageBox(self)
+        msg.setIcon(QtWidgets.QMessageBox.Question)
+        msg.setWindowTitle("Unsaved Changes")
+        msg.setText("Save changes before closing?")
+        msg.setStandardButtons(
+            QtWidgets.QMessageBox.Save |
+            QtWidgets.QMessageBox.Discard |
+            QtWidgets.QMessageBox.Cancel
+        )
+        msg.setDefaultButton(QtWidgets.QMessageBox.Save)
+        print("DEBUG - Showing save dialog")  # Temporary debug
+        return msg.exec_()
 
     def show_settings_dialog(self) -> None:
         dialog = SettingsDialog(self)
@@ -531,7 +601,6 @@ class GUI(QtWidgets.QMainWindow):
             self.edit_pos_x.setText(str(round(bbox.get_center()[0], viewing_precision)))
             self.edit_pos_y.setText(str(round(bbox.get_center()[1], viewing_precision)))
             self.edit_pos_z.setText(str(round(bbox.get_center()[2], viewing_precision)))
-
             self.edit_length.setText(
                 str(round(bbox.get_dimensions()[0], viewing_precision))
             )
@@ -541,12 +610,11 @@ class GUI(QtWidgets.QMainWindow):
             self.edit_height.setText(
                 str(round(bbox.get_dimensions()[2], viewing_precision))
             )
-
             self.edit_rot_x.setText(str(round(bbox.get_x_rotation(), 1)))
             self.edit_rot_y.setText(str(round(bbox.get_y_rotation(), 1)))
             self.edit_rot_z.setText(str(round(bbox.get_z_rotation(), 1)))
-
             self.label_volume.setText(str(round(bbox.get_volume(), viewing_precision)))
+
 
     def update_bbox_parameter(self, parameter: str) -> None:
         str_value = None

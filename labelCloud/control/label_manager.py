@@ -70,5 +70,18 @@ class LabelManager(object):
             )
             return []
 
-    def export_labels(self, pcd_path: Path, bboxes: List[BBox]) -> None:
-        self.label_strategy.export_labels(bboxes, pcd_path)
+    # Modified by Yiming Yang (Michigan Tech) for labelCloud-Enhanced
+    # Changed: for exporting labels
+    def export_labels(
+        self, 
+        pcd_path: Path, 
+        bboxes: List[BBox], 
+        force_overwrite: bool = False, 
+        backup: bool = True
+    ) -> None:
+        self.label_strategy.export_labels(
+            bboxes, 
+            pcd_path, 
+            force_overwrite=force_overwrite, 
+            backup=backup
+        )

@@ -6,21 +6,26 @@
             "color": "#9da2ab"
         },
         {
-            "name": "cart",
+            "name": "car",
             "id": 1,
-            "color": "#f156ff"
+            "color": "#ff0000"
         },
         {
-            "name": "box",
+            "name": "pedestrian",
             "id": 2,
-            "color": "#f57900"
+            "color": "#00ff7f"
+        },
+        {
+            "name": "cyclist",
+            "id": 3,
+            "color": "#0000ff"
         }
     ],
-    "default": 0,
+    "default": 1,
     "type": "object_detection",
-    "format": "centroid_abs",
+    "format": "kitti_untransformed",
     "created_with": {
         "name": "labelCloud",
-        "version": "1.0.1"
+        "version": "1.1.1"
     }
 }

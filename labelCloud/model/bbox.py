@@ -21,7 +21,8 @@ from ..utils import math3d, oglhelper
 
 class BBox(object):
     MIN_DIMENSION: float = config.getfloat("LABEL", "MIN_BOUNDINGBOX_DIMENSION")
-    HIGHLIGHTED_COLOR: Color3f = Color3f(0, 1, 0)
+    HIGHLIGHTED_COLOR: Color3f = Color3f(0, 1, 0) # green
+    SELETCED_COLOR: Color3f = Color3f(0, 0, 1) # green
 
     def __init__(
         self,
@@ -158,13 +159,16 @@ class BBox(object):
         )
 
     # Draw the BBox using verticies
-    def draw_bbox(self, highlighted: bool = False) -> None:
+    def draw_bbox(self, highlighted: bool = False, selected: bool = False) -> None:
         self.set_axis_aligned_verticies()
 
         GL.glPushMatrix()
         bbox_color = LabelConfig().get_class_color(self.classname)
+        
         if highlighted:
-            bbox_color = self.HIGHLIGHTED_COLOR
+            bbox_color = self.HIGHLIGHTED_COLOR  # Red for active bbox
+        elif selected:
+            bbox_color = self.SELETCED_COLOR  # Green for selected bboxes
 
         vertices = self.get_vertices()
         drawing_sequence = []

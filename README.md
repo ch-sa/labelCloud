@@ -1,3 +1,24 @@
+# labelCloud-Enhanced 🚀
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+This is an enhanced version of the original **labelCloud** tool, optimized for 3D object detection labeling.
+
+### 🎯 AI-Assisted Pre-Labeling
+![Import AI Labels](assets/labelCloud_enhanced_import_AI_labels.gif)
+*Integrate pre-generated labels from AI models (e.g. openpcdet, mmdetection3d) to drastically reduce manual annotation time.*
+
+## Enhanced Annotation Features
+
+| Feature | Demonstration |
+| :--- | :--- |
+| **Multi-Object Workflow** | ![Select Multiple](assets/labelCloud_enhanced_select_multiple_objects.gif) <br> *Select, edit, and manage multiple bounding boxes simultaneously.* |
+| **Spatial Copy-Paste** | ![Copy Paste](assets/labelCloud_enhanced_copy_paste_multiple_objects.gif) <br> *Efficiently duplicate objects across frames with maintained spatial logic.* |
+| **User-Friendly Camera** | ![Camera Control](assets/labelCloud_enhanced_more_user_friendly_camera_switching_locking.gif) <br> *Responsive viewport locking and intuitive switching between perspectives.* |
+| **Precision Orientation** | ![180 Degree Flip](assets/labelCloud_enhanced_change_orientation_by_180.gif) <br> *One-press 180° orientation flipping for rapid correction.* |
+| **Streamlined Creation** | ![Add Box](assets/labelCloud_enhanced_add_bounding_box.gif) <br> *Redesigned bounding box instantiation for faster workflows.* |
+
+
 <p align="center">
     <img src="https://img.shields.io/badge/contributions-welcome!-green" alt="Contributions welcome!"/>
     <img src="https://img.shields.io/github/last-commit/ch-sa/labelCloud?color=blue">
