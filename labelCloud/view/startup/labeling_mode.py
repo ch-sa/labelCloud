@@ -40,7 +40,7 @@ class SelectLabelingMode(QWidget):
 
     def _add_object_detection_button(self, parent: QHBoxLayout) -> None:
         self.button_object_detection = QPushButton(
-            text=LabelingMode.OBJECT_DETECTION.title().replace("_", " ")
+            LabelingMode.OBJECT_DETECTION.title().replace("_", " ")
         )
         self.button_object_detection.setCheckable(True)
         self.button_object_detection.setToolTip(
@@ -51,7 +51,7 @@ class SelectLabelingMode(QWidget):
 
     def _add_semantic_segmentation_button(self, parent: QHBoxLayout) -> None:
         self.button_semantic_segmentation = QPushButton(
-            text=LabelingMode.SEMANTIC_SEGMENTATION.title().replace("_", " ")
+            LabelingMode.SEMANTIC_SEGMENTATION.title().replace("_", " ")
         )
         self.button_semantic_segmentation.setCheckable(True)
         self.button_semantic_segmentation.setToolTip(

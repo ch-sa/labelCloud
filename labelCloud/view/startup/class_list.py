@@ -91,7 +91,7 @@ class ClassList(QWidget):
         row_label.addWidget(label_color)
 
         label_delete = QPushButton(
-            icon=QIcon(
+            QIcon(
                 QPixmap(
                     str(
                         importlib_resources.files(
@@ -100,7 +100,7 @@ class ClassList(QWidget):
                     )
                 )
             ),
-            text="",
+            "",
         )
         self.delete_buttons.addButton(label_delete)
         row_label.addWidget(label_delete)

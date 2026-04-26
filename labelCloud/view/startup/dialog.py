@@ -148,7 +148,7 @@ class StartupDialog(QDialog):
 
         parent_layout.addWidget(scroll_area)
 
-        button_add_label = QPushButton(text="Add new label")
+        button_add_label = QPushButton("Add new label")
         button_add_label.clicked.connect(lambda: self.label_list.add_label())
         parent_layout.addWidget(button_add_label)
 
