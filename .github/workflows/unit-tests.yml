@@ -31,7 +31,7 @@ jobs:
         python -m pip install -r requirements.txt
 
     - name: Check black formatting
-      run: black --check .
+      run: python -m black --check .
 
     - name: Lint with mypy
       if: ${{ matrix.python-version == '3.9' }}  # only lint last Python version

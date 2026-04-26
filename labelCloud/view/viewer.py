@@ -104,7 +104,9 @@ class GLWidget(QOpenGLWidget):
         self.projection = GL.glGetDoublev(GL.GL_PROJECTION_MATRIX)
         self.viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
 
-        with ignore_depth_mask():  # Do not write decoration and preview elements in depth buffer
+        with (
+            ignore_depth_mask()
+        ):  # Do not write decoration and preview elements in depth buffer
             if config.getboolean("USER_INTERFACE", "show_floor"):
                 oglhelper.draw_xy_plane(self.pcd_manager.pointcloud)  # type: ignore
 

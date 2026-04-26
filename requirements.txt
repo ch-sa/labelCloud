@@ -11,6 +11,6 @@ pytest~=8.4.2
 pytest-qt~=4.5.0
 
 # Development
-black>=25.11.0
+black==25.11.0
 mypy~=1.19.1
 types-setuptools~=81.0.0
