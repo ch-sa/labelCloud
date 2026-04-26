@@ -15,7 +15,6 @@ from ..definitions import (
     Point3D,
     Rotations3D,
 )
-from ..io.labels.config import LabelConfig
 from ..utils import math3d, oglhelper
 
 
@@ -43,6 +42,9 @@ class BBox(object):
         self.x_rotation: float = 0
         self.y_rotation: float = 0
         self.z_rotation: float = 0
+
+        from ..io.labels.config import LabelConfig
+
         self.classname: str = LabelConfig().get_default_class_name()
         self.verticies: npt.NDArray = np.zeros((8, 3))
         self.set_axis_aligned_verticies()
@@ -161,6 +163,8 @@ class BBox(object):
     # Draw the BBox using verticies
     def draw_bbox(self, highlighted: bool = False) -> None:
         self.set_axis_aligned_verticies()
+
+        from ..io.labels.config import LabelConfig
 
         GL.glPushMatrix()
         bbox_color = LabelConfig().get_class_color(self.classname)

@@ -7,7 +7,7 @@ import numpy as np
 
 from . import BaseLabelFormat
 from ...definitions import Point3D
-from ...model import BBox
+from ...model.bbox import BBox
 from ...utils import math3d
 
 

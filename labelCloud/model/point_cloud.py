@@ -13,7 +13,6 @@ from labelCloud.io.labels.config import LabelConfig
 from ..control.config_manager import config
 from ..definitions import LabelingMode, Point3D, Rotations3D, Translation3D
 from ..io.pointclouds import BasePointCloudHandler
-from ..io.segmentations import BaseSegmentationHandler
 from ..utils.color import colorize_points_with_height
 from ..utils.logger import end_section, green, print_column, red, start_section, yellow
 from . import Perspective
@@ -136,6 +135,8 @@ class PointCloud(object):
             return self.colors
 
     def save_segmentation_labels(self, extension=".bin") -> None:
+        from ..io.segmentations import BaseSegmentationHandler
+
         label_path = (
             config.getpath("FILE", "segmentation_folder")
             / f"{self.path.stem}{extension}"
@@ -166,6 +167,8 @@ class PointCloud(object):
 
         labels = None
         if LabelConfig().type == LabelingMode.SEMANTIC_SEGMENTATION:
+            from ..io.segmentations import BaseSegmentationHandler
+
             label_path = (
                 config.getpath("FILE", "segmentation_folder") / f"{path.stem}.bin"
             )

@@ -14,7 +14,7 @@ import numpy as np
 import numpy.typing as npt
 
 from ...control.config_manager import config
-from ...model import BBox
+from ...model.bbox import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
 

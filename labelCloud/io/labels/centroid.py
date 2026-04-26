@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
-from ...model import BBox
+from ...model.bbox import BBox
 from . import BaseLabelFormat, abs2rel_rotation, rel2abs_rotation
 
 
