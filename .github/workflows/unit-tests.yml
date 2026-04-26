@@ -8,14 +8,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]  # macos-latest has OpenGL import error
-        python-version: ["3.9"]  # "3.10" wait for Open3D support
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
     - name: Get repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
