@@ -15,7 +15,7 @@ A lightweight tool for labeling 3D bounding boxes in point clouds.
 ![Overview of the Labeling Tool](https://raw.githubusercontent.com/ch-sa/labelCloud/master/docs/assets/io_overview.png)
 
 ## Setup
-:information_source: *Currently labelCloud supports Python 3.9+.*
+:information_source: *Currently labelCloud supports Python 3.9 - 3.12.*
 
 ### via pip (PyPI)
 ```bash
