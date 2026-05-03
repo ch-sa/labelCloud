@@ -146,6 +146,15 @@ class KittiFormat(BaseLabelFormat):
             centroid = bbox.get_center()
             length, width, height = bbox.get_dimensions()
 
+            x_rot, y_rot, z_rot = bbox.get_rotations()
+            if abs(x_rot) > 1e-6 or abs(y_rot) > 1e-6:
+                logging.warning(
+                    f"KITTI format only supports Z-axis rotation. "
+                    f"BBox '{obj_type}' has X/Y rotation ({x_rot:.1f}°, {y_rot:.1f}°) "
+                    f"which will be lost when saving to KITTI format. "
+                    f"Consider using 'centroid' or 'vertices' format instead."
+                )
+
             # invert sequence to height, width, length
             dimensions = height, width, length
 
