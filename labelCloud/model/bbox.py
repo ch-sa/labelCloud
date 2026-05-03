@@ -132,9 +132,9 @@ class BBox(object):
         self.z_rotation = angle % 360
 
     def set_rotations(self, x_angle: float, y_angle: float, z_angle: float):
-        self.x_rotation = x_angle
-        self.y_rotation = y_angle
-        self.z_rotation = z_angle
+        self.x_rotation = x_angle % 360
+        self.y_rotation = y_angle % 360
+        self.z_rotation = z_angle % 360
 
     def set_x_translation(self, x_translation: float) -> None:
         self.center = (x_translation, *self.center[1:])
